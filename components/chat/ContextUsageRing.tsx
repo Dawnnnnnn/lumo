@@ -7,7 +7,7 @@ import {
 } from '@radix-ui/react-tooltip';
 import type { ContextUsage } from '@/lib/context-usage';
 import { cn } from '@/lib/utils';
-import { ContextUsagePanel, UNKNOWN_GLYPH } from '@/components/chat/ContextUsagePanel';
+import { ContextUsagePanel } from '@/components/chat/ContextUsagePanel';
 
 const SIZE = 18;
 const STROKE = 2.5;
@@ -32,10 +32,12 @@ interface ContextUsageRingProps {
  * line of explanatory text. Color is the only escalation: muted under 70%,
  * warning past 70%, destructive past 90%.
  *
- * When no provider usage has anchored the number, the gauge renders `?` instead
- * of an arc. A chars-per-token guess is useful for planning but must never be
- * mistaken for a measurement — an estimated value that saturates the arc reads
- * as "out of context" while the real prompt may be a fraction of the window.
+ * When no provider usage has anchored the number, the gauge draws only its
+ * track: an empty ring. The arc has one meaning — measured progress — so it is
+ * either drawn or absent, never replaced by a glyph. A chars-per-token guess is
+ * useful for planning but must never be mistaken for a measurement, and a ring
+ * that saturates on an estimate reads as "out of context" while the real prompt
+ * may be a fraction of the window. The tooltip owns the "not measured" wording.
  */
 export function ContextUsageRing({ usage, pendingTokens = 0 }: ContextUsageRingProps) {
   const { t } = useTranslation();
@@ -97,14 +99,6 @@ export function ContextUsageRing({ usage, pendingTokens = 0 }: ContextUsageRingP
                   />
                 )}
               </svg>
-              {estimated && (
-                <span
-                  className="pointer-events-none absolute font-mono text-[0.5625rem] leading-none"
-                  aria-hidden="true"
-                >
-                  {UNKNOWN_GLYPH}
-                </span>
-              )}
             </span>
           </button>
         </TooltipTrigger>

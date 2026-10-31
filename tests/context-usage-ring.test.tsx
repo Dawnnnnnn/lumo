@@ -35,14 +35,15 @@ describe('ContextUsageRing', () => {
     expect(button.textContent).not.toContain('?');
   });
 
-  it('renders `?` instead of a percentage when the number is only an estimate', () => {
+  it('renders an empty gauge, not a glyph, when the number is only an estimate', () => {
     const { container } = render(
       <ContextUsageRing usage={usage({ estimated: true, percent: 100, tokens: 1_000_000 })} />,
     );
     expect(screen.getByRole('button').getAttribute('aria-label')).toBe(
       'sidebar.contextUsage|',
     );
-    expect(container.textContent).toContain('?');
+    // The arc is either drawn or absent; "?" belongs to the tooltip only.
+    expect(container.textContent).toBe('');
   });
 
   it('never escalates a purely estimated number to the destructive tone', () => {
@@ -62,6 +63,14 @@ describe('ContextUsageRing', () => {
 });
 
 describe('ContextUsagePanel', () => {
+  it('keeps the unknown glyph inside the tooltip', () => {
+    // The ring itself shows nothing when unmeasured, so this is the only place
+    // the "not measured" state is explained.
+    const { container } = render(
+      <ContextUsagePanel usage={usage({ estimated: true })} pendingTokens={0} />,
+    );
+    expect(container.textContent).toContain('?');
+  });
   it('shows em dashes instead of zeroes while the size is unknown', () => {
     const { container } = render(
       <ContextUsagePanel usage={usage({ estimated: true })} pendingTokens={1234} />,
