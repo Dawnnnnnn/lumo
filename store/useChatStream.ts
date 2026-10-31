@@ -134,6 +134,15 @@ export function useChatStream(options?: UseChatStreamOptions): UseChatStreamRetu
   const resumeStateRef = useRef<ResumeState | null>(null);
   /** Turn identity across manual retries. */
   const turnRef = useRef<AssistantTurn | null>(null);
+  /**
+   * Set when the user stops *before* a runner exists.
+   *
+   * `handleSend` enters the streaming phase first and only then persists the user
+   * turn, so the composer offers Stop while there is nothing to abort yet. Without
+   * this flag that click would reset the UI and the send would still go on to
+   * start a request nobody can see or cancel.
+   */
+  const stopRequestedRef = useRef(false);
   /** Manual `/compact` request, cancelled with the conversation change. */
   const compactionAbortRef = useRef<AbortController | null>(null);
 
@@ -143,6 +152,8 @@ export function useChatStream(options?: UseChatStreamOptions): UseChatStreamRetu
    */
   const startTurn = useCallback(
     async (input: TurnRunnerInput) => {
+      // A stop during the pre-flight save must not resurrect the turn.
+      if (stopRequestedRef.current) return;
       activeRunnerRef.current?.abort();
       const runner = new TurnRunner(input, {
         dispatch,
@@ -183,6 +194,7 @@ export function useChatStream(options?: UseChatStreamOptions): UseChatStreamRetu
     turnRef.current = null;
     compactionAbortRef.current?.abort();
     compactionAbortRef.current = null;
+    stopRequestedRef.current = false;
     dispatch({ type: 'reset' });
   }, []);
 
@@ -318,6 +330,7 @@ export function useChatStream(options?: UseChatStreamOptions): UseChatStreamRetu
       };
 
       dispatch({ type: 'turn/start' });
+      stopRequestedRef.current = false;
       clearCompactionNotice();
       // A new turn invalidates any snapshot left by the previous one.
       resumeStateRef.current = null;
@@ -387,6 +400,7 @@ export function useChatStream(options?: UseChatStreamOptions): UseChatStreamRetu
 
       const resume = resumeStateRef.current;
       dispatch({ type: 'turn/resume', resume: Boolean(resume) });
+      stopRequestedRef.current = false;
       // Resuming keeps the already-streamed steps on screen; the runner re-seeds
       // them and appends the remaining steps. Only a full restart clears the
       // transcript, and only then is a new identity warranted.
@@ -492,6 +506,9 @@ export function useChatStream(options?: UseChatStreamOptions): UseChatStreamRetu
   );
 
   const handleStop = useCallback(() => {
+    // Remember the intent for the window between the first dispatch and the
+    // runner's creation, where there is no runner to abort yet.
+    stopRequestedRef.current = true;
     // Dispatch before aborting: the abort path may settle the turn synchronously,
     // and `turn/settled` must win over `turn/stopped` regardless of ordering.
     dispatch({ type: 'turn/stopped' });
@@ -580,6 +597,7 @@ export function useChatStream(options?: UseChatStreamOptions): UseChatStreamRetu
 
       // Reset streaming state and fire the request.
       dispatch({ type: 'turn/start' });
+      stopRequestedRef.current = false;
       resumeStateRef.current = null;
       turnRef.current = null;
 

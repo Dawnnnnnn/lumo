@@ -28,12 +28,24 @@ function streamingState(overrides: Partial<StreamState> = {}): StreamState {
 }
 
 describe('streamReducer', () => {
-  it('starts a fresh turn with nothing carried over', () => {
+  it('starts a fresh turn with nothing carried over, already streaming', () => {
     const state = streamReducer(
       { ...streamingState(), isCompacting: true, error: { message: 'x', category: 'server' } },
       { type: 'turn/start' },
     );
-    expect(state).toEqual(initialStreamState);
+    // Sending enters the streaming phase immediately: Stop is available and the
+    // list shows its "thinking" row before the first token arrives.
+    expect(state).toEqual({ ...initialStreamState, isStreaming: true });
+  });
+
+  it('leaves the streaming phase when the turn settles', () => {
+    const started = streamReducer(initialStreamState, { type: 'turn/start' });
+    const settled = streamReducer(
+      { ...started, turn: TURN, parts: TEXT },
+      { type: 'turn/settled' },
+    );
+    expect(settled.isStreaming).toBe(false);
+    expect(settled).toEqual(initialStreamState);
   });
 
   it('resumes with the streamed parts and turn identity intact', () => {

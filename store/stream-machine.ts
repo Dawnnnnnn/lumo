@@ -46,7 +46,12 @@ export const initialStreamState: StreamState = {
 };
 
 export type StreamAction =
-  /** A fresh turn: clear everything from the previous one. */
+  /**
+   * A fresh turn: clear everything from the previous one *and* enter the
+   * streaming phase. Sending is what starts the phase — the composer must show
+   * Stop and the list its "thinking" row from this dispatch, not from the first
+   * token (a request that never returns still has to be cancellable).
+   */
   | { type: 'turn/start' }
   /**
    * A retry of the current turn. `resume` keeps the already-streamed parts and
@@ -85,7 +90,7 @@ export type StreamAction =
 export function streamReducer(state: StreamState, action: StreamAction): StreamState {
   switch (action.type) {
     case 'turn/start':
-      return { ...initialStreamState };
+      return { ...initialStreamState, isStreaming: true };
     case 'turn/resume':
       return {
         ...state,
