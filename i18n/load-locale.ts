@@ -8,7 +8,10 @@
  * active language costs a single local file read and the rest are never fetched.
  *
  * English is the exception: it is the fallback bundle i18next resolves missing
- * keys against, so it is imported statically and kept out of the glob.
+ * keys against, so it is imported statically — and explicitly excluded from the
+ * glob below. Without the exclusion the same module would be both statically
+ * inlined and dynamically imported, and Rollup would warn that it cannot move
+ * `en.json` into its own chunk.
  */
 
 import en from './locales/en.json';
@@ -17,7 +20,10 @@ import { DEFAULT_LOCALE } from './locales';
 /** Shape of a translation bundle. `en.json` is the canonical schema. */
 export type LocaleBundle = typeof en;
 
-const loaders = import.meta.glob<{ default: LocaleBundle }>('./locales/*.json');
+const loaders = import.meta.glob<{ default: LocaleBundle }>([
+  './locales/*.json',
+  '!./locales/en.json',
+]);
 
 const cache = new Map<string, LocaleBundle>([[DEFAULT_LOCALE, en as LocaleBundle]]);
 
