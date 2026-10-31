@@ -1,4 +1,5 @@
 import { createMCPClient, type MCPClient } from '@ai-sdk/mcp';
+import { stripSseNotifications } from './transports/sse-notification-filter';
 import type {
   IMcpServer,
   McpServerInfo,
@@ -74,7 +75,13 @@ export class ExternalMcpServer implements IMcpServer {
           // globalThis.fetch loses its binding context when assigned to a variable,
           // causing "Illegal invocation" in browser environments. We wrap it to
           // preserve the correct `this` context.
-          fetch: (input, init) => globalThis.fetch(input, init),
+          //
+          // The response is filtered because @ai-sdk/mcp rejects every server →
+          // client notification with "Unsupported message type", although MCP
+          // servers may push logging / list_changed / progress events on the
+          // same SSE stream as a response.
+          fetch: async (input, init) =>
+            stripSseNotifications(await globalThis.fetch(input, init)),
         },
         clientName: `lumo-extension-${this.config.id}`,
         onUncaughtError: (err) => {
@@ -95,8 +102,11 @@ export class ExternalMcpServer implements IMcpServer {
       // Get AI SDK compatible tools
       this.aiTools = await this.client.tools();
 
-      this.setStatus('connected');
+      // Clear the error before announcing the state: the registry snapshots
+      // status and error together, so a stale error would otherwise be shown
+      // next to the "connected" badge.
       this.error = undefined;
+      this.setStatus('connected');
     } catch (err) {
       this.error = err instanceof Error ? err.message : String(err);
       this.toolDefinitions = [];
