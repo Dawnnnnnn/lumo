@@ -24,10 +24,10 @@
     "@vitejs/plugin-react": "^5.0.4"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^4.0.27",
-    "@ai-sdk/mcp": "^2.0.22",
-    "@ai-sdk/open-responses": "^2.0.36",
-    "@ai-sdk/openai": "^4.0.27",
+    "@ai-sdk/anthropic": "^4.0.94",
+    "@ai-sdk/mcp": "^2.0.88",
+    "@ai-sdk/open-responses": "^2.0.77",
+    "@ai-sdk/openai": "^4.0.106",
     "@codemirror/autocomplete": "^6.20.3",
     "@codemirror/commands": "^6.10.4",
     "@codemirror/lang-css": "^6.3.1",
@@ -63,7 +63,7 @@
     "@tailwindcss/vite": "^4.3.3",
     "@uiw/codemirror-theme-github": "^4.25.11",
     "@uiw/codemirror-theme-vscode": "^4.25.11",
-    "ai": "^7.0.47",
+    "ai": "^7.0.159",
     "autoprefixer": "^10.5.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

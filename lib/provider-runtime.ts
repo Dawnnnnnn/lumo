@@ -12,7 +12,7 @@ import { createOpenResponses } from '@ai-sdk/open-responses';
 import { createOpenAI } from '@ai-sdk/openai';
 import { createAnthropic } from '@ai-sdk/anthropic';
 import type { LanguageModel, ProviderMetadata } from 'ai';
-import type { ModelConfig, ProviderConfig, ProviderType } from '@/types';
+import type { ModelConfig, ProviderConfig } from '@/types';
 import {
   isOpenCodeVendor,
   normalizeProviderType,
@@ -20,9 +20,7 @@ import {
 } from '@/lib/provider-type';
 import { openCodeHeaders } from '@/lib/opencode';
 import {
-  isUnifiedEffort,
   resolveReasoningEffort,
-  type ReasoningEffort,
   type UnifiedReasoningEffort,
 } from '@/lib/reasoning-effort';
 
@@ -43,38 +41,13 @@ export interface ResolvedModel {
    * The unified reasoning level for this request, or `undefined` to leave the
    * setting off entirely.
    *
-   * Only levels the unified setting can spell reach this field. Passing them here
-   * rather than as provider options is what buys the per-model corrections we
-   * would otherwise have to reproduce: the SDK's Anthropic adapter turns `high`
-   * into `output_config.effort` on models built for it and into a derived
-   * `thinking.budget_tokens` on models that are not, using a capability table we
-   * have no access to. A level with no unified spelling — see
-   * `PROVIDER_ONLY_EFFORTS` — is written into `providerOptions` by the branch for
-   * its own provider instead.
+   * Every level reaches this field rather than provider options: the SDK's own
+   * provider adapter translates it per model, including corrections we could not
+   * make ourselves, such as Anthropic turning `high` into `output_config.effort`
+   * on models that support it and into a derived `thinking.budget_tokens` on
+   * models that do not, using a capability table we have no access to.
    */
   reasoning?: UnifiedReasoningEffort;
-}
-
-/**
- * Provider options carrying a level the unified setting cannot express.
- *
- * Split per provider because the field is genuinely different in each protocol,
- * which is also why this cannot live in shared code: OpenAI takes an effort
- * string, Anthropic takes an `output_config.effort` *plus* a thinking block. The
- * levels that land here only exist on models new enough to implement the
- * effort-style API, so mirroring what the SDK sends for `xhigh` on those same
- * models — adaptive thinking, summarised — is what keeps the reasoning stream
- * visible instead of silently dropping it one notch above `xhigh`.
- */
-function providerOnlyReasoning(
-  type: ProviderType,
-  effort: Exclude<ReasoningEffort, UnifiedReasoningEffort>,
-): ProviderMetadata {
-  return type === 'anthropic'
-    ? { anthropic: { effort, thinking: { type: 'adaptive', display: 'summarized' } } }
-    : type === 'openai-responses'
-      ? { 'open-responses': { reasoningEffort: effort } }
-      : { openai: { reasoningEffort: effort } };
 }
 
 export function createProvider(
@@ -91,11 +64,7 @@ export function createProvider(
 ): ResolvedModel {
   const type = normalizeProviderType(provider.type);
   const effort = resolveReasoningEffort(model.reasoningEffort);
-  // Either the level rides the unified setting, or it is this provider's own
-  // spelling of one the unified setting has no word for. Never both.
-  const reasoning = effort && isUnifiedEffort(effort) ? { reasoning: effort } : {};
-  const reasoningOptions =
-    effort && !isUnifiedEffort(effort) ? providerOnlyReasoning(type, effort) : undefined;
+  const reasoning = effort ? { reasoning: effort } : {};
   const baseUrl = resolveBaseUrl(provider);
   // Vendor extras are attached here rather than at each call site: every wire
   // protocol OpenCode serves needs the same two headers, and forgetting one on
@@ -111,7 +80,6 @@ export function createProvider(
     return {
       model: anthropic(model.modelId),
       ...reasoning,
-      ...(reasoningOptions ? { providerOptions: reasoningOptions } : {}),
     };
   }
 
@@ -126,13 +94,7 @@ export function createProvider(
       model: openResponses(model.modelId),
       ...reasoning,
       providerOptions: {
-        openai: {
-          store: false,
-          ...(reasoningOptions?.['open-responses'] as { reasoningEffort?: string } | undefined),
-        },
-        'open-responses': {
-          ...reasoningOptions?.['open-responses'],
-        },
+        openai: { store: false },
       },
     };
   }
@@ -147,6 +109,5 @@ export function createProvider(
   return {
     model: openai.chat(model.modelId),
     ...reasoning,
-    ...(reasoningOptions ? { providerOptions: reasoningOptions } : {}),
   };
 }

@@ -11,11 +11,9 @@ import { resumeFingerprint, runAgentLoop } from '@/lib/ai';
 import { createProvider } from '@/lib/provider-runtime';
 import { normalizeProvider } from '@/lib/provider-type';
 import {
-  PROVIDER_ONLY_EFFORTS,
   REASONING_EFFORTS,
   REASONING_EFFORTS_BY_PROVIDER,
   REASONING_EFFORT_DEFAULT,
-  isUnifiedEffort,
   isWireEffort,
   normalizeReasoningEffort,
   reasoningEffortsFor,
@@ -157,30 +155,16 @@ describe('createProvider', () => {
     expect('reasoning' in resolved).toBe(false);
   });
 
-  it('sends max as an OpenAI effort string, not as the unified setting', () => {
-    // `max` has no unified spelling, so passing it through `reasoning` would be a
-    // type error upstream and a dropped setting at runtime.
-    const resolved = createProvider(
-      provider({ type: 'openai-chat' }),
-      model({ reasoningEffort: 'max' }),
-    );
-    expect('reasoning' in resolved).toBe(false);
-    expect(resolved.providerOptions?.openai?.reasoningEffort).toBe('max');
-  });
-
-  it('sends max as an Anthropic effort with adaptive thinking', () => {
-    // Anthropic's own field, plus the thinking block the SDK sends for `xhigh` on
-    // these same models — without it the reasoning stream would vanish one notch
-    // above xhigh, which reads as a bug rather than as a setting.
-    const resolved = createProvider(
-      provider({ type: 'anthropic' }),
-      model({ reasoningEffort: 'max' }),
-    );
-    expect('reasoning' in resolved).toBe(false);
-    expect(resolved.providerOptions?.anthropic).toMatchObject({
-      effort: 'max',
-      thinking: { type: 'adaptive', display: 'summarized' },
-    });
+  it('sends max as the unified setting on every provider', () => {
+    // `max` is part of the SDK's unified union, so it travels the same route as
+    // every other level and the provider adapter decides how to spell it.
+    for (const type of TYPES) {
+      const resolved = createProvider(
+        provider({ type }),
+        model({ reasoningEffort: 'max' }),
+      );
+      expect(resolved.reasoning, type).toBe('max');
+    }
   });
 
   it('keeps the Responses stateless options alongside a unified level', () => {
@@ -201,9 +185,9 @@ describe('createProvider', () => {
       provider({ type: 'openai-responses' }),
       model({ reasoningEffort: 'max' }),
     );
+    expect(resolved.reasoning).toBe('max');
     expect(resolved.providerOptions?.openai).toMatchObject({
       store: false,
-      reasoningEffort: 'max',
     });
     // `reasoningSummary` is left to the SDK to derive from the effort.
     expect(resolved.providerOptions?.openai).not.toHaveProperty('reasoningSummary');
@@ -237,15 +221,6 @@ describe('per-provider level lists', () => {
   it('offers max everywhere, since every provider enum has it', () => {
     for (const type of ['anthropic', 'openai-chat', 'openai-responses'] as const) {
       expect(reasoningEffortsFor(type), type).toContain('max');
-    }
-  });
-});
-
-describe('isUnifiedEffort', () => {
-  it('sends every level except the provider-only ones through the unified path', () => {
-    for (const effort of REASONING_EFFORTS) {
-      const providerOnly = (PROVIDER_ONLY_EFFORTS as readonly string[]).includes(effort);
-      expect(isUnifiedEffort(effort), effort).toBe(!providerOnly);
     }
   });
 });

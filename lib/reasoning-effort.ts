@@ -10,7 +10,9 @@ import type { ProviderType } from '@/types';
  * enum at all — the OpenAI Responses API takes `reasoning_effort` as a free
  * string — we supply the widest set its family is known to accept.
  *
- * Two levels are ours rather than any provider's:
+ * Every level is a value of the AI SDK's unified `reasoning` setting, so every
+ * level rides that setting and the SDK's provider adapter translates it per
+ * model. Only two spellings are ours:
  * - `'provider-default'` is the identity value: the field is omitted entirely, so
  *   the request is byte-for-byte what it was before this setting existed. That
  *   matters more than a tidier default, because `@ai-sdk/openai` writes
@@ -23,7 +25,7 @@ import type { ProviderType } from '@/types';
  *   (`thinking: { type: 'disabled' }`). It is offered because turning thinking
  *   off is a real Anthropic capability, and the SDK already maps it there.
  */
-export type ReasoningEffort = UnifiedReasoningEffort | 'max';
+export type ReasoningEffort = UnifiedReasoningEffort;
 
 /**
  * The levels the AI SDK's unified `reasoning` setting can carry.
@@ -116,25 +118,6 @@ export function isWireEffort(effort: ReasoningEffort): boolean {
 }
 
 /**
- * Levels with no spelling in the SDK's unified setting, which each provider
- * adapter therefore has to send itself.
- *
- * `'max'` is the sole member today: every provider's own enum has it, but the
- * unified union stops at `'xhigh'`. Anthropic even uses `max` internally as the
- * fallback it maps `xhigh` to on models that lack an `xhigh` tier — so the value
- * is reachable through the SDK, just not addressable through it.
- */
-export const PROVIDER_ONLY_EFFORTS = ['max'] as const;
-
-/**
- * Whether `effort` can be handed to `streamText` as the unified `reasoning`
- * setting, letting the SDK's provider adapter do the per-model translation.
- */
-export function isUnifiedEffort(effort: ReasoningEffort): effort is UnifiedReasoningEffort {
-  return !(PROVIDER_ONLY_EFFORTS as readonly string[]).includes(effort);
-}
-
-/**
  * Coerce a stored or imported value into a usable level.
  *
  * Deliberately provider-agnostic: it validates against every known level rather
@@ -178,17 +161,3 @@ export function resolveReasoningEffort(
 type UnofferedEffort = Exclude<UnifiedReasoningEffort, (typeof REASONING_EFFORTS)[number]>;
 const _everyUnifiedLevelIsOffered: UnofferedEffort extends never ? true : UnofferedEffort = true;
 void _everyUnifiedLevelIsOffered;
-
-/**
- * Compile-time guard that {@link PROVIDER_ONLY_EFFORTS} still needs to exist.
- *
- * If a future SDK adds `'max'` to the unified union, the hand-written per-provider
- * branch in `lib/ai.ts` becomes dead weight that also bypasses the SDK's
- * per-model correction. This fails the build at that point so it gets deleted
- * rather than quietly kept.
- */
-type StillProviderOnly = (typeof PROVIDER_ONLY_EFFORTS)[number] extends UnifiedReasoningEffort
-  ? 'these levels are now unified — drop the per-provider branch'
-  : true;
-const _providerOnlyStillNeeded: StillProviderOnly = true;
-void _providerOnlyStillNeeded;
