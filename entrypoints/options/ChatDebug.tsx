@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { isToolUIPart } from 'ai';
 import { AnimatePresence, motion } from 'motion/react';
@@ -12,6 +12,11 @@ import {
   Brain,
   Clock,
   AlertCircle,
+  ArrowDown,
+  ArrowUp,
+  PenLine,
+  Sigma,
+  Zap,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -900,18 +905,45 @@ function TokenUsageBadge({ usage, label }: { usage: TokenUsageStats; label?: str
                   <span className="text-muted-foreground/50 w-12 shrink-0">
                     {t('options.chatDebug.stepLabel', { step: step.step + 1 })}
                   </span>
-                  <span>↑{step.inputTokens.toLocaleString()}</span>
-                  <span>↓{step.outputTokens.toLocaleString()}</span>
+                  <StepMetric
+                    icon={<ArrowUp className="size-2.5" aria-hidden="true" />}
+                    label={t('options.chatDebug.inputTokens')}
+                    value={step.inputTokens}
+                  />
+                  <StepMetric
+                    icon={<ArrowDown className="size-2.5" aria-hidden="true" />}
+                    label={t('options.chatDebug.outputTokens')}
+                    value={step.outputTokens}
+                  />
                   {(step.cacheReadTokens ?? 0) > 0 && (
-                    <span className="text-green-600 dark:text-green-400">⚡{step.cacheReadTokens!.toLocaleString()}</span>
+                    <StepMetric
+                      icon={<Zap className="size-2.5" aria-hidden="true" />}
+                      label={t('options.chatDebug.cacheRead')}
+                      value={step.cacheReadTokens!}
+                      className="text-green-600 dark:text-green-400"
+                    />
                   )}
                   {(step.cacheWriteTokens ?? 0) > 0 && (
-                    <span className="text-amber-600 dark:text-amber-400">✎{step.cacheWriteTokens!.toLocaleString()}</span>
+                    <StepMetric
+                      icon={<PenLine className="size-2.5" aria-hidden="true" />}
+                      label={t('options.chatDebug.cacheWrite')}
+                      value={step.cacheWriteTokens!}
+                      className="text-amber-600 dark:text-amber-400"
+                    />
                   )}
                   {(step.reasoningTokens ?? 0) > 0 && (
-                    <span className="text-purple-600 dark:text-purple-400">🧠{step.reasoningTokens!.toLocaleString()}</span>
+                    <StepMetric
+                      icon={<Brain className="size-2.5" aria-hidden="true" />}
+                      label={t('options.chatDebug.reasoningTokens')}
+                      value={step.reasoningTokens!}
+                      className="text-purple-600 dark:text-purple-400"
+                    />
                   )}
-                  <span>Σ{step.totalTokens.toLocaleString()}</span>
+                  <StepMetric
+                    icon={<Sigma className="size-2.5" aria-hidden="true" />}
+                    label={t('options.chatDebug.totalTokens')}
+                    value={step.totalTokens}
+                  />
                 </div>
               ))}
             </div>
@@ -919,6 +951,37 @@ function TokenUsageBadge({ usage, label }: { usage: TokenUsageStats; label?: str
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+/**
+ * One per-step metric in the token badge ledger.
+ *
+ * Glyphs are Lucide icons rather than `↑ ↓ ⚡ ✎ 🧠 Σ`: the text arrows depend on
+ * whatever font fallback the platform picks and ⚡/🧠 render as colour emoji on
+ * most systems, so the same row came out in five different weights and styles.
+ * The metric name travels in `title` so the icon is not the only carrier of
+ * meaning.
+ */
+function StepMetric({
+  icon,
+  label,
+  value,
+  className,
+}: {
+  icon: ReactNode;
+  label: string;
+  value: number;
+  className?: string;
+}) {
+  return (
+    <span
+      className="inline-flex shrink-0 items-center gap-0.5 whitespace-nowrap"
+      title={label}
+    >
+      <span className="shrink-0 text-muted-foreground/50">{icon}</span>
+      <span className={className}>{value.toLocaleString()}</span>
+    </span>
   );
 }
 
