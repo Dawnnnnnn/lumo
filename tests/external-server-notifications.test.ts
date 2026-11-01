@@ -18,6 +18,14 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock('@ai-sdk/mcp', () => ({ createMCPClient: mocks.createMCPClient }));
 
+// Era detection is covered by `external-server-protocol-era.test.ts`; stub it so
+// these tests stay hermetic (they must never reach the network).
+vi.mock('@/lib/mcp/protocol-era-store', () => ({
+  resolveEra: async () => undefined,
+  rememberEra: async () => {},
+  forgetEra: async () => {},
+}));
+
 const { ExternalMcpServer } = await import('@/lib/mcp/external-server');
 
 const config: McpHttpServerConfig = {

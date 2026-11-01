@@ -34,6 +34,10 @@ import type {
 } from '@/types';
 import { DEFAULT_OCR_SETTINGS } from '@/types';
 import type { McpSettings } from '@/lib/mcp/types';
+import {
+  normalizeProtocolEras,
+  type McpProtocolEras,
+} from '@/lib/mcp/protocol-era';
 import { DEFAULT_MCP_SETTINGS, normalizeMcpSettings } from '@/lib/mcp/settings';
 import { normalizeProvider } from '@/lib/provider-type';
 import { DEFAULT_SYSTEM_PROMPT_SETTINGS } from '@/lib/system-prompt';
@@ -82,6 +86,15 @@ export interface StorageSchema {
   currentConversationId: string | null;
   selectedModel: { providerId: string; modelId: string } | null;
   mcpSettings: McpSettings;
+  /**
+   * Learned MCP protocol era per endpoint origin (`lib/mcp/protocol-era.ts`).
+   *
+   * A runtime verdict, not a preference: the 2026-07-28 revision says the era
+   * is a property of the server, so clients should cache it per origin and may
+   * persist it. Persisting keeps every context (side panel, options, background)
+   * from re-deriving it with a rejected request on every connect.
+   */
+  mcpProtocolEras: McpProtocolEras;
   systemPrompt: SystemPromptSettings;
   /** OCR image-to-text settings for non-vision models. */
   ocrSettings: OcrSettings;
@@ -256,6 +269,14 @@ export const STORAGE_FIELDS: { [K in StorageKey]: StorageFieldDef<K> } = {
     defaultValue: DEFAULT_MCP_SETTINGS,
     exportable: true,
     normalize: (raw) => normalizeMcpSettings(raw),
+  },
+  mcpProtocolEras: {
+    key: 'mcpProtocolEras',
+    defaultValue: {},
+    // Runtime state, not configuration: an imported bundle must not claim a
+    // server speaks an era it was never observed to speak.
+    exportable: false,
+    normalize: (raw) => normalizeProtocolEras(raw),
   },
   ocrSettings: {
     key: 'ocrSettings',

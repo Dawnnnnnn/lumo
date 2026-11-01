@@ -41,6 +41,16 @@ export interface McpServerInfo {
   enabled: boolean;
   /** Server icon (lucide icon name or URL) */
   icon?: string;
+  /**
+   * MCP protocol revision the client and server agreed on, once connected.
+   *
+   * MCP has two eras: `2026-07-28` and later declare a version per request,
+   * while `2025-11-25` and earlier negotiate one in the `initialize` handshake.
+   * Showing the negotiated revision is the only way to tell which one an
+   * endpoint ended up on without a log dive, so it is surfaced for external
+   * servers only.
+   */
+  protocolVersion?: string;
 }
 
 /**

@@ -118,8 +118,18 @@ export function ServerExpandedContent({
       </div>
 
       {config && (
-        <div className="text-xs font-mono text-muted-foreground bg-muted/50 px-2 py-1 rounded truncate">
-          {config.url}
+        <div className="flex items-center gap-2">
+          <div className="min-w-0 flex-1 text-xs font-mono text-muted-foreground bg-muted/50 px-2 py-1 rounded truncate">
+            {config.url}
+          </div>
+          {/* Which MCP revision was negotiated — a legacy endpoint answers
+              `initialize` with 2025-11-25 or older, a modern one declares a
+              version per request. Read-only, and absent until connected. */}
+          {state.info.protocolVersion && (
+            <span className="shrink-0 text-[0.6875rem] font-mono tabular-nums text-muted-foreground/70">
+              {state.info.protocolVersion}
+            </span>
+          )}
         </div>
       )}
 

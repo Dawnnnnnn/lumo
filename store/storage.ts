@@ -5,6 +5,7 @@ import type {
   OcrSettings,
 } from '@/types';
 import type { McpSettings } from '@/lib/mcp/types';
+import type { McpProtocolEras } from '@/lib/mcp/protocol-era';
 import type { CommandSettings } from '@/lib/slash-commands';
 import type { MentionSettings } from '@/lib/mention-commands';
 import { MAX_SLOT_ID, defaultOrder, type PanelLayout } from '@/lib/panel-order';
@@ -197,6 +198,14 @@ export const storage = {
   async setMcpSettings(settings: McpSettings): Promise<void> {
     const field = STORAGE_FIELDS.mcpSettings;
     await setField('mcpSettings', field.normalize ? field.normalize(settings) : settings);
+  },
+
+  /** Learned MCP protocol era per origin. Runtime state, not exported config. */
+  async getMcpProtocolEras(): Promise<McpProtocolEras> {
+    return getField('mcpProtocolEras');
+  },
+  async setMcpProtocolEras(eras: McpProtocolEras): Promise<void> {
+    await setField('mcpProtocolEras', eras);
   },
 
   // ----- OCR Settings -----
