@@ -17,20 +17,8 @@ import {
   Wrench,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { serverDisplayDescription } from '@/lib/mcp/server-labels';
+import { AUTH_REASON_KEYS, serverDisplayDescription } from '@/lib/mcp/server-labels';
 import type { McpHttpServerConfig, McpServerState, McpToolDefinition } from '@/lib/mcp/types';
-import type { McpAuthFailureHint } from '@/lib/mcp/oauth/types';
-
-/**
- * Each authorization-failure hint names a different next step, so each gets its
- * own sentence. Falling back to the raw SDK message is what made a rate limit
- * look like "paste a token".
- */
-export const AUTH_HINT_KEYS: Record<McpAuthFailureHint, string> = {
-  'no-registration': 'options.mcp.authHintNoRegistration',
-  'identity-unavailable': 'options.mcp.authHintIdentityMissing',
-  busy: 'options.mcp.authHintBusy',
-};
 
 /**
  * Building blocks shared by every server card.
@@ -183,17 +171,17 @@ export function ServerExpandedContent({
       )}
 
       {/* Second layer: only visible once the row is open. `unauthorized` is a
-          waiting state, so its explanation is quieter than a real error and
-          names the one fallback that works when the server has no way to
-          register a client. */}
+          waiting state, so its explanation is quieter than a real error. The
+          sentence comes from the reason — the raw SDK text is kept underneath as
+          technical context instead of being the thing the user has to read. */}
       {state.authError && (
         <div className="flex items-start gap-2 p-2 rounded-md bg-amber-500/10 text-amber-700 dark:text-amber-400 text-xs">
           <KeyRound className="h-3.5 w-3.5 shrink-0 mt-0.5" />
           <div className="min-w-0 space-y-1">
-            <p className="break-all">{state.authError.message}</p>
-            {state.authError.hint && (
-              <p className="text-muted-foreground">
-                {t(AUTH_HINT_KEYS[state.authError.hint])}
+            <p className="break-words">{t(AUTH_REASON_KEYS[state.authError.reason])}</p>
+            {state.authError.detail && (
+              <p className="break-all font-mono text-[0.6875rem] text-muted-foreground">
+                {state.authError.detail}
               </p>
             )}
           </div>

@@ -201,11 +201,12 @@ export class ExternalMcpServer implements IMcpServer {
       // One line per attempt, never a stack: this is a state, not a fault.
       console.debug(`[MCP:${this.config.name}] waiting for sign-in`);
       this.error = undefined;
-      // A bare `401` explains nothing; only a real obstacle is worth showing.
+      // A bare `401` explains nothing; only a failure with a named reason is
+      // worth showing, and the wording comes from the reason, not the SDK text.
       this.authError =
-        classified.kind === 'challenge'
-          ? undefined
-          : { message: classified.message, ...(classified.hint ? { hint: classified.hint } : {}) };
+        classified.reason && classified.reason !== 'authorization-required'
+          ? { reason: classified.reason, detail: classified.message }
+          : undefined;
       this.setStatus('unauthorized');
     } else {
       this.authError = undefined;
@@ -299,9 +300,12 @@ export class ExternalMcpServer implements IMcpServer {
       return;
     }
     if (outcome.status === 'failed') {
+      // No reason means the flow failed somewhere the user cannot name; the
+      // authorization-server wording is still the truthful one (retry, then
+      // check the configuration).
       this.authError = {
-        message: outcome.message,
-        ...(outcome.hint ? { hint: outcome.hint } : {}),
+        reason: outcome.reason ?? 'authorization-server-error',
+        detail: outcome.message,
       };
       this.setStatus('unauthorized');
       return;

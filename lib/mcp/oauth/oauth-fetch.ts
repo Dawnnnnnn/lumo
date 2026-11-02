@@ -23,6 +23,21 @@
 
 type FetchFunction = typeof globalThis.fetch;
 
+/**
+ * The OAuth flow's `fetch`, with a note on the last refusal.
+ *
+ * `@ai-sdk/mcp` builds a standard OAuth error body into an error class that
+ * keeps only `error_description`, so a `429` answered with
+ * `{"error":"temporarily_unavailable"}` reaches us as an *empty* message and the
+ * status is gone. The card then cannot tell "wait a moment" from "this server is
+ * misconfigured". The wrapper is the only place that sees the status, so it
+ * remembers it for the classification that follows.
+ */
+export interface OAuthFetchFunction extends FetchFunction {
+  /** Status of the most recent non-2xx response in this flow. */
+  lastFailureStatus?: number;
+}
+
 /** Keys that hold a single URL. Arrays (`redirect_uris`) are deliberately absent. */
 const URL_FIELD_PATTERN = /(?:^|_)ur[il]$|^(?:issuer|resource)$/;
 
@@ -94,11 +109,12 @@ export function sanitizeOAuthResponseBody(body: string): string {
 }
 
 /** Wrap `fetch` so OAuth responses tolerate empty URL fields. */
-export function createOAuthFetch(fetchImpl?: FetchFunction): FetchFunction {
+export function createOAuthFetch(fetchImpl?: FetchFunction): OAuthFetchFunction {
   const base: FetchFunction = fetchImpl ?? ((input, init) => globalThis.fetch(input, init));
 
-  return async (input, init) => {
+  const oauthFetch: OAuthFetchFunction = async (input, init) => {
     const response = await base(input, init);
+    if (!response.ok) oauthFetch.lastFailureStatus = response.status;
     const contentType = response.headers.get('content-type') ?? '';
     // Discovery, registration and token responses are JSON. Anything else (an
     // HTML error page, an SSE stream) is passed through byte for byte.
@@ -132,4 +148,6 @@ export function createOAuthFetch(fetchImpl?: FetchFunction): FetchFunction {
       headers,
     });
   };
+
+  return oauthFetch;
 }

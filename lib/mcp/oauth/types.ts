@@ -103,15 +103,32 @@ export const AUTHORIZATION_REQUIREMENT_TTL_MS = 60 * 60 * 1000;
  * Why an authorization attempt ended without credentials.
  *
  * A reason, not a message: the UI owns the translation. Each value names a
- * *different* thing the user can do, which is why a plain failure has no hint.
+ * *different* thing the user can do — that is the whole point of the enum, and
+ * why the raw SDK text travels separately as `McpAuthError.detail`: a Chinese
+ * card must never have to show an English sentence as its headline.
  */
-export type McpAuthFailureHint =
+export type McpAuthFailureReason =
+  /** The endpoint answered `401`: the user has to sign in. */
+  | 'authorization-required'
+  /**
+   * The server wants a scope the stored grant does not have. A refresh keeps the
+   * granted scope, so only a new consent can widen it.
+   */
+  | 'insufficient-scope'
   /** The server offers no way for a client to register itself: paste a token. */
   | 'no-registration'
   /** `chrome.identity` is missing — the extension needs reloading. */
   | 'identity-unavailable'
   /** Another sign-in is already running in this browser. */
-  | 'busy';
+  | 'busy'
+  /**
+   * Discovery, registration, the consent window or the code exchange failed.
+   * One reason because the honest user action is the same: try again, and if it
+   * keeps failing check the server's OAuth configuration.
+   */
+  | 'authorization-server-error'
+  /** Rate limiting or a transient refusal: waiting is the fix. */
+  | 'temporary';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;

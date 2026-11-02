@@ -14,6 +14,8 @@
  * key disagreed, which is exactly the failure being fixed.
  */
 
+import type { McpAuthFailureReason } from './oauth/types';
+
 /** Built-in server id -> `options.mcp.builtinServers` key. */
 const BUILTIN_LABEL_KEYS: Record<string, string> = {
   browser: 'browser',
@@ -54,3 +56,22 @@ export function serverDisplayDescription(t: Translate, info: LabelableServer): s
 
 /** Ids of the built-in servers that carry translations, for contract tests. */
 export const LOCALIZED_BUILTIN_SERVER_IDS = Object.keys(BUILTIN_LABEL_KEYS);
+
+/**
+ * Authorization failure reason -> translation key.
+ *
+ * The card renders a sentence, never the SDK's own wording, so this map is what
+ * keeps a localized panel from falling back to English. It is total over the
+ * union on purpose: adding a reason without wording is a type error, and the
+ * i18n contract test resolves every value through i18next so a typo cannot
+ * silently render a raw key.
+ */
+export const AUTH_REASON_KEYS: Record<McpAuthFailureReason, string> = {
+  'authorization-required': 'options.mcp.authReasonAuthorizationRequired',
+  'insufficient-scope': 'options.mcp.authReasonInsufficientScope',
+  'no-registration': 'options.mcp.authReasonNoRegistration',
+  'identity-unavailable': 'options.mcp.authReasonIdentityMissing',
+  busy: 'options.mcp.authReasonBusy',
+  'authorization-server-error': 'options.mcp.authReasonServerFailed',
+  temporary: 'options.mcp.authReasonTemporary',
+};

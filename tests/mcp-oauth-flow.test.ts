@@ -304,7 +304,7 @@ describe('signing in', () => {
     await mcp.authorize();
 
     expect(mcp.getStatus()).toBe('unauthorized');
-    expect(mcp.getAuthError()?.hint).toBe('no-registration');
+    expect(mcp.getAuthError()?.reason).toBe('no-registration');
   });
 
   it('does not tell the user to paste a token when registration is rate limited', async () => {
@@ -316,8 +316,8 @@ describe('signing in', () => {
     await mcp.authorize();
 
     expect(mcp.getStatus()).toBe('unauthorized');
-    // Temporary: waiting is the fix, and a manual header is not the answer.
-    expect(mcp.getAuthError()?.hint).toBeUndefined();
+    // Temporary: waiting is the fix, so the card says "wait", not "paste a token".
+    expect(mcp.getAuthError()?.reason).toBe('temporary');
   });
 });
 
@@ -328,7 +328,7 @@ describe('browser preconditions', () => {
     const server = await startServer();
     const outcome = await authorizeServer({ serverId: 'script-hub', serverUrl: server.mcpUrl });
 
-    expect(outcome).toMatchObject({ status: 'failed', hint: 'identity-unavailable' });
+    expect(outcome).toMatchObject({ status: 'failed', reason: 'identity-unavailable' });
     expect(server.requests).toEqual([]);
   });
 
@@ -350,7 +350,7 @@ describe('browser preconditions', () => {
       { redirectUrl: REDIRECT_URI, lockWaitMs: 20 },
     );
 
-    expect(outcome).toMatchObject({ status: 'failed', hint: 'busy' });
+    expect(outcome).toMatchObject({ status: 'failed', reason: 'busy' });
     expect(server.requests).toEqual([]);
   });
 
@@ -449,20 +449,21 @@ describe('authorization failure classification', () => {
     const failure = classifyAuthorizationFailure(
       new Error('Incompatible auth server: does not support dynamic client registration'),
     );
-    expect(failure.hint).toBe('no-registration');
+    expect(failure.reason).toBe('no-registration');
   });
 
-  it('treats a rate limit as temporary, without a hint', () => {
+  it('treats a rate limit as temporary, without a manual-token fallback', () => {
     const failure = classifyAuthorizationFailure(
       new Error('HTTP 429: {"error":"temporarily_unavailable"}'),
     );
     expect(failure.kind).toBe('temporary');
-    expect(failure.hint).toBeUndefined();
+    expect(failure.reason).toBe('temporary');
   });
 
-  it('leaves unrelated failures without a fallback hint', () => {
+  it('leaves unrelated failures without an authorization reason', () => {
     const failure = classifyAuthorizationFailure(new Error('network down'));
-    expect(failure.hint).toBeUndefined();
+    // `message` stays the raw text: it is technical detail, not UI copy.
+    expect(failure.reason).toBeUndefined();
     expect(failure.kind).toBe('other');
     expect(failure.message).toBe('network down');
   });

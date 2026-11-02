@@ -27,15 +27,15 @@ import {
   type AuthorizationChallenge,
 } from './errors';
 import { ServerLockBusyError, withServerLock } from './lock';
-import { createOAuthFetch } from './oauth-fetch';
+import { createOAuthFetch, type OAuthFetchFunction } from './oauth-fetch';
 import { StoredOAuthProvider } from './provider';
-import type { McpAuthFailureHint } from './types';
+import type { McpAuthFailureReason } from './types';
 
 /** Result of an authorization attempt, in terms the UI can act on. */
 export type AuthorizationOutcome =
   | { status: 'authorized' }
   | { status: 'cancelled' }
-  | { status: 'failed'; message: string; hint?: McpAuthFailureHint };
+  | { status: 'failed'; message: string; reason?: McpAuthFailureReason };
 
 export interface AuthorizationTarget {
   /** Server id; scopes the stored credentials. */
@@ -101,12 +101,14 @@ async function defaultLaunch(authorizationUrl: string): Promise<string | undefin
  * What kind of authorization failure this is.
  *
  * - `challenge`: the endpoint answered `401`. The ordinary state of a server
- *   nobody has signed in to yet; nothing to explain.
+ *   nobody has signed in to yet; a bare challenge carries no explanation.
  * - `no-registration`: the server demands a token but offers no way for a client
  *   to register itself, so a manual `Authorization` header is the only path.
  * - `temporary`: rate limiting or a transient refusal — waiting is the fix, and
  *   suggesting a manual token would be wrong.
  * - `other`: not an authorization problem at all.
+ *
+ * `kind` decides the branch; `reason` decides the sentence the user reads.
  */
 export type AuthorizationFailureKind = 'challenge' | 'no-registration' | 'temporary' | 'other';
 
@@ -114,7 +116,12 @@ export type AuthorizationFailureKind = 'challenge' | 'no-registration' | 'tempor
 export interface AuthorizationFailure {
   message: string;
   kind: AuthorizationFailureKind;
-  hint?: McpAuthFailureHint;
+  /**
+   * Why the user is needed, when there is something worth telling them. Absent
+   * for `other` failures, which are rendered as plain errors instead of
+   * authorization state.
+   */
+  reason?: McpAuthFailureReason;
   /**
    * True when the failure is a *challenge*: the server wants a user, so the
    * connection is not broken and the card must offer the sign-in affordance
@@ -125,6 +132,11 @@ export interface AuthorizationFailure {
 
 /** Refusals that only need waiting. */
 const TEMPORARY_FAILURE_RE = /\b429\b|too many requests|rate.?limit|try again later|频繁|稍后再试|过载/i;
+
+/** The two statuses that mean "later", not "never". */
+function isRateLimitStatus(status: number | undefined): boolean {
+  return status === 429 || status === 408;
+}
 
 /**
  * Failures that mean "there is no way for a client to register itself".
@@ -143,8 +155,21 @@ function challenge(): AuthorizationFailure {
   return {
     message: 'This server requires authorization',
     kind: 'challenge',
+    reason: 'authorization-required',
     authorizationRequired: true,
   };
+}
+
+/**
+ * A redirect this client cannot use: unparsable URL, no `code`, or an `error`
+ * the authorization server put in the query string. Distinguished from other
+ * protocol failures only so the message can name the redirect step.
+ */
+class OAuthCallbackError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'OAuthCallbackError';
+  }
 }
 
 /**
@@ -157,8 +182,16 @@ function challenge(): AuthorizationFailure {
  * without a registration endpoint raises a plain error mid-flow. All three mean
  * the same thing to the user — sign in, or paste a token if there is no way to
  * sign in.
+ *
+ * `context.status` is the HTTP status the flow's fetch last saw. It is needed
+ * because the SDK drops it when it parses a standard OAuth error body, which is
+ * exactly the shape a `429` answers with — leaving an empty message that would
+ * otherwise read as a broken server instead of "slow down".
  */
-export function classifyAuthorizationFailure(error: unknown): AuthorizationFailure {
+export function classifyAuthorizationFailure(
+  error: unknown,
+  context: { status?: number } = {},
+): AuthorizationFailure {
   const raw = error instanceof Error ? error.message : String(error);
   // A refusal without a description still needs a sentence, and that sentence
   // must not contain the words the metadata heuristics below look for.
@@ -166,9 +199,28 @@ export function classifyAuthorizationFailure(error: unknown): AuthorizationFailu
 
   // Raised by our own token source: the connection already tried the stored
   // credentials and the server still refused them. A bare challenge explains
-  // nothing, so it carries no hint.
+  // nothing; a widened scope is the one case the user can act on specifically.
   if (McpAuthorizationRequiredError.isInstance(error)) {
-    return { message, kind: 'challenge', authorizationRequired: true };
+    if (error.reason === 'insufficient-scope') {
+      return {
+        message,
+        kind: 'challenge',
+        reason: 'insufficient-scope',
+        authorizationRequired: true,
+      };
+    }
+    return challenge();
+  }
+
+  // A redirect we cannot redeem is a failed sign-in attempt, not a broken
+  // server: retrying is the first fix, which is what the card offers.
+  if (error instanceof OAuthCallbackError) {
+    return {
+      message,
+      kind: 'challenge',
+      reason: 'authorization-server-error',
+      authorizationRequired: true,
+    };
   }
 
   // The endpoint refused the request. This is also what an unattended connect
@@ -176,9 +228,11 @@ export function classifyAuthorizationFailure(error: unknown): AuthorizationFailu
   if (error instanceof UnauthorizedError) return challenge();
   if ((error as { statusCode?: unknown } | null)?.statusCode === 401) return challenge();
 
-  // Rate limiting is a "not now", not a "you cannot sign in here".
-  if (TEMPORARY_FAILURE_RE.test(message)) {
-    return { message, kind: 'temporary', authorizationRequired: true };
+  // Rate limiting is a "not now", not a "you cannot sign in here". Checked by
+  // status as well as by wording, because a standard OAuth error body loses the
+  // status and can arrive with no description at all.
+  if (isRateLimitStatus(context.status) || TEMPORARY_FAILURE_RE.test(message)) {
+    return { message, kind: 'temporary', reason: 'temporary', authorizationRequired: true };
   }
 
   // The one failure the user can act on differently: no way to register a client.
@@ -187,16 +241,22 @@ export function classifyAuthorizationFailure(error: unknown): AuthorizationFailu
     return {
       message,
       kind: 'no-registration',
-      hint: 'no-registration',
+      reason: 'no-registration',
       authorizationRequired: true,
     };
   }
 
   // Any other OAuth-protocol failure (`ServerError`, `InvalidGrantError`, …)
   // still means "a user is needed", but suggesting a manual token would be a
-  // guess: only the paths above prove that sign-in cannot work.
+  // guess: only the paths above prove that sign-in cannot work. The reason names
+  // the step that failed, so the card says "try again", not "paste a token".
   if (MCPClientOAuthError.isInstance(error)) {
-    return { message, kind: 'challenge', authorizationRequired: true };
+    return {
+      message,
+      kind: 'challenge',
+      reason: 'authorization-server-error',
+      authorizationRequired: true,
+    };
   }
 
   return { message, kind: 'other', authorizationRequired: false };
@@ -216,17 +276,19 @@ function parseCallback(responseUrl: string): AuthorizationCallback {
   try {
     parsed = new URL(responseUrl);
   } catch {
-    throw new Error(`Authorization server returned an unusable redirect: ${responseUrl}`);
+    throw new OAuthCallbackError(
+      `Authorization server returned an unusable redirect: ${responseUrl}`,
+    );
   }
 
   const error = parsed.searchParams.get('error');
   if (error) {
     const description = parsed.searchParams.get('error_description');
-    throw new Error(description ? `${error}: ${description}` : error);
+    throw new OAuthCallbackError(description ? `${error}: ${description}` : error);
   }
 
   const code = parsed.searchParams.get('code');
-  if (!code) throw new Error('Authorization server returned no code');
+  if (!code) throw new OAuthCallbackError('Authorization server returned no code');
 
   return {
     code,
@@ -282,7 +344,7 @@ export async function authorizeServer(
     return {
       status: 'failed',
       message: error instanceof Error ? error.message : String(error),
-      hint: 'identity-unavailable',
+      reason: 'identity-unavailable',
     };
   }
 
@@ -323,6 +385,7 @@ export async function authorizeServer(
           return {
             status: 'failed',
             message: 'Authorization server returned no authorization URL',
+            reason: 'authorization-server-error',
           };
         }
 
@@ -338,7 +401,7 @@ export async function authorizeServer(
             return { status: 'cancelled' };
           }
           log(`window failed: ${error instanceof Error ? error.message : String(error)}`);
-          return classifyFailure(error);
+          return classifyFailure(error, fetchFn);
         }
         if (!responseUrl) {
           log('window closed without a redirect');
@@ -366,17 +429,20 @@ export async function authorizeServer(
       return {
         status: 'failed',
         message: 'Another sign-in is already in progress',
-        hint: 'busy',
+        reason: 'busy',
       };
     }
     log(`failed: ${error instanceof Error ? error.message : String(error)}`);
-    return classifyFailure(error);
+    return classifyFailure(error, fetchFn);
   }
 }
 
-function classifyFailure(error: unknown): AuthorizationOutcome {
-  const { message, hint } = classifyAuthorizationFailure(error);
-  return { status: 'failed', message, ...(hint ? { hint } : {}) };
+function classifyFailure(error: unknown, fetchFn?: OAuthFetchFunction): AuthorizationOutcome {
+  const status = fetchFn?.lastFailureStatus;
+  const { message, reason } = classifyAuthorizationFailure(error, {
+    ...(status ? { status } : {}),
+  });
+  return { status: 'failed', message, ...(reason ? { reason } : {}) };
 }
 
 /** `launchWebAuthFlow` rejects with this when the window is closed early. */

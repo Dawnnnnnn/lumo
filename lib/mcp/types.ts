@@ -1,5 +1,5 @@
 import type { Tool } from 'ai';
-import type { McpAuthFailureHint } from './oauth/types';
+import type { McpAuthFailureReason } from './oauth/types';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type AnyTool = Tool<any, any, any>;
@@ -180,14 +180,17 @@ export interface McpServerState {
 
 /** Authorization failure surfaced to the UI. */
 export interface McpAuthError {
-  /** Raw reason from the SDK, shown in the expanded panel. */
-  message: string;
   /**
-   * `no-registration`: this server demands authorization but offers no way for a
-   * client to register itself, so a manually configured `Authorization` header
-   * is the only path. The card turns that into an instruction.
+   * What the user has to do. The card translates it, so the same failure reads
+   * correctly under every locale instead of leaking an English sentence.
    */
-  hint?: McpAuthFailureHint;
+  reason: McpAuthFailureReason;
+  /**
+   * Raw SDK text behind the reason, kept as technical context and rendered one
+   * level down. Present only when the SDK produced something a developer would
+   * want to see — it is never the headline.
+   */
+  detail?: string;
 }
 
 /**

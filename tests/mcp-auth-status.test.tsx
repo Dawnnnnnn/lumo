@@ -128,18 +128,20 @@ describe('authorization states on the server card', () => {
         state={state({
           status: 'unauthorized',
           authError: {
-            message: 'Incompatible auth server: does not support dynamic client registration',
-            hint: 'no-registration',
+            reason: 'no-registration',
+            detail: 'Incompatible auth server: does not support dynamic client registration',
           },
         })}
         config={config}
       />,
     );
 
+    // The sentence is the translated reason; the SDK text is context underneath
+    // it, never the headline of a localized card.
+    expect(screen.getByText('options.mcp.authReasonNoRegistration')).toBeTruthy();
     expect(
       screen.getByText('Incompatible auth server: does not support dynamic client registration'),
     ).toBeTruthy();
-    expect(screen.getByText('options.mcp.authHintNoRegistration')).toBeTruthy();
   });
 
   it('keeps a plain failure free of authorization hints', () => {
@@ -148,6 +150,6 @@ describe('authorization states on the server card', () => {
     );
 
     expect(screen.getByText('HTTP 500')).toBeTruthy();
-    expect(screen.queryByText('options.mcp.authHintNoRegistration')).toBeNull();
+    expect(screen.queryByText('options.mcp.authReasonNoRegistration')).toBeNull();
   });
 });

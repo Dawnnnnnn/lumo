@@ -12,9 +12,9 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
+import { AUTH_REASON_KEYS } from '@/lib/mcp/server-labels';
 import type { McpHttpServerConfig, McpServerState } from '@/lib/mcp/types';
 import {
-  AUTH_HINT_KEYS,
   CardDisclosure,
   ServerExpandedContent,
   ServerIcon,
@@ -54,7 +54,10 @@ export function ExternalServerCard({
   // is visibly acknowledged instead of turning into a silent spinner.
   const authorizing = state.info.enabled && state.status === 'authorizing';
   const needsAuthorization = state.info.enabled && state.status === 'unauthorized';
-  const authHint = state.authError?.hint;
+  // One translated sentence per reason, used for both hover affordances. The
+  // raw SDK text stays in the expanded panel, where it can be read as context
+  // rather than as the card's only explanation.
+  const authReason = state.authError ? t(AUTH_REASON_KEYS[state.authError.reason]) : undefined;
 
   return (
     <div className="border border-border rounded-lg overflow-hidden">
@@ -77,7 +80,7 @@ export function ExternalServerCard({
         </span>
 
         {state.info.enabled ? (
-          <StatusBadge status={state.status} title={state.authError?.message} />
+          <StatusBadge status={state.status} title={authReason} />
         ) : (
           <span className="flex items-center gap-1 text-xs text-muted-foreground shrink-0">
             <PowerOff className="h-3 w-3" />
@@ -111,7 +114,7 @@ export function ExternalServerCard({
             disabled={authorizing}
             aria-label={t('options.mcp.signIn')}
             aria-busy={authorizing}
-            title={authHint ? t(AUTH_HINT_KEYS[authHint]) : state.authError?.message}
+            title={authReason}
           >
             {authorizing ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
