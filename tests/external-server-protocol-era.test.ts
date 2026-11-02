@@ -21,7 +21,14 @@ const mocks = vi.hoisted(() => ({
   forgetEra: vi.fn(),
 }));
 
-vi.mock('@ai-sdk/mcp', () => ({ createMCPClient: mocks.createMCPClient }));
+vi.mock('@ai-sdk/mcp', () => ({
+  createMCPClient: mocks.createMCPClient,
+  auth: vi.fn(),
+  UnauthorizedError: class UnauthorizedError extends Error {},
+  MCPClientOAuthError: Object.assign(class MCPClientOAuthError extends Error {}, {
+    isInstance: () => false,
+  }),
+}));
 vi.mock('@/lib/mcp/protocol-era-store', () => ({
   resolveEra: mocks.resolveEra,
   rememberEra: mocks.rememberEra,

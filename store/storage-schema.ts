@@ -38,6 +38,10 @@ import {
   normalizeProtocolEras,
   type McpProtocolEras,
 } from '@/lib/mcp/protocol-era';
+import {
+  normalizeOAuthCredentials,
+  type McpOAuthCredentialMap,
+} from '@/lib/mcp/oauth/types';
 import { DEFAULT_MCP_SETTINGS, normalizeMcpSettings } from '@/lib/mcp/settings';
 import { normalizeProvider } from '@/lib/provider-type';
 import { DEFAULT_SYSTEM_PROMPT_SETTINGS } from '@/lib/system-prompt';
@@ -95,6 +99,14 @@ export interface StorageSchema {
    * from re-deriving it with a rejected request on every connect.
    */
   mcpProtocolEras: McpProtocolEras;
+  /**
+   * OAuth credentials per external MCP server (`lib/mcp/oauth/`).
+   *
+   * Runtime secrets, never configuration: a bearer token must not travel in an
+   * exported bundle, and it is meaningless on another machine. Kept separate
+   * from `mcpSettings` for exactly that reason.
+   */
+  mcpOAuthCredentials: McpOAuthCredentialMap;
   systemPrompt: SystemPromptSettings;
   /** OCR image-to-text settings for non-vision models. */
   ocrSettings: OcrSettings;
@@ -277,6 +289,13 @@ export const STORAGE_FIELDS: { [K in StorageKey]: StorageFieldDef<K> } = {
     // server speaks an era it was never observed to speak.
     exportable: false,
     normalize: (raw) => normalizeProtocolEras(raw),
+  },
+  mcpOAuthCredentials: {
+    key: 'mcpOAuthCredentials',
+    defaultValue: {},
+    // Secrets. Excluded from export/import by contract, not by convention.
+    exportable: false,
+    normalize: (raw) => normalizeOAuthCredentials(raw),
   },
   ocrSettings: {
     key: 'ocrSettings',

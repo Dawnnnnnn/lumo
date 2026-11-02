@@ -1,12 +1,28 @@
 import { useCallback, useEffect, useState } from 'react';
-import {
-  mcpRegistry,
-  registerExternalServer,
-  unregisterExternalServer,
-  ExternalMcpServer,
-} from '@/lib/mcp';
-import type { McpHttpServerConfig } from '@/lib/mcp/types';
+import { mcpRegistry, registerExternalServer, unregisterExternalServer } from '@/lib/mcp';
+import type { IMcpServer, McpHttpServerConfig } from '@/lib/mcp/types';
 import { storage } from '@/store/storage';
+
+/**
+ * Whether a server takes its configuration at runtime.
+ *
+ * A capability check rather than `instanceof ExternalMcpServer`: a class identity
+ * check would silently skip the update if two module copies ever existed, and
+ * only external servers implement `updateConfig`.
+ */
+function assignsConfig(
+  server: IMcpServer | undefined,
+): server is IMcpServer & {
+  getConfig(): McpHttpServerConfig;
+  updateConfig(config: McpHttpServerConfig): void;
+} {
+  const candidate = server as
+    | { updateConfig?: unknown; getConfig?: unknown }
+    | undefined;
+  return (
+    typeof candidate?.updateConfig === 'function' && typeof candidate?.getConfig === 'function'
+  );
+}
 
 /**
  * A blank draft for the "add external server" dialog.
@@ -55,7 +71,13 @@ export function useExternalServers() {
 
     // Register and start connecting (non-blocking, UI updates via onStateChange)
     const server = registerExternalServer(config);
-    void server.connect();
+    void server.connect().then(() => {
+      // Adding a server is an explicit request to use it, so an authorization
+      // challenge is answered straight away instead of leaving the user to find
+      // the action themselves. Only this path (and the toggle below) opens a
+      // window; startup connections never do.
+      if (server.getStatus() === 'unauthorized') void server.authorize();
+    });
   };
 
   const removeServer = async (id: string) => {
@@ -80,14 +102,20 @@ export function useExternalServers() {
 
     // 2. Update the server config immediately so the switch reflects instantly
     const server = mcpRegistry.getServer(id);
-    if (server instanceof ExternalMcpServer) {
+    if (assignsConfig(server)) {
       server.updateConfig({ ...server.getConfig(), enabled });
       mcpRegistry.notifyChange();
 
       // 3. Connect/disconnect asynchronously — status updates
       //    (connecting→connected/error) arrive via onStateChange.
-      if (enabled) void server.connect();
-      else server.disconnect();
+      if (enabled) {
+        void server.connect().then(() => {
+          // Enabling is a user decision; answer the challenge right away.
+          if (server.getStatus() === 'unauthorized') void server.authorize?.();
+        });
+      } else {
+        void server.disconnect();
+      }
     } else {
       mcpRegistry.notifyChange();
     }

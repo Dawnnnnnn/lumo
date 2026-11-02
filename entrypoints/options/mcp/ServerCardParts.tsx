@@ -5,7 +5,9 @@ import {
   AlertCircle,
   Globe,
   Globe2,
+  KeyRound,
   Loader2,
+  LogOut,
   Puzzle,
   Radio,
   RadioTower,
@@ -14,8 +16,21 @@ import {
   WifiOff,
   Wrench,
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { serverDisplayDescription } from '@/lib/mcp/server-labels';
 import type { McpHttpServerConfig, McpServerState, McpToolDefinition } from '@/lib/mcp/types';
+import type { McpAuthFailureHint } from '@/lib/mcp/oauth/types';
+
+/**
+ * Each authorization-failure hint names a different next step, so each gets its
+ * own sentence. Falling back to the raw SDK message is what made a rate limit
+ * look like "paste a token".
+ */
+export const AUTH_HINT_KEYS: Record<McpAuthFailureHint, string> = {
+  'no-registration': 'options.mcp.authHintNoRegistration',
+  'identity-unavailable': 'options.mcp.authHintIdentityMissing',
+  busy: 'options.mcp.authHintBusy',
+};
 
 /**
  * Building blocks shared by every server card.
@@ -49,8 +64,13 @@ export function ServerIcon({ transport }: { transport: string }) {
  * The word is hidden on narrow side panels and the icon carries the meaning,
  * which keeps the row from wrapping when the options page is docked.
  */
-export function StatusBadge({ status }: { status: string }) {
+export function StatusBadge({ status, title }: { status: string; title?: string }) {
   const { t } = useTranslation();
+
+  // `title` carries the reason behind a pending sign-in, so the explanation is
+  // reachable without expanding the card (which is the only other place it
+  // lives). Hovering a status is the cheapest possible disclosure.
+  const withTitle = (node: ReactNode) => (title ? <span title={title}>{node}</span> : node);
 
   switch (status) {
     case 'connected':
@@ -67,12 +87,28 @@ export function StatusBadge({ status }: { status: string }) {
           <span className="hidden sm:inline">{t('options.mcp.connecting')}</span>
         </span>
       );
+    case 'authorizing':
+      return withTitle(
+        <span className="flex items-center gap-1 text-xs text-yellow-600 dark:text-yellow-400 shrink-0">
+          <Loader2 className="h-3 w-3 animate-spin" />
+          <span className="hidden sm:inline">{t('options.mcp.authorizing')}</span>
+        </span>,
+      );
     case 'error':
       return (
         <span className="flex items-center gap-1 text-xs text-destructive shrink-0">
           <AlertCircle className="h-3 w-3" />
           <span className="hidden sm:inline">{t('options.mcp.error')}</span>
         </span>
+      );
+    // Not an error: the server answered, it just wants a user in the loop. The
+    // amber tone (rather than red) is the whole difference the user needs.
+    case 'unauthorized':
+      return withTitle(
+        <span className="flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400 shrink-0">
+          <KeyRound className="h-3 w-3" />
+          <span className="hidden sm:inline">{t('options.mcp.unauthorized')}</span>
+        </span>,
       );
     default:
       return (
@@ -105,11 +141,17 @@ export function ToolItem({ tool }: { tool: McpToolDefinition }) {
 export function ServerExpandedContent({
   state,
   config,
+  onSignOut,
 }: {
   state: McpServerState;
   config?: McpHttpServerConfig;
+  /** Present for external servers, whose credentials can be revoked. */
+  onSignOut?: () => void;
 }) {
   const { t } = useTranslation();
+  // Signing out is only meaningful while a grant exists — or while the card is
+  // waiting for one, where it clears a half-finished attempt.
+  const canSignOut = Boolean(onSignOut) && (state.hasCredentials || state.status === 'unauthorized');
 
   return (
     <div className="p-3 pt-0 space-y-2 border-t border-border">
@@ -137,6 +179,38 @@ export function ServerExpandedContent({
         <div className="flex items-start gap-2 p-2 rounded-md bg-destructive/10 text-destructive text-xs">
           <AlertCircle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
           <span className="break-all">{state.error}</span>
+        </div>
+      )}
+
+      {/* Second layer: only visible once the row is open. `unauthorized` is a
+          waiting state, so its explanation is quieter than a real error and
+          names the one fallback that works when the server has no way to
+          register a client. */}
+      {state.authError && (
+        <div className="flex items-start gap-2 p-2 rounded-md bg-amber-500/10 text-amber-700 dark:text-amber-400 text-xs">
+          <KeyRound className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+          <div className="min-w-0 space-y-1">
+            <p className="break-all">{state.authError.message}</p>
+            {state.authError.hint && (
+              <p className="text-muted-foreground">
+                {t(AUTH_HINT_KEYS[state.authError.hint])}
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {canSignOut && (
+        <div className="flex justify-end">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-6 gap-1 px-2 text-xs text-muted-foreground"
+            onClick={onSignOut}
+          >
+            <LogOut className="h-3 w-3" />
+            {t('options.mcp.signOut')}
+          </Button>
         </div>
       )}
 

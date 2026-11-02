@@ -1,4 +1,5 @@
 import type { Tool } from 'ai';
+import type { McpAuthFailureHint } from './oauth/types';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type AnyTool = Tool<any, any, any>;
@@ -10,8 +11,27 @@ export type McpTransportType = 'builtin' | 'http-stream' | 'sse' | 'webmcp' | 'e
 
 /**
  * MCP Server status
+ *
+ * `unauthorized` is deliberately distinct from `error`: the connection is
+ * healthy, the server simply wants a user in the loop (MCP authorization).
+ * Collapsing the two is what makes an OAuth-protected server look broken and
+ * hides the one action that fixes it.
  */
-export type McpServerStatus = 'connected' | 'disconnected' | 'error' | 'connecting';
+export type McpServerStatus =
+  | 'connected'
+  | 'disconnected'
+  | 'error'
+  | 'connecting'
+  /** The endpoint wants a user; nothing is wrong. */
+  | 'unauthorized'
+  /**
+   * The consent window is open (or about to open).
+   *
+   * Distinct from `connecting` so the click is acknowledged where it happened:
+   * the browser flow can sit on discovery, or on the window itself, for long
+   * enough that a silent spinner reads as "nothing happened".
+   */
+  | 'authorizing';
 
 /**
  * Tool definition as exposed by an MCP server
@@ -142,6 +162,32 @@ export interface McpServerState {
   status: McpServerStatus;
   tools: McpToolDefinition[];
   error?: string;
+  /**
+   * Why the last authorization attempt ended without credentials.
+   *
+   * Separate from `error` so the card can show "waiting for you" styling and,
+   * when the reason is actionable, the fallback that works for that server.
+   */
+  authError?: McpAuthError;
+  /**
+   * Whether stored credentials exist for this server.
+   *
+   * Only external servers answer this. The UI uses it to offer "sign out" without
+   * having to read the credential store itself.
+   */
+  hasCredentials?: boolean;
+}
+
+/** Authorization failure surfaced to the UI. */
+export interface McpAuthError {
+  /** Raw reason from the SDK, shown in the expanded panel. */
+  message: string;
+  /**
+   * `no-registration`: this server demands authorization but offers no way for a
+   * client to register itself, so a manually configured `Authorization` header
+   * is the only path. The card turns that into an instruction.
+   */
+  hint?: McpAuthFailureHint;
 }
 
 /**
@@ -183,4 +229,19 @@ export interface IMcpServer {
 
   /** Get error message if status is 'error' */
   getError(): string | undefined;
+
+  /**
+   * Get why authorization is pending, for servers that support it.
+   * Optional: built-in servers and WebMCP never need a user in the loop.
+   */
+  getAuthError?(): McpAuthError | undefined;
+
+  /** Whether stored credentials exist, for the "sign out" affordance. */
+  hasStoredCredentials?(): boolean;
+
+  /** Start the interactive sign-in. Only servers with an OAuth flow have this. */
+  authorize?(): Promise<void>;
+
+  /** Forget the stored credentials. */
+  signOut?(): Promise<void>;
 }

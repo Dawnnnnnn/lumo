@@ -186,12 +186,17 @@ class McpRegistry {
    * Get all server states (for UI display)
    */
   getAllStates(): McpServerState[] {
-    return this.getAllServers().map((server) => ({
-      info: server.getInfo(),
-      status: server.getStatus(),
-      tools: server.getTools(),
-      error: server.getError(),
-    }));
+    return this.getAllServers().map((server) => {
+      const authError = server.getAuthError?.();
+      return {
+        info: server.getInfo(),
+        status: server.getStatus(),
+        tools: server.getTools(),
+        error: server.getError(),
+        ...(authError ? { authError } : {}),
+        ...(server.hasStoredCredentials?.() ? { hasCredentials: true } : {}),
+      };
+    });
   }
 
   /**

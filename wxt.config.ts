@@ -30,6 +30,9 @@ export default defineConfig({
       'tabGroups',
       'contextMenus',
       'notifications',
+      // MCP authorization: the consent flow needs a browser-owned redirect URI
+      // (`chrome.identity.getRedirectURL()`) and the window that intercepts it.
+      'identity',
     ],
     host_permissions: ['<all_urls>'],
     content_security_policy: {

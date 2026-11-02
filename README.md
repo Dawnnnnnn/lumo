@@ -48,8 +48,17 @@ You can also [build from source](#getting-started) yourself.
 ### External MCP Server Support
 - Connect to remote MCP servers via **HTTP Streamable** or **SSE** transport
 - Add/remove/enable/disable servers from the settings UI
-- Real-time connection status (connecting, connected, error)
+- Real-time connection status (connecting, connected, sign-in needed, error)
 - Auto-discovery of tools provided by external servers
+- **OAuth 2.1 authorization** per the MCP authorization spec: protected-resource
+  metadata discovery, dynamic client registration, authorization code + PKCE,
+  and rotating refresh tokens. A connection never starts the browser flow by
+  itself — it sends the stored token, refreshes once when the server rejects it,
+  and otherwise waits for the user to sign in from the server card. Credentials
+  are bound to the server and its URL, and are never part of a config export.
+  Servers that authenticate with a static secret keep working through the
+  `Authorization` header field — a manual header always takes precedence over the
+  automatic flow.
 
 ### Multi-Provider Model Support
 - OpenAI-compatible API (Chat Completions)

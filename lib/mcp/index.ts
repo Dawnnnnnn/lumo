@@ -34,6 +34,7 @@ import { WebMcpServer } from './webmcp-server';
 import { storage } from '@/store/storage';
 import { initExtensionProviders, syncExtensionProviders } from './extension-registry';
 import { normalizeMcpSettings } from './settings';
+import { deleteCredentials, normalizeOAuthCredentials } from './oauth';
 import type { McpHttpServerConfig, McpExternalServerConfig } from './types';
 
 /**
@@ -109,23 +110,27 @@ export function registerExternalServer(config: McpHttpServerConfig): ExternalMcp
 }
 
 /**
- * Unregister an external MCP server and remove it from the registry.
+ * Unregister an external MCP server and remove the credentials it was using.
+ *
+ * Tokens are per server id; leaving them behind would resurrect a session for a
+ * server the user just deleted, and would keep a secret in storage forever.
  */
 export function unregisterExternalServer(id: string): void {
+  void deleteCredentials(id);
   mcpRegistry.unregister(id);
 }
 
 /**
- * Listen for chrome.storage.onChanged events on the `mcpSettings` key and
- * synchronize the local registry accordingly. This ensures that when settings
- * are modified in another context (e.g. the options page), the current context
- * (e.g. sidepanel) picks up changes without requiring a full page reload.
+ * Listen for `chrome.storage.onChanged` and keep the local registry in sync, so
+ * a change made in one context (e.g. the options page) reaches the others (e.g.
+ * the side panel) without a reload.
  *
  * Handles:
  * - Toggling `enabled` on/off for external servers
  * - Adding new external servers
  * - Removing external servers
  * - Toggling WebMCP on/off
+ * - OAuth credentials arriving from another context's consent flow
  */
 function setupMcpStorageSync(): void {
   chrome.storage.onChanged.addListener((changes, areaName) => {
@@ -143,6 +148,38 @@ function setupMcpStorageSync(): void {
     syncWebMcpServer(settings.webmcpEnabled);
     syncExtensionProviders(settings);
   });
+
+  // OAuth credentials are written by whichever context ran the consent flow;
+  // every other context holds a server instance stuck in `unauthorized`. Tokens
+  // landing is the signal to retry there, so the side panel connects without a
+  // reload after the options page authorizes.
+  chrome.storage.onChanged.addListener((changes, areaName) => {
+    if (areaName !== 'local') return;
+    const credentials = changes.mcpOAuthCredentials;
+    if (!credentials) return;
+    void reconnectAuthorizedServers(credentials.newValue);
+  });
+}
+
+/**
+ * Retry servers whose credentials were just refreshed elsewhere.
+ *
+ * Only servers that are stuck (unauthorized/error) are retried: a connected
+ * server already has a live session, and one that is connecting may be the very
+ * flow that wrote the token — reconnecting it would close its own client.
+ */
+async function reconnectAuthorizedServers(rawCredentials: unknown): Promise<void> {
+  const credentials = normalizeOAuthCredentials(rawCredentials);
+  for (const server of mcpRegistry.getAllServers()) {
+    const info = server.getInfo();
+    // Only servers with an OAuth grant can be waiting for credentials; built-in
+    // and extension providers answer `info.transport`.
+    if (info.builtin || info.transport === 'webmcp' || info.transport === 'extension') continue;
+    if (!info.enabled) continue;
+    if (server.getStatus() !== 'unauthorized' && server.getStatus() !== 'error') continue;
+    if (!credentials[info.id]?.tokens?.access_token) continue;
+    void server.connect();
+  }
 }
 
 /**
@@ -169,18 +206,22 @@ async function syncExternalServers(
     const latestConfig = latestById.get(info.id);
 
     if (!latestConfig) {
-      // Server was removed in settings → unregister locally
+      // Server was removed in settings → unregister locally and forget the
+      // credentials the user granted it.
       mcpRegistry.unregister(info.id);
+      void deleteCredentials(info.id);
       continue;
     }
 
     // Server still exists — check if enabled state changed
-    if (server instanceof ExternalMcpServer) {
+    if (typeof (server as { updateConfig?: unknown }).updateConfig === 'function') {
       const currentEnabled = info.enabled;
       const newEnabled = latestConfig.enabled;
 
       if (currentEnabled !== newEnabled) {
-        server.updateConfig(latestConfig);
+        (server as unknown as { updateConfig(config: McpHttpServerConfig): void }).updateConfig(
+          latestConfig,
+        );
 
         if (newEnabled) {
           // Was disabled, now enabled → connect

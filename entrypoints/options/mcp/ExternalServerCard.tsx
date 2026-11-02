@@ -1,11 +1,20 @@
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useTranslation } from 'react-i18next';
-import { ChevronDown, ChevronRight, PowerOff, RefreshCw, Trash2 } from 'lucide-react';
+import {
+  ChevronDown,
+  ChevronRight,
+  KeyRound,
+  Loader2,
+  PowerOff,
+  RefreshCw,
+  Trash2,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import type { McpHttpServerConfig, McpServerState } from '@/lib/mcp/types';
 import {
+  AUTH_HINT_KEYS,
   CardDisclosure,
   ServerExpandedContent,
   ServerIcon,
@@ -22,6 +31,8 @@ export function ExternalServerCard({
   expanded,
   onToggle,
   onReconnect,
+  onAuthorize,
+  onSignOut,
   onDelete,
   onToggleEnabled,
 }: {
@@ -30,11 +41,20 @@ export function ExternalServerCard({
   expanded: boolean;
   onToggle: () => void;
   onReconnect: () => void;
+  onAuthorize: () => void;
+  onSignOut: () => void;
   onDelete: () => void;
   onToggleEnabled: (enabled: boolean) => void;
 }) {
   const { t } = useTranslation();
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  // Only an enabled server can be waiting for the user: a disabled one is off
+  // by intent, and offering sign-in there would contradict the switch. While the
+  // consent window is being prepared the affordance stays, disabled, so the click
+  // is visibly acknowledged instead of turning into a silent spinner.
+  const authorizing = state.info.enabled && state.status === 'authorizing';
+  const needsAuthorization = state.info.enabled && state.status === 'unauthorized';
+  const authHint = state.authError?.hint;
 
   return (
     <div className="border border-border rounded-lg overflow-hidden">
@@ -57,7 +77,7 @@ export function ExternalServerCard({
         </span>
 
         {state.info.enabled ? (
-          <StatusBadge status={state.status} />
+          <StatusBadge status={state.status} title={state.authError?.message} />
         ) : (
           <span className="flex items-center gap-1 text-xs text-muted-foreground shrink-0">
             <PowerOff className="h-3 w-3" />
@@ -76,18 +96,44 @@ export function ExternalServerCard({
           />
         </div>
 
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-7 w-7 shrink-0"
-          onClick={(e) => {
-            e.stopPropagation();
-            onReconnect();
-          }}
-          aria-label={t('options.mcp.reconnect')}
-        >
-          <RefreshCw className="h-3.5 w-3.5" />
-        </Button>
+        {/* One slot, two meanings: a server that wants a user in the loop turns
+            the reconnect affordance into the action that resolves it. Adding a
+            second button would leave two controls doing the same thing. */}
+        {needsAuthorization || authorizing ? (
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-7 gap-1 px-2 text-xs shrink-0"
+            onClick={(e) => {
+              e.stopPropagation();
+              onAuthorize();
+            }}
+            disabled={authorizing}
+            aria-label={t('options.mcp.signIn')}
+            aria-busy={authorizing}
+            title={authHint ? t(AUTH_HINT_KEYS[authHint]) : state.authError?.message}
+          >
+            {authorizing ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <KeyRound className="h-3.5 w-3.5" />
+            )}
+            <span className="hidden sm:inline">{t('options.mcp.signIn')}</span>
+          </Button>
+        ) : (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7 shrink-0"
+            onClick={(e) => {
+              e.stopPropagation();
+              onReconnect();
+            }}
+            aria-label={t('options.mcp.reconnect')}
+          >
+            <RefreshCw className="h-3.5 w-3.5" />
+          </Button>
+        )}
 
         <Button
           variant="ghost"
@@ -143,7 +189,7 @@ export function ExternalServerCard({
       </AnimatePresence>
 
       <CardDisclosure open={expanded}>
-        <ServerExpandedContent state={state} config={config} />
+        <ServerExpandedContent state={state} config={config} onSignOut={onSignOut} />
       </CardDisclosure>
     </div>
   );

@@ -16,7 +16,19 @@ const mocks = vi.hoisted(() => ({
   createMCPClient: vi.fn(),
 }));
 
-vi.mock('@ai-sdk/mcp', () => ({ createMCPClient: mocks.createMCPClient }));
+/**
+ * The SDK's authorization plumbing is only touched by an `OAuthClientProvider`
+ * flow, which these tests never start — but `external-server` imports the error
+ * classes to classify a 401, so the mock has to provide them.
+ */
+vi.mock('@ai-sdk/mcp', () => ({
+  createMCPClient: mocks.createMCPClient,
+  auth: vi.fn(),
+  UnauthorizedError: class UnauthorizedError extends Error {},
+  MCPClientOAuthError: Object.assign(class MCPClientOAuthError extends Error {}, {
+    isInstance: () => false,
+  }),
+}));
 
 // Era detection is covered by `external-server-protocol-era.test.ts`; stub it so
 // these tests stay hermetic (they must never reach the network).

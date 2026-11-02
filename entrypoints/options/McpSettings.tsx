@@ -100,6 +100,24 @@ export function McpSettings() {
     void server.connect();
   };
 
+  /**
+   * Answer a `401` challenge from the registry's instance.
+   *
+   * Deliberately a capability call (`authorize?.()`) rather than `instanceof
+   * ExternalMcpServer`: a class identity check silently does nothing if the
+   * registry and this page ever hold different copies of the module, and the
+   * symptom would be a button that ignores clicks. Built-in, WebMCP and
+   * extension servers simply do not implement it.
+   */
+  const handleAuthorize = (serverId: string) => {
+    void mcpRegistry.getServer(serverId)?.authorize?.();
+  };
+
+  /** Revoke the grant: drop stored credentials and fall back to "sign in". */
+  const handleSignOut = (serverId: string) => {
+    void mcpRegistry.getServer(serverId)?.signOut?.();
+  };
+
   const webmcpTabCount = webmcp.tabStates.filter((tab) => tab.tools.length > 0).length;
   const countedStates = states.filter((s) => s.info.id !== 'webmcp');
   const totalServers = countedStates.length + webmcpTabCount;
@@ -189,6 +207,8 @@ export function McpSettings() {
                     expanded={expandedServers.has(serverState.info.id)}
                     onToggle={() => toggleExpanded(serverState.info.id)}
                     onReconnect={() => void handleReconnect(serverState.info.id)}
+                    onAuthorize={() => handleAuthorize(serverState.info.id)}
+                    onSignOut={() => handleSignOut(serverState.info.id)}
                     onDelete={() => void removeServer(serverState.info.id)}
                     onToggleEnabled={(enabled) => void toggleServer(serverState.info.id, enabled)}
                   />

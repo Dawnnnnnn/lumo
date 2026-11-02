@@ -6,6 +6,7 @@ import type {
 } from '@/types';
 import type { McpSettings } from '@/lib/mcp/types';
 import type { McpProtocolEras } from '@/lib/mcp/protocol-era';
+import type { McpOAuthCredentialMap } from '@/lib/mcp/oauth/types';
 import type { CommandSettings } from '@/lib/slash-commands';
 import type { MentionSettings } from '@/lib/mention-commands';
 import { MAX_SLOT_ID, defaultOrder, type PanelLayout } from '@/lib/panel-order';
@@ -206,6 +207,14 @@ export const storage = {
   },
   async setMcpProtocolEras(eras: McpProtocolEras): Promise<void> {
     await setField('mcpProtocolEras', eras);
+  },
+
+  /** OAuth credentials for external MCP servers. Secrets, never exported. */
+  async getMcpOAuthCredentials(): Promise<McpOAuthCredentialMap> {
+    return getField('mcpOAuthCredentials');
+  },
+  async setMcpOAuthCredentials(credentials: McpOAuthCredentialMap): Promise<void> {
+    await setField('mcpOAuthCredentials', credentials);
   },
 
   // ----- OCR Settings -----

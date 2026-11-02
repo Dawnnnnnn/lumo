@@ -18,7 +18,11 @@ const setMcpSettings = vi.fn(async (next: McpSettingsRecord) => {
   settings = next;
 });
 const registerExternalServer = vi.fn((config: { id: string }) => ({
-  connect: vi.fn(),
+  connect: vi.fn(async () => {}),
+  // The page now answers an authorization challenge right after a save, so the
+  // fake needs the whole small surface that path touches.
+  getStatus: () => 'disconnected',
+  authorize: vi.fn(),
   getConfig: () => config,
 }));
 const states: McpServerState[] = [];
