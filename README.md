@@ -159,4 +159,4 @@ npm run compile
 
 ## License
 
-This project does not currently include a license file. All rights reserved.
+[MIT](LICENSE) © mscststs

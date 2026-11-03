@@ -2,6 +2,7 @@
   "name": "lumo",
   "description": "AI-powered browser sidebar assistant",
   "private": true,
+  "license": "MIT",
   "version": "1.0.20",
   "type": "module",
   "scripts": {
