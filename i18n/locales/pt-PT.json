@@ -279,7 +279,7 @@
       "enableCommands": "Ativar comandos de barra",
       "enableCommandsDesc": "Quando desativado, digitar / no campo não faz nada e nenhum comando é expandido ao enviar.",
       "skillCommands": "Comandos de competências",
-      "skillCommandsDesc": "As competências instaladas aparecem como /skill:<name>. Desativar remove apenas o atalho — o modelo continua a poder usar a competência.",
+      "skillCommandsDesc": "Utilizar uma competência específica.",
       "applyTiming": "Momento de ativação",
       "applyTimingSend": "Ao enviar",
       "applyTimingSelect": "Ao selecionar",

@@ -278,7 +278,7 @@
       "enableCommands": "Aktifkan perintah garis miring",
       "enableCommandsDesc": "Saat nonaktif, mengetik / di kolom tidak melakukan apa pun dan tidak ada perintah yang diperluas saat dikirim.",
       "skillCommands": "Perintah skill",
-      "skillCommandsDesc": "Skill yang terpasang muncul sebagai /skill:<name>. Menonaktifkan hanya menghapus pintasan — model tetap dapat memakai skill tersebut.",
+      "skillCommandsDesc": "Gunakan skill tertentu.",
       "applyTiming": "Waktu pemicuan",
       "applyTimingSend": "Saat dikirim",
       "applyTimingSelect": "Saat dipilih",

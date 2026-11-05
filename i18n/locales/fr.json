@@ -279,7 +279,7 @@
       "enableCommands": "Activer les commandes slash",
       "enableCommandsDesc": "Lorsque c'est désactivé, taper / dans le champ ne fait rien et aucune commande n'est développée à l'envoi.",
       "skillCommands": "Commandes de compétences",
-      "skillCommandsDesc": "Les compétences installées apparaissent sous la forme /skill:<name>. Désactiver ne supprime que le raccourci — le modèle peut toujours utiliser la compétence.",
+      "skillCommandsDesc": "Utiliser une compétence précise.",
       "applyTiming": "Moment de déclenchement",
       "applyTimingSend": "À l'envoi",
       "applyTimingSelect": "À la sélection",

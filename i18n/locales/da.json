@@ -278,7 +278,7 @@
       "enableCommands": "Aktivér slash-kommandoer",
       "enableCommandsDesc": "Når den er slået fra, gør / i feltet ingenting, og ingen kommando udvides ved afsendelse.",
       "skillCommands": "Færdighedskommandoer",
-      "skillCommandsDesc": "Installerede færdigheder vises som /skill:<name>. Slår du fra, fjernes kun genvejen — modellen kan stadig bruge færdigheden.",
+      "skillCommandsDesc": "Brug en bestemt færdighed.",
       "applyTiming": "Udløsningstidspunkt",
       "applyTimingSend": "Ved afsendelse",
       "applyTimingSelect": "Ved valg",

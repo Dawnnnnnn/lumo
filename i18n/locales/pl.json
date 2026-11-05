@@ -280,7 +280,7 @@
       "enableCommands": "Włącz polecenia ukośnika",
       "enableCommandsDesc": "Po wyłączeniu wpisanie / w polu nic nie robi i żadne polecenie nie rozwija się przy wysyłaniu.",
       "skillCommands": "Polecenia umiejętności",
-      "skillCommandsDesc": "Zainstalowane umiejętności pojawiają się jako /skill:<name>. Wyłączenie usuwa tylko skrót — model nadal może korzystać z umiejętności.",
+      "skillCommandsDesc": "Użyj konkretnej umiejętności.",
       "applyTiming": "Moment wyzwolenia",
       "applyTimingSend": "Przy wysyłaniu",
       "applyTimingSelect": "Przy wybieraniu",

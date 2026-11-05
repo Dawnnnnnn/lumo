@@ -278,7 +278,7 @@
       "enableCommands": "Perparancsok engedélyezése",
       "enableCommandsDesc": "Kikapcsolva a / beírása a mezőbe nem tesz semmit, és küldéskor nem bontódik ki parancs.",
       "skillCommands": "Készségparancsok",
-      "skillCommandsDesc": "A telepített készségek /skill:<name> formában jelennek meg. Kikapcsolás csak a gyorsparancsot szünteti meg — a modell továbbra is használhatja a készséget.",
+      "skillCommandsDesc": "Adott készség használata.",
       "applyTiming": "Kiváltás ideje",
       "applyTimingSend": "Küldéskor",
       "applyTimingSelect": "Kiválasztáskor",

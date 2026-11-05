@@ -279,7 +279,7 @@
       "enableCommands": "Attiva comandi slash",
       "enableCommandsDesc": "Se disattivato, digitare / nel campo non fa nulla e nessun comando viene espanso all'invio.",
       "skillCommands": "Comandi delle competenze",
-      "skillCommandsDesc": "Le competenze installate appaiono come /skill:<name>. Disattivare rimuove solo la scorciatoia: il modello può comunque usare la competenza.",
+      "skillCommandsDesc": "Usa una competenza specifica.",
       "applyTiming": "Momento di attivazione",
       "applyTimingSend": "All'invio",
       "applyTimingSelect": "Alla selezione",

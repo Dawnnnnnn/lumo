@@ -278,7 +278,7 @@
       "enableCommands": "Aktiver skråstrekkommandoer",
       "enableCommandsDesc": "Når dette er av, gjør / i feltet ingenting, og ingen kommando utvides ved sending.",
       "skillCommands": "Ferdighetskommandoer",
-      "skillCommandsDesc": "Installerte ferdigheter vises som /skill:<name>. Slår du av, fjernes bare snarveien — modellen kan fortsatt bruke ferdigheten.",
+      "skillCommandsDesc": "Bruk en bestemt ferdighet.",
       "applyTiming": "Utløsningstidspunkt",
       "applyTimingSend": "Ved sending",
       "applyTimingSelect": "Ved valg",

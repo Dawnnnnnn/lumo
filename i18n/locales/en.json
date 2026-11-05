@@ -278,7 +278,7 @@
       "enableCommands": "Enable slash commands",
       "enableCommandsDesc": "When off, typing / in the input does nothing and no command expands on send.",
       "skillCommands": "Skill commands",
-      "skillCommandsDesc": "Installed skills appear as /skill:<name>. Turning this off removes the shortcut only — the model can still use the skill.",
+      "skillCommandsDesc": "Use a specific skill.",
       "applyTiming": "Trigger timing",
       "applyTimingSend": "On send",
       "applyTimingSelect": "On selection",

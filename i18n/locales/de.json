@@ -278,7 +278,7 @@
       "enableCommands": "Slash-Befehle aktivieren",
       "enableCommandsDesc": "Wenn aus, bewirkt / im Eingabefeld nichts und beim Senden wird kein Befehl erweitert.",
       "skillCommands": "Skill-Befehle",
-      "skillCommandsDesc": "Installierte Skills erscheinen als /skill:<name>. Ausschalten entfernt nur die Abkürzung — das Modell kann den Skill weiterhin nutzen.",
+      "skillCommandsDesc": "Einen bestimmten Skill verwenden.",
       "applyTiming": "Auslösezeitpunkt",
       "applyTimingSend": "Beim Senden",
       "applyTimingSelect": "Bei Auswahl",

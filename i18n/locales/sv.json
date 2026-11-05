@@ -278,7 +278,7 @@
       "enableCommands": "Aktivera snedstreckskommandon",
       "enableCommandsDesc": "När det är av gör / i fältet ingenting och inget kommando expanderas vid sändning.",
       "skillCommands": "Färdighetskommandon",
-      "skillCommandsDesc": "Installerade färdigheter visas som /skill:<name>. Stänger du av tas bara genvägen bort — modellen kan fortfarande använda färdigheten.",
+      "skillCommandsDesc": "Använd en specifik färdighet.",
       "applyTiming": "Utlösningstidpunkt",
       "applyTimingSend": "Vid sändning",
       "applyTimingSelect": "Vid val",

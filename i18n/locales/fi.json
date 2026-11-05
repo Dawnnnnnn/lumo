@@ -278,7 +278,7 @@
       "enableCommands": "Ota vinoviivakomennot käyttöön",
       "enableCommandsDesc": "Kun tämä on pois päältä, / ei tee kentässä mitään eikä mitään komentoa laajenneta lähetettäessä.",
       "skillCommands": "Taitokomennot",
-      "skillCommandsDesc": "Asennetut taidot näkyvät muodossa /skill:<name>. Pois kytkeminen poistaa vain pikakuvakkeen — malli voi yhä käyttää taitoa.",
+      "skillCommandsDesc": "Käytä tiettyä taitoa.",
       "applyTiming": "Käynnistysajankohta",
       "applyTimingSend": "Lähetettäessä",
       "applyTimingSelect": "Valittaessa",

@@ -278,7 +278,7 @@
       "enableCommands": "スラッシュコマンドを有効にする",
       "enableCommandsDesc": "オフにすると、入力欄で / を入力しても何も起きず、送信時にコマンドも展開されません。",
       "skillCommands": "スキルコマンド",
-      "skillCommandsDesc": "インストール済みのスキルは /skill:<name> として表示されます。オフにするとショートカットだけが消え、モデルは引き続きスキルを使えます。",
+      "skillCommandsDesc": "特定のスキルを使う",
       "applyTiming": "実行タイミング",
       "applyTimingSend": "送信時",
       "applyTimingSelect": "選択時",

@@ -278,7 +278,7 @@
       "enableCommands": "Bật lệnh gạch chéo",
       "enableCommandsDesc": "Khi tắt, gõ / trong ô không làm gì và không có lệnh nào được mở rộng khi gửi.",
       "skillCommands": "Lệnh kỹ năng",
-      "skillCommandsDesc": "Kỹ năng đã cài xuất hiện dưới dạng /skill:<name>. Tắt chỉ bỏ lối tắt — mô hình vẫn có thể dùng kỹ năng.",
+      "skillCommandsDesc": "Dùng một kỹ năng cụ thể.",
       "applyTiming": "Thời điểm kích hoạt",
       "applyTimingSend": "Khi gửi",
       "applyTimingSelect": "Khi chọn",

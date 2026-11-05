@@ -278,7 +278,7 @@
       "enableCommands": "슬래시 명령 사용",
       "enableCommandsDesc": "끄면 입력창에서 /를 입력해도 아무 일도 일어나지 않고, 전송 시 명령도 확장되지 않습니다.",
       "skillCommands": "스킬 명령",
-      "skillCommandsDesc": "설치된 스킬은 /skill:<name>으로 나타납니다. 끄면 단축 명령만 사라지고 모델은 계속 스킬을 사용할 수 있습니다.",
+      "skillCommandsDesc": "특정 스킬 사용",
       "applyTiming": "실행 시점",
       "applyTimingSend": "전송 시",
       "applyTimingSelect": "선택 시",

@@ -278,7 +278,7 @@
       "enableCommands": "Luba kaldkriipsukäsud",
       "enableCommandsDesc": "Kui väljas, ei tee / sisestamine väljale midagi ja saatmisel ei laiendata ühtegi käsku.",
       "skillCommands": "Oskuste käsud",
-      "skillCommandsDesc": "Installitud oskused kuvatakse kujul /skill:<name>. Väljalülitamine eemaldab ainult otsetee — mudel saab oskust endiselt kasutada.",
+      "skillCommandsDesc": "Kasuta kindlat oskust.",
       "applyTiming": "Käivitamise aeg",
       "applyTimingSend": "Saatmisel",
       "applyTimingSelect": "Valimisel",

@@ -280,7 +280,7 @@
       "enableCommands": "Įjungti pasvirųjų brūkšnių komandas",
       "enableCommandsDesc": "Kai išjungta, įvedus / lauke nieko neįvyksta ir siunčiant jokia komanda neišskleidžiama.",
       "skillCommands": "Įgūdžių komandos",
-      "skillCommandsDesc": "Įdiegti įgūdžiai rodomi kaip /skill:<name>. Išjungus pašalinama tik nuoroda – modelis vis tiek gali naudoti įgūdį.",
+      "skillCommandsDesc": "Naudoti konkretų įgūdį.",
       "applyTiming": "Suveikimo laikas",
       "applyTimingSend": "Siunčiant",
       "applyTimingSelect": "Pasirenkant",

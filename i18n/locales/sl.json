@@ -280,7 +280,7 @@
       "enableCommands": "Omogoči ukaze s poševnico",
       "enableCommandsDesc": "Ko je izklopljeno, vnos / v polje ne naredi ničesar in noben ukaz se pri pošiljanju ne razširi.",
       "skillCommands": "Ukazi veščin",
-      "skillCommandsDesc": "Nameščene veščine se prikažejo kot /skill:<name>. Izklop odstrani le bližnjico — model lahko veščino še vedno uporablja.",
+      "skillCommandsDesc": "Uporabi določeno veščino.",
       "applyTiming": "Čas sprožitve",
       "applyTimingSend": "Ob pošiljanju",
       "applyTimingSelect": "Ob izbiri",

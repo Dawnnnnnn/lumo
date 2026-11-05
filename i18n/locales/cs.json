@@ -280,7 +280,7 @@
       "enableCommands": "Povolit lomítkové příkazy",
       "enableCommandsDesc": "Po vypnutí zadání / v poli nic neudělá a při odeslání se žádný příkaz nerozbalí.",
       "skillCommands": "Příkazy dovedností",
-      "skillCommandsDesc": "Nainstalované dovednosti se zobrazují jako /skill:<name>. Vypnutím se odstraní jen zkratka — model může dovednost dál používat.",
+      "skillCommandsDesc": "Použít konkrétní dovednost.",
       "applyTiming": "Kdy se aktivuje",
       "applyTimingSend": "Při odeslání",
       "applyTimingSelect": "Při výběru",

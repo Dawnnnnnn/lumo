@@ -278,7 +278,7 @@
       "enableCommands": "Slash-opdrachten inschakelen",
       "enableCommandsDesc": "Als dit uit staat, doet / in het veld niets en wordt bij verzenden geen opdracht uitgebreid.",
       "skillCommands": "Vaardigheidsopdrachten",
-      "skillCommandsDesc": "Geïnstalleerde vaardigheden verschijnen als /skill:<name>. Uitzetten verwijdert alleen de snelkoppeling — het model kan de vaardigheid nog steeds gebruiken.",
+      "skillCommandsDesc": "Een specifieke vaardigheid gebruiken.",
       "applyTiming": "Triggersmoment",
       "applyTimingSend": "Bij verzenden",
       "applyTimingSelect": "Bij selecteren",

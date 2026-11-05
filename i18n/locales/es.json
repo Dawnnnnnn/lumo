@@ -279,7 +279,7 @@
       "enableCommands": "Activar comandos de barra",
       "enableCommandsDesc": "Si se desactiva, escribir / en el campo no hace nada y ningún comando se expande al enviar.",
       "skillCommands": "Comandos de habilidades",
-      "skillCommandsDesc": "Las habilidades instaladas aparecen como /skill:<name>. Desactivarlo solo quita el atajo: el modelo puede seguir usando la habilidad.",
+      "skillCommandsDesc": "Usar una habilidad concreta.",
       "applyTiming": "Momento de activación",
       "applyTimingSend": "Al enviar",
       "applyTimingSelect": "Al seleccionar",

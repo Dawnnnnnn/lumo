@@ -278,7 +278,7 @@
       "enableCommands": "የስላሽ ትዕዛዞችን አንቃ",
       "enableCommandsDesc": "ሲጠፋ በመስኩ ውስጥ / መተየብ ምንም አያደርግም እና ሲላክ ምንም ትዕዛዝ አይስፋፋም።",
       "skillCommands": "የክህሎት ትዕዛዞች",
-      "skillCommandsDesc": "የተጫኑ ክህሎቶች በ/skill:<name> ቅርጽ ይታያሉ። ማጥፋት አቋራጩን ብቻ ያስወግዳል — ሞዴሉ አሁንም ክህሎቱን መጠቀም ይችላል።",
+      "skillCommandsDesc": "የተወሰነ ክህሎት ይጠቀሙ።",
       "applyTiming": "የሚቀሰቀስበት ጊዜ",
       "applyTimingSend": "ሲላክ",
       "applyTimingSelect": "ሲመረጥ",

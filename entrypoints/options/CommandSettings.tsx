@@ -179,7 +179,8 @@ export function CommandSettingsPage() {
           {/* The `/skill:*` family, listed with the other shipped commands
               because that is what it is: behaviour the user can only switch on
               or off. It sits at the end because it gates a family rather than a
-              single action, and its own description carries that distinction. */}
+              single action; its row already shows the trigger, so the description
+              says what the family is for instead of restating the syntax. */}
           <CommandCard
             name="skill:*"
             description={t('options.commands.skillCommandsDesc')}

@@ -282,7 +282,7 @@
       "enableCommands": "تفعيل أوامر الشرطة المائلة",
       "enableCommandsDesc": "عند الإيقاف، كتابة / في الحقل لا تفعل شيئًا ولا يُوسّع أي أمر عند الإرسال.",
       "skillCommands": "أوامر المهارات",
-      "skillCommandsDesc": "تظهر المهارات المثبّتة بصيغة ‎/skill:<name>‎. إيقاف هذا يزيل الاختصار فقط — لا يزال بإمكان النموذج استخدام المهارة.",
+      "skillCommandsDesc": "استخدام مهارة محددة.",
       "applyTiming": "وقت التشغيل",
       "applyTimingSend": "عند الإرسال",
       "applyTimingSelect": "عند التحديد",

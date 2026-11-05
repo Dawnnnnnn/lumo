@@ -278,7 +278,7 @@
       "enableCommands": "I-enable ang slash commands",
       "enableCommandsDesc": "Kapag naka-off, walang ginagawa ang pag-type ng / sa field at walang command na lumalawak kapag ipinadala.",
       "skillCommands": "Mga command ng skill",
-      "skillCommandsDesc": "Lumalabas ang mga naka-install na skill bilang /skill:<name>. Ang pag-off ay tinatanggal lang ang shortcut — magagamit pa rin ng modelo ang skill.",
+      "skillCommandsDesc": "Gumamit ng partikular na skill.",
       "applyTiming": "Oras ng pag-trigger",
       "applyTimingSend": "Kapag ipinadala",
       "applyTimingSelect": "Kapag pinili",

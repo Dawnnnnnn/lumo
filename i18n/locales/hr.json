@@ -279,7 +279,7 @@
       "enableCommands": "Omogući naredbe s kosom crtom",
       "enableCommandsDesc": "Kad je isključeno, upisivanje / u polje ne čini ništa i nijedna se naredba ne razvija pri slanju.",
       "skillCommands": "Naredbe vještina",
-      "skillCommandsDesc": "Instalirane vještine pojavljuju se kao /skill:<name>. Isključivanje uklanja samo prečac — model i dalje može koristiti vještinu.",
+      "skillCommandsDesc": "Koristi određenu vještinu.",
       "applyTiming": "Vrijeme aktiviranja",
       "applyTimingSend": "Pri slanju",
       "applyTimingSelect": "Pri odabiru",

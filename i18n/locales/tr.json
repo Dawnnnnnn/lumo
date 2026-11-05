@@ -278,7 +278,7 @@
       "enableCommands": "Eğik çizgi komutlarını etkinleştir",
       "enableCommandsDesc": "Kapalıyken alana / yazmak hiçbir şey yapmaz ve gönderirken hiçbir komut genişletilmez.",
       "skillCommands": "Beceri komutları",
-      "skillCommandsDesc": "Yüklü beceriler /skill:<name> olarak görünür. Kapatmak yalnızca kısayolu kaldırır — model beceriyi kullanmaya devam edebilir.",
+      "skillCommandsDesc": "Belirli bir beceriyi kullan.",
       "applyTiming": "Tetiklenme zamanı",
       "applyTimingSend": "Gönderirken",
       "applyTimingSelect": "Seçerken",

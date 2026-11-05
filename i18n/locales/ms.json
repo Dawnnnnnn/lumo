@@ -278,7 +278,7 @@
       "enableCommands": "Dayakan perintah garis miring",
       "enableCommandsDesc": "Apabila dimatikan, menaip / dalam medan tidak melakukan apa-apa dan tiada perintah dikembangkan semasa dihantar.",
       "skillCommands": "Arahan kemahiran",
-      "skillCommandsDesc": "Kemahiran yang dipasang muncul sebagai /skill:<name>. Menyahdayakan hanya membuang pintasan — model masih boleh menggunakan kemahiran itu.",
+      "skillCommandsDesc": "Gunakan kemahiran tertentu.",
       "applyTiming": "Masa pencetus",
       "applyTimingSend": "Semasa dihantar",
       "applyTimingSelect": "Semasa dipilih",

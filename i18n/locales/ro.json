@@ -279,7 +279,7 @@
       "enableCommands": "Activează comenzile slash",
       "enableCommandsDesc": "Când este dezactivat, tastarea / în câmp nu face nimic și nicio comandă nu se extinde la trimitere.",
       "skillCommands": "Comenzi pentru abilități",
-      "skillCommandsDesc": "Abilitățile instalate apar ca /skill:<name>. Dezactivarea elimină doar scurtătura — modelul poate folosi în continuare abilitatea.",
+      "skillCommandsDesc": "Folosește o abilitate anume.",
       "applyTiming": "Momentul declanșării",
       "applyTimingSend": "La trimitere",
       "applyTimingSelect": "La selectare",

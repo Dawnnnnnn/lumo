@@ -279,7 +279,7 @@
       "enableCommands": "Iespējot slīpsvītras komandas",
       "enableCommandsDesc": "Kad izslēgts, / ievadīšana laukā neko nedara un nosūtot neviena komanda netiek izvērsta.",
       "skillCommands": "Prasmju komandas",
-      "skillCommandsDesc": "Instalētās prasmes parādās kā /skill:<name>. Izslēdzot tiek noņemts tikai saīsinājums — modelis joprojām var izmantot prasmi.",
+      "skillCommandsDesc": "Izmantot konkrētu prasmi.",
       "applyTiming": "Aktivizēšanas laiks",
       "applyTimingSend": "Sūtot",
       "applyTimingSelect": "Atlasot",

@@ -278,7 +278,7 @@
       "enableCommands": "启用命令",
       "enableCommandsDesc": "关闭后，在输入框中输入 / 不会触发任何命令，也不会展开短语。",
       "skillCommands": "技能命令",
-      "skillCommandsDesc": "已安装的技能会以 /skill:<name> 出现。关闭只移除这一快捷方式，模型仍然可以使用该技能。",
+      "skillCommandsDesc": "使用指定的技能",
       "applyTiming": "触发时机",
       "applyTimingSend": "发送时",
       "applyTimingSelect": "选中时",

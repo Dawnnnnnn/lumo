@@ -21,8 +21,10 @@ import { ThemeInit } from '@/lib/theme';
 import { AppDirection } from '@/components/direction-provider';
 import { FontSizeInit } from '@/lib/font-size';
 import { useEvent } from '@/lib/event-bus';
+import { splitMarkdownFrontmatter } from '@/lib/markdown-frontmatter';
 import { selectAllRootProps, useSelectAllScope } from '@/lib/use-select-all-scope';
 import { CodeEditor } from './EditorView';
+import { FrontmatterCard } from './FrontmatterCard';
 
 import {
   DropdownMenu,
@@ -411,6 +413,7 @@ export default function App() {
         {!loading && !error && category === 'text' && content !== null && metadata && (
           <TextPreview
             content={content}
+            path={fileName ?? ''}
             mimeType={metadata.mimeType}
             viewMode={viewMode}
             isDark={isDark}
@@ -449,6 +452,7 @@ function ImagePreview({ src, zoom }: { src: string; zoom: number }) {
  */
 function TextPreview({
   content,
+  path,
   mimeType,
   viewMode,
   isDark,
@@ -456,14 +460,24 @@ function TextPreview({
   onChange,
 }: {
   content: string;
+  /** Storage path of the file being previewed. */
+  path: string;
   mimeType: string;
   viewMode: ViewMode;
   isDark: boolean;
   onSave: (content: string) => void;
   onChange: (content: string) => void;
 }) {
+  // Parsed on every edit, so memoised on the content it parses. The source view
+  // keeps the raw file including the frontmatter; only the rendered view splits
+  // it, because that is the view where the block used to turn into a heading.
+  const markdown = useMemo(
+    () => (mimeType === 'text/markdown' ? splitMarkdownFrontmatter(content) : null),
+    [content, mimeType],
+  );
+
   // Markdown — both rendered + editor always mounted, toggled via opacity
-  if (mimeType === 'text/markdown') {
+  if (mimeType === 'text/markdown' && markdown) {
     return (
       <div className="relative h-full">
         <div
@@ -472,11 +486,13 @@ function TextPreview({
             viewMode === 'rendered' ? 'opacity-100' : 'opacity-0 pointer-events-none',
           )}
         >
-          <div
-            className="p-6 max-w-3xl mx-auto sd-message-response break-words"
-            {...selectAllRootProps}
-          >
-            <Streamdown plugins={{ code, cjk }}>{content}</Streamdown>
+          <div className="p-6 max-w-3xl mx-auto break-words" {...selectAllRootProps}>
+            {markdown.data && <FrontmatterCard data={markdown.data} path={path} />}
+            {/* `sd-message-response` styles are tuned for chat-width prose; the
+                card above keeps its own scale by staying outside it. */}
+            <div className="sd-message-response">
+              <Streamdown plugins={{ code, cjk }}>{markdown.body}</Streamdown>
+            </div>
           </div>
         </div>
         <div

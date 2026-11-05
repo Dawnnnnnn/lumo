@@ -279,7 +279,7 @@
       "enableCommands": "הפעלת פקודות לוכסן",
       "enableCommandsDesc": "כשזה כבוי, הקלדת / בשדה לא עושה דבר ואף פקודה לא מתרחבת בשליחה.",
       "skillCommands": "פקודות מיומנות",
-      "skillCommandsDesc": "מיומנויות מותקנות מופיעות כ־/skill:<name>. כיבוי מסיר רק את הקיצור — המודל עדיין יכול להשתמש במיומנות.",
+      "skillCommandsDesc": "להשתמש במיומנות מסוימת.",
       "applyTiming": "מועד הפעלה",
       "applyTimingSend": "בשליחה",
       "applyTimingSelect": "בבחירה",

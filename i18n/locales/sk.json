@@ -280,7 +280,7 @@
       "enableCommands": "Povoliť lomítkové príkazy",
       "enableCommandsDesc": "Po vypnutí zadanie / v poli nič neurobí a pri odoslaní sa žiadny príkaz nerozbalí.",
       "skillCommands": "Príkazy zručností",
-      "skillCommandsDesc": "Nainštalované zručnosti sa zobrazujú ako /skill:<name>. Vypnutím sa odstráni len skratka — model môže zručnosť naďalej používať.",
+      "skillCommandsDesc": "Použiť konkrétnu zručnosť.",
       "applyTiming": "Kedy sa aktivuje",
       "applyTimingSend": "Pri odoslaní",
       "applyTimingSelect": "Pri výbere",

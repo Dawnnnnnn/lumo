@@ -279,7 +279,7 @@
       "enableCommands": "Activa les ordres de barra",
       "enableCommandsDesc": "Quan està desactivat, escriure / al camp no fa res i cap ordre s'expandeix en enviar.",
       "skillCommands": "Ordres d’habilitats",
-      "skillCommandsDesc": "Les habilitats instal·lades apareixen com a /skill:<name>. Desactivar-ho només treu la drecera: el model pot continuar fent servir l'habilitat.",
+      "skillCommandsDesc": "Utilitza una habilitat concreta.",
       "applyTiming": "Moment d'activació",
       "applyTimingSend": "En enviar",
       "applyTimingSelect": "En seleccionar",

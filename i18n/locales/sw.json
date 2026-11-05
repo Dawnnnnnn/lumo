@@ -278,7 +278,7 @@
       "enableCommands": "Washa amri za mkwaju",
       "enableCommandsDesc": "Ikizimwa, kuandika / kwenye sehemu hakufanyi kitu na hakuna amri inayopanuliwa unapotuma.",
       "skillCommands": "Amri za ujuzi",
-      "skillCommandsDesc": "Ujuzi uliosakinishwa huonekana kama /skill:<name>. Kuzima kunaondoa njia ya mkato pekee — modeli bado inaweza kutumia ujuzi.",
+      "skillCommandsDesc": "Tumia ujuzi mahususi.",
       "applyTiming": "Wakati wa kuchochea",
       "applyTimingSend": "Unapotuma",
       "applyTimingSelect": "Unapochagua",

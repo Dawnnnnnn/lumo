@@ -278,7 +278,7 @@
       "enableCommands": "เปิดใช้คำสั่งทับ",
       "enableCommandsDesc": "เมื่อปิด การพิมพ์ / ในช่องจะไม่ทำอะไร และไม่มีคำสั่งใดขยายเมื่อส่ง",
       "skillCommands": "คำสั่งสกิล",
-      "skillCommandsDesc": "สกิลที่ติดตั้งจะแสดงเป็น /skill:<name> การปิดจะลบเพียงทางลัดเท่านั้น — โมเดลยังใช้สกิลได้",
+      "skillCommandsDesc": "ใช้สกิลที่ระบุ",
       "applyTiming": "เวลาที่ทริกเกอร์",
       "applyTimingSend": "เมื่อส่ง",
       "applyTimingSelect": "เมื่อเลือก",
