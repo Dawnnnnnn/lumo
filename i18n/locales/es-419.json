@@ -116,7 +116,9 @@
       "output": "Salida",
       "screenshot": "Captura de pantalla",
       "screenshotUnavailable": "Captura de pantalla no disponible",
-      "unknownError": "Error desconocido"
+      "unknownError": "Error desconocido",
+      "readSkill": "Leer habilidad",
+      "readSkillResource": "Leer recurso de la habilidad"
     },
     "reasoning": {
       "title": "Razonamiento",
@@ -140,7 +142,8 @@
     },
     "badge": {
       "builtin": "Integrado",
-      "user": "Personalizado"
+      "user": "Personalizado",
+      "skill": "Habilidad"
     }
   },
   "mentions": {
@@ -275,6 +278,8 @@
       "description": "Atajos que empiezan por /.",
       "enableCommands": "Activar comandos de barra",
       "enableCommandsDesc": "Si se desactiva, escribir / en el campo no hace nada y ningún comando se expande al enviar.",
+      "skillCommands": "Comandos de habilidades",
+      "skillCommandsDesc": "Las habilidades instaladas aparecen como /skill:<name>. Desactivarlo solo quita el atajo: el modelo puede seguir usando la habilidad.",
       "applyTiming": "Momento de activación",
       "applyTimingSend": "Al enviar",
       "applyTimingSelect": "Al seleccionar",
@@ -521,6 +526,15 @@
     "files": {
       "title": "Archivos",
       "description": "Gestiona los archivos creados por el asistente de IA o subidos manualmente.",
+      "tabs": {
+        "skills": "Habilidades"
+      },
+      "summary": "{{count}} archivos · {{size}}",
+      "search": "Buscar archivos",
+      "noResults": "Nada coincide con «{{query}}»",
+      "upload": "Subir archivo",
+      "uploaded": "Se subieron {{count}} archivos",
+      "uploadRejected": "Solo se pueden guardar archivos de texto",
       "noFiles": "Aún no hay archivos guardados.",
       "name": "Nombre",
       "size": "Tamaño",
@@ -607,6 +621,58 @@
       "prompt": "Prompt de OCR",
       "promptDesc": "Instrucciones que se envían junto con la imagen al modelo de visión.",
       "resetPrompt": "Restablecer"
+    }
+  },
+  "skills": {
+    "import": {
+      "button": "Importar habilidades",
+      "fromArchive": "Importar desde ZIP",
+      "fromFolder": "Importar desde una carpeta",
+      "fromGitHub": "Importar desde GitHub",
+      "installed": "Se importaron {{count}} habilidades",
+      "skipped": "{{count}} habilidades ya están instaladas",
+      "failed": "Error al importar habilidades",
+      "noManifest": "No se encontró SKILL.md"
+    },
+    "review": {
+      "title": "Importar habilidades",
+      "found": "{{count}} encontradas en este paquete",
+      "selected": "{{count}} seleccionadas",
+      "selectAll": "Seleccionar todo",
+      "selectNone": "Quitar selección",
+      "installed": "Instalada",
+      "replaceHint": "Al importar se reemplazará la copia instalada",
+      "skip": "No se puede instalar",
+      "confirm": "Importar {{count}}"
+    },
+    "github": {
+      "title": "Importar desde GitHub",
+      "url": "Repositorio",
+      "hint": "Un repositorio, rama o archivo: si no indicas rama se usa la predeterminada.",
+      "download": "Descargar",
+      "stop": "Detener",
+      "received": "{{size}} recibidos",
+      "scanning": "Leyendo el repositorio…",
+      "reading": "Leyendo las habilidades…",
+      "downloading": "Descargando el archivo…",
+      "rateLimited": "GitHub está limitando las solicitudes: vuelve a intentarlo en unos minutos",
+      "invalidUrl": "Esa no es una dirección de repositorio de GitHub",
+      "notFound": "No se encontró el repositorio o la rama (los repositorios privados no son compatibles)",
+      "tooLarge": "Este repositorio es demasiado grande para importarlo",
+      "network": "No se pudo conectar con GitHub"
+    },
+    "list": {
+      "installed": "{{count}} instaladas",
+      "needsAttention": "{{count}} requieren atención",
+      "empty": "No hay habilidades instaladas",
+      "noManifest": "No hay SKILL.md en esta carpeta",
+      "updated": "Actualizado el {{date}}",
+      "copyCommand": "Copiar comando",
+      "open": "Abrir SKILL.md",
+      "download": "Descargar habilidad",
+      "delete": "Eliminar habilidad",
+      "deleteConfirm": "¿Eliminar «{{name}}» y sus {{count}} archivos? No se puede deshacer.",
+      "hiddenFromModel": "Oculta para la invocación del modelo"
     }
   }
 }

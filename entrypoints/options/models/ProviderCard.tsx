@@ -26,7 +26,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { PROVIDER_TYPE_I18N_KEY, PROVIDER_VENDOR_I18N_KEY } from '@/lib/provider-type';
 import type { ModelConfig, ProviderConfig } from '@/types';
-import { ConfirmDeleteBar } from './ConfirmDeleteBar';
+import { ConfirmDeleteBar } from '@/entrypoints/options/components/ConfirmDeleteBar';
 import { ModelRow } from './ModelRow';
 import { moveModelById } from './reorder';
 

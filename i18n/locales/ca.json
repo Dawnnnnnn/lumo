@@ -116,7 +116,9 @@
       "output": "Sortida",
       "screenshot": "Captura de pantalla",
       "screenshotUnavailable": "Captura de pantalla no disponible",
-      "unknownError": "Error desconegut"
+      "unknownError": "Error desconegut",
+      "readSkill": "Llegeix l'habilitat",
+      "readSkillResource": "Llegeix el recurs de l'habilitat"
     },
     "reasoning": {
       "title": "Raonament",
@@ -140,7 +142,8 @@
     },
     "badge": {
       "builtin": "Integrat",
-      "user": "Personalitzat"
+      "user": "Personalitzat",
+      "skill": "Habilitat"
     }
   },
   "mentions": {
@@ -275,6 +278,8 @@
       "description": "Dreceres que comencen amb /.",
       "enableCommands": "Activa les ordres de barra",
       "enableCommandsDesc": "Quan està desactivat, escriure / al camp no fa res i cap ordre s'expandeix en enviar.",
+      "skillCommands": "Ordres d’habilitats",
+      "skillCommandsDesc": "Les habilitats instal·lades apareixen com a /skill:<name>. Desactivar-ho només treu la drecera: el model pot continuar fent servir l'habilitat.",
       "applyTiming": "Moment d'activació",
       "applyTimingSend": "En enviar",
       "applyTimingSelect": "En seleccionar",
@@ -521,6 +526,15 @@
     "files": {
       "title": "Fitxers",
       "description": "Gestiona els fitxers generats per l'assistent d'IA o pujats manualment.",
+      "tabs": {
+        "skills": "Habilitats"
+      },
+      "summary": "{{count}} fitxers · {{size}}",
+      "search": "Cerca fitxers",
+      "noResults": "Res no coincideix amb «{{query}}»",
+      "upload": "Puja un fitxer",
+      "uploaded": "S'han pujat {{count}} fitxers",
+      "uploadRejected": "Només es poden desar fitxers de text",
       "noFiles": "Encara no hi ha fitxers desats.",
       "name": "Nom",
       "size": "Mida",
@@ -607,6 +621,58 @@
       "prompt": "Indicacions d'OCR",
       "promptDesc": "Instruccions que s'envien amb la imatge al model de visió.",
       "resetPrompt": "Restaura el valor per defecte"
+    }
+  },
+  "skills": {
+    "import": {
+      "button": "Importa habilitats",
+      "fromArchive": "Importa des de ZIP",
+      "fromFolder": "Importa des d'una carpeta",
+      "fromGitHub": "Importa des de GitHub",
+      "installed": "S'han importat {{count}} habilitats",
+      "skipped": "{{count}} habilitats ja estan instal·lades",
+      "failed": "La importació d'habilitats ha fallat",
+      "noManifest": "No s'ha trobat cap SKILL.md"
+    },
+    "review": {
+      "title": "Importa habilitats",
+      "found": "{{count}} trobades en aquest paquet",
+      "selected": "{{count}} seleccionades",
+      "selectAll": "Selecciona-ho tot",
+      "selectNone": "Neteja la selecció",
+      "installed": "Instal·lada",
+      "replaceHint": "La importació substituirà la còpia instal·lada",
+      "skip": "No es pot instal·lar",
+      "confirm": "Importa {{count}}"
+    },
+    "github": {
+      "title": "Importa des de GitHub",
+      "url": "Repositori",
+      "hint": "Un repositori, una branca o un fitxer: sense branca s'usa la predeterminada.",
+      "download": "Baixa",
+      "stop": "Atura",
+      "received": "{{size}} rebuts",
+      "scanning": "S'està llegint el repositori…",
+      "reading": "S'estan llegint les habilitats…",
+      "downloading": "S'està baixant l'arxiu…",
+      "rateLimited": "GitHub està limitant les sol·licituds: torna-ho a provar d'aquí a uns minuts",
+      "invalidUrl": "Aquesta no és una adreça de repositori de GitHub",
+      "notFound": "No s'ha trobat el repositori o la branca (els repositoris privats no són compatibles)",
+      "tooLarge": "Aquest repositori és massa gran per importar-lo",
+      "network": "No s'ha pogut connectar amb GitHub"
+    },
+    "list": {
+      "installed": "{{count}} instal·lades",
+      "needsAttention": "{{count}} necessiten atenció",
+      "empty": "No hi ha habilitats instal·lades",
+      "noManifest": "No hi ha cap SKILL.md en aquesta carpeta",
+      "updated": "Actualitzat {{date}}",
+      "copyCommand": "Copia l'ordre",
+      "open": "Obre SKILL.md",
+      "download": "Baixa l'habilitat",
+      "delete": "Elimina l'habilitat",
+      "deleteConfirm": "Vols eliminar «{{name}}» i els seus {{count}} fitxers? No es pot desfer.",
+      "hiddenFromModel": "Amagada de les crides del model"
     }
   }
 }

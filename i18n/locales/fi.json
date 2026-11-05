@@ -116,7 +116,9 @@
       "output": "Tuloste",
       "screenshot": "Kuvakaappaus",
       "screenshotUnavailable": "Kuvakaappaus ei ole saatavilla",
-      "unknownError": "Tuntematon virhe"
+      "unknownError": "Tuntematon virhe",
+      "readSkill": "Lue taito",
+      "readSkillResource": "Lue taidon resurssi"
     },
     "reasoning": {
       "title": "Päättely",
@@ -140,7 +142,8 @@
     },
     "badge": {
       "builtin": "Sisäänrakennettu",
-      "user": "Mukautettu"
+      "user": "Mukautettu",
+      "skill": "Taito"
     }
   },
   "mentions": {
@@ -274,6 +277,8 @@
       "description": "Pikakomennot, jotka alkavat merkillä /.",
       "enableCommands": "Ota vinoviivakomennot käyttöön",
       "enableCommandsDesc": "Kun tämä on pois päältä, / ei tee kentässä mitään eikä mitään komentoa laajenneta lähetettäessä.",
+      "skillCommands": "Taitokomennot",
+      "skillCommandsDesc": "Asennetut taidot näkyvät muodossa /skill:<name>. Pois kytkeminen poistaa vain pikakuvakkeen — malli voi yhä käyttää taitoa.",
       "applyTiming": "Käynnistysajankohta",
       "applyTimingSend": "Lähetettäessä",
       "applyTimingSelect": "Valittaessa",
@@ -520,6 +525,15 @@
     "files": {
       "title": "Tiedostot",
       "description": "Hallinnoi AI-avustajan luomia tai manuaalisesti ladattuja tiedostoja.",
+      "tabs": {
+        "skills": "Taidot"
+      },
+      "summary": "{{count}} tiedostoa · {{size}}",
+      "search": "Hae tiedostoja",
+      "noResults": "Mikään ei vastaa hakua \"{{query}}\"",
+      "upload": "Lataa tiedosto",
+      "uploaded": "Ladattiin {{count}} tiedostoa",
+      "uploadRejected": "Vain tekstitiedostoja voi tallentaa",
       "noFiles": "Tiedostoja ei ole vielä tallennettu.",
       "name": "Nimi",
       "size": "Koko",
@@ -606,6 +620,58 @@
       "prompt": "OCR-kehote",
       "promptDesc": "Ohjeet, jotka lähetetään kuvan mukana näkömallille.",
       "resetPrompt": "Palauta oletus"
+    }
+  },
+  "skills": {
+    "import": {
+      "button": "Tuo taidot",
+      "fromArchive": "Tuo ZIP-tiedostosta",
+      "fromFolder": "Tuo kansiosta",
+      "fromGitHub": "Tuo GitHubista",
+      "installed": "Tuotiin {{count}} taitoa",
+      "skipped": "{{count}} taitoa on jo asennettu",
+      "failed": "Taitojen tuonti epäonnistui",
+      "noManifest": "SKILL.md-tiedostoa ei löytynyt"
+    },
+    "review": {
+      "title": "Tuo taidot",
+      "found": "{{count}} löytyi paketista",
+      "selected": "{{count}} valittu",
+      "selectAll": "Valitse kaikki",
+      "selectNone": "Tyhjennä valinta",
+      "installed": "Asennettu",
+      "replaceHint": "Tuonti korvaa asennetun kopion",
+      "skip": "Ei voi asentaa",
+      "confirm": "Tuo {{count}}"
+    },
+    "github": {
+      "title": "Tuo GitHubista",
+      "url": "Repo",
+      "hint": "Repo, haara tai tiedosto — ilman haaraa käytetään oletushaaraa.",
+      "download": "Lataa",
+      "stop": "Lopeta",
+      "received": "{{size}} vastaanotettu",
+      "scanning": "Luetaan repoa…",
+      "reading": "Luetaan taitoja…",
+      "downloading": "Ladataan arkistoa…",
+      "rateLimited": "GitHub rajoittaa pyyntöjä — yritä uudelleen muutaman minuutin kuluttua",
+      "invalidUrl": "Tuo ei ole GitHub-repon osoite",
+      "notFound": "Repoa tai haaraa ei löytynyt (yksityisiä repoja ei tueta)",
+      "tooLarge": "Tämä repo on liian suuri tuotavaksi",
+      "network": "GitHubiin ei saatu yhteyttä"
+    },
+    "list": {
+      "installed": "{{count}} asennettu",
+      "needsAttention": "{{count}} vaatii huomiota",
+      "empty": "Ei asennettuja taitoja",
+      "noManifest": "Tässä kansiossa ei ole SKILL.md-tiedostoa",
+      "updated": "Päivitetty {{date}}",
+      "copyCommand": "Kopioi komento",
+      "open": "Avaa SKILL.md",
+      "download": "Lataa taito",
+      "delete": "Poista taito",
+      "deleteConfirm": "Poistetaanko \"{{name}}\" ja sen {{count}} tiedostoa? Tätä ei voi kumota.",
+      "hiddenFromModel": "Piilotettu mallin kutsuilta"
     }
   }
 }

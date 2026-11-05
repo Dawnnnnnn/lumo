@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { resolveReasoningEffort } from '@/lib/reasoning-effort';
 import type { ModelConfig } from '@/types';
-import { ConfirmDeleteBar } from './ConfirmDeleteBar';
+import { ConfirmDeleteBar } from '@/entrypoints/options/components/ConfirmDeleteBar';
 
 /**
  * A single, reorderable model inside a provider card.

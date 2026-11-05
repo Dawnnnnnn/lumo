@@ -97,7 +97,8 @@ function resolvePath(locale: LocaleBundle, path: string): string | undefined {
  * `svc-register-listeners-synchronously`.
  */
 export function registerContextMenus() {
-  // Remove any stale entries from previous sessions, then create fresh ones.
+  // Replace any entries left over from an earlier service-worker lifetime with
+  // a locally correct set.
   rebuildMenus();
 
   // Listen for clicks
@@ -116,11 +117,92 @@ export function registerContextMenus() {
   });
 }
 
-function rebuildMenus() {
-  chrome.contextMenus.removeAll(() => {
-    void createMenuItems();
+/**
+ * Rebuild bookkeeping.
+ *
+ * `removeAll` and each `create` are asynchronous round trips to the browser
+ * process, and the locale load sits in between. Firing two rebuilds at once —
+ * the service worker starting *and* a stored language change arriving — is
+ * therefore not idempotent: both passes finish removing before either creates,
+ * so the second one collides with every id the first one just added and the
+ * console fills with one "Cannot create item with duplicate id" per item.
+ *
+ * Rebuilds are chained instead of raced: a pass only starts once the previous
+ * one has settled. `rebuildGeneration` lets a queued pass bail out when a newer
+ * request has superseded it — two quick language edits need one final menu, not
+ * two rebuilds, and the older titles must never win.
+ */
+let rebuildChain: Promise<void> = Promise.resolve();
+let rebuildGeneration = 0;
+
+function rebuildMenus(): void {
+  const generation = ++rebuildGeneration;
+  rebuildChain = rebuildChain
+    .then(() => runRebuild(generation))
+    .catch((error: unknown) => {
+      console.error('[Lumo] Failed to rebuild context menus:', error);
+    });
+}
+
+/** Which pass a rebuild is running: the normal one, or the one repair pass. */
+type RebuildAttempt = 'initial' | 'recovery';
+
+async function runRebuild(generation: number, attempt: RebuildAttempt = 'initial'): Promise<void> {
+  // Superseded while queued: the newer pass owns the menu now.
+  if (generation !== rebuildGeneration) return;
+
+  // Resolve the titles *before* touching the live menu. The locale bundle is
+  // the only asynchronous step in a rebuild, so doing it first leaves a
+  // remove→create pair with no gap another pass could interleave with — the
+  // menu is never observed half-built, and no id is ever created twice.
+  const locale = await loadLocale();
+  if (generation !== rebuildGeneration) return;
+
+  await removeAllMenus();
+  const failures = await createMenuItems(locale);
+  if (failures.length === 0) return;
+  if (generation !== rebuildGeneration) return;
+
+  reportMenuFailures(failures, attempt);
+
+  // A duplicate id means the browser still held an item this pass did not
+  // remove, so the menu left behind is not the one we asked for (stale title,
+  // stale language). One forced teardown repairs it; repeating the pass would
+  // only repeat the failure, so recovery is bounded to a single retry.
+  if (attempt === 'initial' && failures.some((failure) => failure.duplicateId)) {
+    await runRebuild(generation, 'recovery');
+  }
+}
+
+/**
+ * Remove every menu item this extension owns.
+ *
+ * Promisified because the create pass must not begin until the browser has
+ * actually applied the removal: that ordering *is* the rebuild. A failed
+ * teardown is not fatal here — the create pass reports its consequences as
+ * duplicate ids, which is what triggers the repair pass — so the error is only
+ * logged to keep the reason next to its cause.
+ */
+function removeAllMenus(): Promise<void> {
+  return new Promise((resolve) => {
+    chrome.contextMenus.removeAll(() => {
+      const error = chrome.runtime.lastError;
+      if (error) console.warn('[Lumo] Failed to clear context menus:', error.message);
+      resolve();
+    });
   });
 }
+
+/** One `chrome.contextMenus.create` call the browser rejected. */
+interface MenuCreateFailure {
+  id: string;
+  message: string;
+  /** Whether the browser rejected the id as already taken. */
+  duplicateId: boolean;
+}
+
+/** Create properties whose id is known, so a failure can name the item. */
+type MenuCreateProperties = chrome.contextMenus.CreateProperties & { id: string };
 
 /**
  * The `chrome.contextMenus` context each scope binds to.
@@ -136,17 +218,40 @@ const SCOPE_CONTEXTS: Record<QuickActionScope, MenuContexts> = {
   image: ['image'],
 };
 
-async function createMenuItems() {
-  const locale = await loadLocale();
-  const rootTitle = locale.sidebar.contextMenu.root;
+/**
+ * Create every item for `locale` and report the ones the browser rejected.
+ *
+ * All calls are issued synchronously — parents before children, so a parent
+ * exists by the time its child is processed — and only then awaited. Collecting
+ * the callbacks is what turns a failure from an "Unchecked runtime.lastError" in
+ * the console into something the rebuild can act on, and it collapses a full
+ * failed pass into a single log line instead of one per item.
+ */
+async function createMenuItems(locale: LocaleBundle): Promise<MenuCreateFailure[]> {
+  const pending: Promise<MenuCreateFailure | undefined>[] = [];
+
+  const create = (properties: MenuCreateProperties) => {
+    pending.push(
+      new Promise<MenuCreateFailure | undefined>((resolve) => {
+        chrome.contextMenus.create(properties, () => {
+          // Reading `lastError` marks it handled; otherwise Chrome logs it as an
+          // unchecked error and the rebuild learns nothing about the failure.
+          const error = chrome.runtime.lastError;
+          if (!error) return resolve(undefined);
+          const message = error.message ?? 'unknown error';
+          resolve({ id: properties.id, message, duplicateId: /duplicate/i.test(message) });
+        });
+      }),
+    );
+  };
 
   // One parent per scope. Chrome shows a parent only when at least one child
   // matches the current context, so an empty scope simply never appears.
   const scopes = Object.keys(QUICK_ACTION_PARENT_IDS) as QuickActionScope[];
   for (const scope of scopes) {
-    chrome.contextMenus.create({
+    create({
       id: QUICK_ACTION_PARENT_IDS[scope],
-      title: rootTitle,
+      title: locale.sidebar.contextMenu.root,
       contexts: SCOPE_CONTEXTS[scope],
     });
   }
@@ -154,13 +259,27 @@ async function createMenuItems() {
   for (const action of QUICK_ACTIONS) {
     const title = resolvePath(locale, quickActionTitlePath(action));
     if (!title) continue; // Missing translation: skip rather than show a raw key.
-    chrome.contextMenus.create({
+    create({
       id: action.id,
       parentId: QUICK_ACTION_PARENT_IDS[action.scope],
       title,
       contexts: SCOPE_CONTEXTS[action.scope],
     });
   }
+
+  const results = await Promise.all(pending);
+  return results.filter((failure): failure is MenuCreateFailure => failure !== undefined);
+}
+
+/** Logs a pass's rejected items as one line instead of one line per item. */
+function reportMenuFailures(failures: MenuCreateFailure[], attempt: RebuildAttempt): void {
+  const ids = failures.map((failure) => failure.id).join(', ');
+  // Every item of a failed pass usually fails the same way; collapse the reasons
+  // so a full rejection stays one readable line.
+  const reasons = [...new Set(failures.map((failure) => failure.message))].join('; ');
+  console.warn(
+    `[Lumo] Context menu ${attempt} pass rejected ${failures.length} item(s): ${ids} (${reasons})`,
+  );
 }
 
 // ─── Click handler ────────────────────────────────────────────────────────────

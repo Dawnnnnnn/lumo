@@ -116,7 +116,9 @@
       "output": "Saída",
       "screenshot": "Captura de tela",
       "screenshotUnavailable": "Captura de tela indisponível",
-      "unknownError": "Erro desconhecido"
+      "unknownError": "Erro desconhecido",
+      "readSkill": "Ler habilidade",
+      "readSkillResource": "Ler recurso da habilidade"
     },
     "reasoning": {
       "title": "Raciocínio",
@@ -140,7 +142,8 @@
     },
     "badge": {
       "builtin": "Integrado",
-      "user": "Personalizado"
+      "user": "Personalizado",
+      "skill": "Habilidade"
     }
   },
   "mentions": {
@@ -275,6 +278,8 @@
       "description": "Atalhos que começam com /.",
       "enableCommands": "Ativar comandos de barra",
       "enableCommandsDesc": "Quando desativado, digitar / no campo não faz nada e nenhum comando é expandido ao enviar.",
+      "skillCommands": "Comandos de habilidades",
+      "skillCommandsDesc": "As habilidades instaladas aparecem como /skill:<name>. Desativar remove apenas o atalho — o modelo ainda pode usar a habilidade.",
       "applyTiming": "Momento de ativação",
       "applyTimingSend": "Ao enviar",
       "applyTimingSelect": "Ao selecionar",
@@ -521,6 +526,15 @@
     "files": {
       "title": "Arquivos",
       "description": "Gerencie arquivos criados pelo assistente de IA ou enviados manualmente.",
+      "tabs": {
+        "skills": "Habilidades"
+      },
+      "summary": "{{count}} arquivos · {{size}}",
+      "search": "Pesquisar arquivos",
+      "noResults": "Nada corresponde a \"{{query}}\"",
+      "upload": "Enviar arquivo",
+      "uploaded": "{{count}} arquivos enviados",
+      "uploadRejected": "Apenas arquivos de texto podem ser armazenados",
       "noFiles": "Nenhum arquivo salvo ainda.",
       "name": "Nome",
       "size": "Tamanho",
@@ -607,6 +621,58 @@
       "prompt": "Prompt de OCR",
       "promptDesc": "Instruções enviadas junto com a imagem ao modelo de visão.",
       "resetPrompt": "Restaurar padrão"
+    }
+  },
+  "skills": {
+    "import": {
+      "button": "Importar habilidades",
+      "fromArchive": "Importar de ZIP",
+      "fromFolder": "Importar de pasta",
+      "fromGitHub": "Importar do GitHub",
+      "installed": "{{count}} habilidades importadas",
+      "skipped": "{{count}} habilidades já instaladas",
+      "failed": "Falha ao importar habilidades",
+      "noManifest": "Nenhum SKILL.md encontrado"
+    },
+    "review": {
+      "title": "Importar habilidades",
+      "found": "{{count}} encontradas neste pacote",
+      "selected": "{{count}} selecionadas",
+      "selectAll": "Selecionar tudo",
+      "selectNone": "Limpar seleção",
+      "installed": "Instalada",
+      "replaceHint": "A importação substituirá a cópia instalada",
+      "skip": "Não pode ser instalada",
+      "confirm": "Importar {{count}}"
+    },
+    "github": {
+      "title": "Importar do GitHub",
+      "url": "Repositório",
+      "hint": "Um repositório, branch ou arquivo — sem branch, a padrão é usada.",
+      "download": "Baixar",
+      "stop": "Parar",
+      "received": "{{size}} recebidos",
+      "scanning": "Lendo o repositório…",
+      "reading": "Lendo as habilidades…",
+      "downloading": "Baixando o arquivo…",
+      "rateLimited": "O GitHub está limitando as solicitações — tente novamente em alguns minutos",
+      "invalidUrl": "Esse não é um endereço de repositório do GitHub",
+      "notFound": "Repositório ou branch não encontrado (repositórios privados não são suportados)",
+      "tooLarge": "Este repositório é grande demais para importar",
+      "network": "Não foi possível acessar o GitHub"
+    },
+    "list": {
+      "installed": "{{count}} instaladas",
+      "needsAttention": "{{count}} precisam de atenção",
+      "empty": "Nenhuma habilidade instalada",
+      "noManifest": "Nenhum SKILL.md nesta pasta",
+      "updated": "Atualizado em {{date}}",
+      "copyCommand": "Copiar comando",
+      "open": "Abrir SKILL.md",
+      "download": "Baixar habilidade",
+      "delete": "Excluir habilidade",
+      "deleteConfirm": "Excluir \"{{name}}\" e seus {{count}} arquivos? Isso não pode ser desfeito.",
+      "hiddenFromModel": "Oculta da invocação do modelo"
     }
   }
 }

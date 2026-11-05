@@ -116,7 +116,9 @@
       "output": "إخراج",
       "screenshot": "لقطة شاشة",
       "screenshotUnavailable": "لقطة الشاشة غير متاحة",
-      "unknownError": "خطأ غير معروف"
+      "unknownError": "خطأ غير معروف",
+      "readSkill": "قراءة المهارة",
+      "readSkillResource": "قراءة مورد المهارة"
     },
     "reasoning": {
       "title": "الاستدلال",
@@ -140,7 +142,8 @@
     },
     "badge": {
       "builtin": "مدمج",
-      "user": "مخصص"
+      "user": "مخصص",
+      "skill": "مهارة"
     }
   },
   "mentions": {
@@ -278,6 +281,8 @@
       "description": "اختصارات تبدأ بـ /.",
       "enableCommands": "تفعيل أوامر الشرطة المائلة",
       "enableCommandsDesc": "عند الإيقاف، كتابة / في الحقل لا تفعل شيئًا ولا يُوسّع أي أمر عند الإرسال.",
+      "skillCommands": "أوامر المهارات",
+      "skillCommandsDesc": "تظهر المهارات المثبّتة بصيغة ‎/skill:<name>‎. إيقاف هذا يزيل الاختصار فقط — لا يزال بإمكان النموذج استخدام المهارة.",
       "applyTiming": "وقت التشغيل",
       "applyTimingSend": "عند الإرسال",
       "applyTimingSelect": "عند التحديد",
@@ -524,6 +529,15 @@
     "files": {
       "title": "الملفات",
       "description": "أدر الملفات التي أنشأها مساعد الذكاء الاصطناعي أو التي رُفعت يدويًا.",
+      "tabs": {
+        "skills": "المهارات"
+      },
+      "summary": "{{count}} ملفات · {{size}}",
+      "search": "البحث في الملفات",
+      "noResults": "لا شيء يطابق \"{{query}}\"",
+      "upload": "رفع ملف",
+      "uploaded": "تم رفع {{count}} ملفات",
+      "uploadRejected": "لا يمكن تخزين سوى الملفات النصية",
       "noFiles": "لا توجد ملفات محفوظة بعد.",
       "name": "الاسم",
       "size": "الحجم",
@@ -610,6 +624,58 @@
       "prompt": "موجّه OCR",
       "promptDesc": "تعليمات تُرسل مع الصورة إلى نموذج الرؤية.",
       "resetPrompt": "استعادة الافتراضي"
+    }
+  },
+  "skills": {
+    "import": {
+      "button": "استيراد المهارات",
+      "fromArchive": "استيراد من ZIP",
+      "fromFolder": "استيراد من مجلد",
+      "fromGitHub": "استيراد من GitHub",
+      "installed": "تم استيراد {{count}} مهارة",
+      "skipped": "{{count}} مهارة مثبتة بالفعل",
+      "failed": "فشل استيراد المهارات",
+      "noManifest": "لم يتم العثور على SKILL.md"
+    },
+    "review": {
+      "title": "استيراد المهارات",
+      "found": "تم العثور على {{count}} في هذه الحزمة",
+      "selected": "تم تحديد {{count}}",
+      "selectAll": "تحديد الكل",
+      "selectNone": "إلغاء التحديد",
+      "installed": "مثبّتة",
+      "replaceHint": "سيستبدل الاستيراد النسخة المثبّتة",
+      "skip": "لا يمكن تثبيتها",
+      "confirm": "استيراد {{count}}"
+    },
+    "github": {
+      "title": "استيراد من GitHub",
+      "url": "المستودع",
+      "hint": "مستودع أو فرع أو ملف — بدون فرع يُستخدم الفرع الافتراضي.",
+      "download": "تنزيل",
+      "stop": "إيقاف",
+      "received": "تم استلام {{size}}",
+      "scanning": "جارٍ قراءة المستودع…",
+      "reading": "جارٍ قراءة المهارات…",
+      "downloading": "جارٍ تنزيل الأرشيف…",
+      "rateLimited": "GitHub يحدّ من الطلبات — أعد المحاولة بعد بضع دقائق",
+      "invalidUrl": "هذا ليس عنوان مستودع GitHub",
+      "notFound": "لم يتم العثور على المستودع أو الفرع (المستودعات الخاصة غير مدعومة)",
+      "tooLarge": "هذا المستودع كبير جدًا للاستيراد",
+      "network": "تعذّر الوصول إلى GitHub"
+    },
+    "list": {
+      "installed": "{{count}} مثبّتة",
+      "needsAttention": "{{count}} تحتاج إلى مراجعة",
+      "empty": "لا توجد مهارات مثبّتة",
+      "noManifest": "لا يوجد SKILL.md في هذا المجلد",
+      "updated": "آخر تحديث {{date}}",
+      "copyCommand": "نسخ الأمر",
+      "open": "فتح SKILL.md",
+      "download": "تنزيل المهارة",
+      "delete": "حذف المهارة",
+      "deleteConfirm": "حذف \"{{name}}\" وملفاتها البالغة {{count}}؟ لا يمكن التراجع عن ذلك.",
+      "hiddenFromModel": "مخفية عن استدعاء النموذج"
     }
   }
 }

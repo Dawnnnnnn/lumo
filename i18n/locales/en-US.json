@@ -116,7 +116,9 @@
       "output": "Output",
       "screenshot": "Screenshot",
       "screenshotUnavailable": "Screenshot unavailable",
-      "unknownError": "Unknown error"
+      "unknownError": "Unknown error",
+      "readSkill": "Read skill",
+      "readSkillResource": "Read skill resource"
     },
     "reasoning": {
       "title": "Reasoning",
@@ -140,7 +142,8 @@
     },
     "badge": {
       "builtin": "Built-in",
-      "user": "Custom"
+      "user": "Custom",
+      "skill": "Skill"
     }
   },
   "mentions": {
@@ -274,6 +277,8 @@
       "description": "Shortcuts that start with /.",
       "enableCommands": "Enable slash commands",
       "enableCommandsDesc": "When off, typing / in the input does nothing and no command expands on send.",
+      "skillCommands": "Skill commands",
+      "skillCommandsDesc": "Installed skills appear as /skill:<name>. Turning this off removes the shortcut only — the model can still use the skill.",
       "applyTiming": "Trigger timing",
       "applyTimingSend": "On send",
       "applyTimingSelect": "On selection",
@@ -520,6 +525,15 @@
     "files": {
       "title": "Files",
       "description": "Manage files created by the AI assistant or uploaded manually.",
+      "tabs": {
+        "skills": "Skills"
+      },
+      "summary": "{{count}} files · {{size}}",
+      "search": "Search files",
+      "noResults": "Nothing matches \"{{query}}\"",
+      "upload": "Upload file",
+      "uploaded": "Uploaded {{count}} files",
+      "uploadRejected": "Only text files can be stored",
       "noFiles": "No files stored yet.",
       "name": "Name",
       "size": "Size",
@@ -606,6 +620,58 @@
       "prompt": "OCR Prompt",
       "promptDesc": "Instructions sent alongside the image to the vision model.",
       "resetPrompt": "Reset to default"
+    }
+  },
+  "skills": {
+    "import": {
+      "button": "Import skills",
+      "fromArchive": "Import from ZIP",
+      "fromFolder": "Import from folder",
+      "fromGitHub": "Import from GitHub",
+      "installed": "Imported {{count}} skills",
+      "skipped": "{{count}} skills already installed",
+      "failed": "Skill import failed",
+      "noManifest": "No SKILL.md found"
+    },
+    "review": {
+      "title": "Import skills",
+      "found": "{{count}} found in this package",
+      "selected": "{{count}} selected",
+      "selectAll": "Select all",
+      "selectNone": "Clear selection",
+      "installed": "Installed",
+      "replaceHint": "Importing will replace the installed copy",
+      "skip": "Cannot be installed",
+      "confirm": "Import {{count}}"
+    },
+    "github": {
+      "title": "Import from GitHub",
+      "url": "Repository",
+      "hint": "A repository, branch or file address — the default branch is used when none is given.",
+      "download": "Download",
+      "stop": "Stop",
+      "received": "Received {{size}}",
+      "scanning": "Scanning repository…",
+      "reading": "Reading skills…",
+      "downloading": "Downloading the archive…",
+      "rateLimited": "GitHub is rate limiting requests — try again in a few minutes",
+      "invalidUrl": "That is not a GitHub repository address",
+      "notFound": "Repository or branch not found (private repositories are not supported)",
+      "tooLarge": "This repository is too large to import",
+      "network": "Could not reach GitHub"
+    },
+    "list": {
+      "installed": "{{count}} installed",
+      "needsAttention": "{{count}} need attention",
+      "empty": "No skills installed",
+      "noManifest": "No SKILL.md in this folder",
+      "updated": "Updated {{date}}",
+      "copyCommand": "Copy command",
+      "open": "Open SKILL.md",
+      "download": "Download skill",
+      "delete": "Delete skill",
+      "deleteConfirm": "Delete \"{{name}}\" and its {{count}} files? This cannot be undone.",
+      "hiddenFromModel": "Hidden from model invocation"
     }
   }
 }

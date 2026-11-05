@@ -8,7 +8,7 @@ import type {
   McpToolExecutionContext,
   AnyTool,
 } from './types';
-import { fileStorage, getPreviewCategory, isLikelyTextContent } from './file-storage';
+import { fileStorage, getPreviewCategory, isLikelyTextContent, normalizeDirPath } from './file-storage';
 import { downloadAsZip } from '@/lib/zip-download';
 import { applyEdits, applyUnifiedDiff } from './file-edit';
 import { applyOutputLimit, DEFAULT_MAX_CHARS } from '@/lib/page/output-limit';
@@ -36,6 +36,18 @@ function toJsonSchema(schema: unknown): Record<string, unknown> {
 function previewUrlFor(name: string, mimeType: string): string | undefined {
   if (getPreviewCategory(mimeType) === 'unsupported') return undefined;
   return chrome.runtime.getURL(`/preview.html?file=${encodeURIComponent(name)}`);
+}
+
+/** Metadata shape `file_list` returns for one file. */
+function listEntry(f: { name: string; mimeType: string; size: number; createdAt: number; updatedAt: number }) {
+  return {
+    name: f.name,
+    mimeType: f.mimeType,
+    size: f.size,
+    createdAt: new Date(f.createdAt).toISOString(),
+    updatedAt: new Date(f.updatedAt).toISOString(),
+    previewable: getPreviewCategory(f.mimeType) !== 'unsupported',
+  };
 }
 
 /**
@@ -109,9 +121,12 @@ export class FileMcpServer implements IMcpServer {
         description:
           'Read a text file stored in the extension. Always read a file before editing it, ' +
           'and copy anchor text for file_edit from this output rather than from memory. ' +
-          'If the result reports truncated: true, call again with offset to continue.',
+          'If the result reports truncated: true, call again with offset to continue. ' +
+          'A file path may contain directories, e.g. "skills/pdf-tools/SKILL.md".',
         inputSchema: z.object({
-          name: z.string().describe('File name to read'),
+          name: z
+            .string()
+            .describe('File path to read (e.g. "notes.md", "skills/pdf-tools/SKILL.md")'),
           maxChars: z
             .number()
             .optional()
@@ -141,10 +156,13 @@ export class FileMcpServer implements IMcpServer {
       file_write: tool({
         description:
           'Write or create a file in the extension storage. This OVERWRITES the whole file, ' +
-          'so use file_edit to change part of an existing file. Returns the file metadata and ' +
-          'a preview URL on success.',
+          'so use file_edit to change part of an existing file. A path may contain directories; ' +
+          'missing parent directories are created. Returns the file metadata and a preview URL ' +
+          'on success.',
         inputSchema: z.object({
-          name: z.string().describe('File name (e.g. "notes.md", "data.json", "script.py")'),
+          name: z
+            .string()
+            .describe('File path (e.g. "notes.md", "data.json", "skills/my-skill/references/a.md")'),
           content: z.string().describe('File content to write'),
         }),
         execute: async ({ name, content: fileContent }) => {
@@ -263,24 +281,68 @@ export class FileMcpServer implements IMcpServer {
 
       file_list: tool({
         description:
-          'List all files stored in the extension with their metadata (name, size, type, creation time).',
-        inputSchema: z.object({}),
-        execute: async () => {
+          'List stored files. Without "path" this lists every file with its metadata. With ' +
+          '"path" it lists ONE directory: its immediate subdirectories and its own files, ' +
+          'which is how you discover what a folder contains before reading a file in it. ' +
+          'Returns names and metadata only, never file content.',
+        inputSchema: z.object({
+          path: z
+            .string()
+            .optional()
+            .describe(
+              'Directory path to list, e.g. "skills/pdf-tools/". Omit to list every stored file.',
+            ),
+        }),
+        execute: async ({ path }) => {
+          if (path !== undefined) {
+            const dir = normalizeDirPath(path);
+            if (dir === null) {
+              return { error: `Invalid directory path "${path}"` };
+            }
+            const listing = await fileStorage.listDirectory(dir);
+            return {
+              path: listing.path,
+              directories: listing.directories,
+              files: listing.files.map(listEntry),
+              ...(listing.files.length === 0 && listing.directories.length === 0
+                ? { message: 'Directory is empty' }
+                : {}),
+            };
+          }
+
           const files = await fileStorage.listFiles();
           if (files.length === 0) {
             return { files: [], message: 'No files stored' };
           }
           return {
-            files: files.map((f) => ({
-              name: f.name,
-              mimeType: f.mimeType,
-              size: f.size,
-              createdAt: new Date(f.createdAt).toISOString(),
-              updatedAt: new Date(f.updatedAt).toISOString(),
-              previewable: getPreviewCategory(f.mimeType) !== 'unsupported',
-            })),
+            files: files.map(listEntry),
             total: files.length,
           };
+        },
+      }),
+
+      file_move: tool({
+        description:
+          'Move or rename a file, or every file under a directory, within extension storage. ' +
+          'Paths may be nested. End "from" with "/" to move a whole directory. The move fails ' +
+          'instead of merging when the target already exists.',
+        inputSchema: z.object({
+          from: z.string().describe('Current file path, or directory path ending in "/"'),
+          to: z.string().describe('New file path, or new directory path when moving a directory'),
+        }),
+        execute: async ({ from, to }) => {
+          try {
+            const result = await fileStorage.movePath(from, to);
+            return {
+              success: true,
+              from,
+              to: result.to,
+              moved: result.moved,
+              count: result.moved.length,
+            };
+          } catch (err) {
+            return { error: err instanceof Error ? err.message : String(err) };
+          }
         },
       }),
 

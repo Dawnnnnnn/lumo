@@ -116,7 +116,9 @@
       "output": "Output",
       "screenshot": "Skærmbillede",
       "screenshotUnavailable": "Skærmbillede ikke tilgængeligt",
-      "unknownError": "Ukendt fejl"
+      "unknownError": "Ukendt fejl",
+      "readSkill": "Læs færdighed",
+      "readSkillResource": "Læs færdighedsressource"
     },
     "reasoning": {
       "title": "Ræsonnement",
@@ -140,7 +142,8 @@
     },
     "badge": {
       "builtin": "Indbygget",
-      "user": "Tilpasset"
+      "user": "Tilpasset",
+      "skill": "Færdighed"
     }
   },
   "mentions": {
@@ -274,6 +277,8 @@
       "description": "Genveje, der starter med /.",
       "enableCommands": "Aktivér slash-kommandoer",
       "enableCommandsDesc": "Når den er slået fra, gør / i feltet ingenting, og ingen kommando udvides ved afsendelse.",
+      "skillCommands": "Færdighedskommandoer",
+      "skillCommandsDesc": "Installerede færdigheder vises som /skill:<name>. Slår du fra, fjernes kun genvejen — modellen kan stadig bruge færdigheden.",
       "applyTiming": "Udløsningstidspunkt",
       "applyTimingSend": "Ved afsendelse",
       "applyTimingSelect": "Ved valg",
@@ -520,6 +525,15 @@
     "files": {
       "title": "Filer",
       "description": "Administrér filer, der er oprettet af AI-assistenten, eller som er uploadet manuelt.",
+      "tabs": {
+        "skills": "Færdigheder"
+      },
+      "summary": "{{count}} filer · {{size}}",
+      "search": "Søg filer",
+      "noResults": "Intet matcher \"{{query}}\"",
+      "upload": "Upload fil",
+      "uploaded": "{{count}} filer uploadet",
+      "uploadRejected": "Kun tekstfiler kan gemmes",
       "noFiles": "Ingen gemte filer endnu.",
       "name": "Navn",
       "size": "Størrelse",
@@ -606,6 +620,58 @@
       "prompt": "OCR-prompt",
       "promptDesc": "Instruktioner, der sendes sammen med billedet til vision-modellen.",
       "resetPrompt": "Gendan standard"
+    }
+  },
+  "skills": {
+    "import": {
+      "button": "Importer færdigheder",
+      "fromArchive": "Importér fra ZIP",
+      "fromFolder": "Importér fra mappe",
+      "fromGitHub": "Importer fra GitHub",
+      "installed": "Importerede {{count}} færdigheder",
+      "skipped": "{{count}} færdigheder er allerede installeret",
+      "failed": "Import af færdigheder mislykkedes",
+      "noManifest": "Ingen SKILL.md fundet"
+    },
+    "review": {
+      "title": "Importer færdigheder",
+      "found": "{{count}} fundet i denne pakke",
+      "selected": "{{count}} valgt",
+      "selectAll": "Vælg alle",
+      "selectNone": "Ryd valg",
+      "installed": "Installeret",
+      "replaceHint": "Import erstatter den installerede kopi",
+      "skip": "Kan ikke installeres",
+      "confirm": "Importer {{count}}"
+    },
+    "github": {
+      "title": "Importer fra GitHub",
+      "url": "Repository",
+      "hint": "Et repository, en branch eller en fil — uden branch bruges standardbranchen.",
+      "download": "Download",
+      "stop": "Stop",
+      "received": "{{size}} modtaget",
+      "scanning": "Læser repository…",
+      "reading": "Læser færdigheder…",
+      "downloading": "Downloader arkivet…",
+      "rateLimited": "GitHub begrænser antallet af anmodninger — prøv igen om et par minutter",
+      "invalidUrl": "Det er ikke en GitHub-repositoryadresse",
+      "notFound": "Repository eller branch blev ikke fundet (private repositories understøttes ikke)",
+      "tooLarge": "Dette repository er for stort til at importere",
+      "network": "Kunne ikke få forbindelse til GitHub"
+    },
+    "list": {
+      "installed": "{{count}} installeret",
+      "needsAttention": "{{count}} kræver opmærksomhed",
+      "empty": "Ingen færdigheder installeret",
+      "noManifest": "Ingen SKILL.md i denne mappe",
+      "updated": "Opdateret {{date}}",
+      "copyCommand": "Kopiér kommando",
+      "open": "Åbn SKILL.md",
+      "download": "Download færdighed",
+      "delete": "Slet færdighed",
+      "deleteConfirm": "Slet \"{{name}}\" og dens {{count}} filer? Dette kan ikke fortrydes.",
+      "hiddenFromModel": "Skjult for modelkald"
     }
   }
 }

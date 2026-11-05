@@ -116,7 +116,9 @@
       "output": "Išvestis",
       "screenshot": "Ekrano kopija",
       "screenshotUnavailable": "Ekrano kopija nepasiekiama",
-      "unknownError": "Nežinoma klaida"
+      "unknownError": "Nežinoma klaida",
+      "readSkill": "Skaityti įgūdį",
+      "readSkillResource": "Skaityti įgūdžio išteklių"
     },
     "reasoning": {
       "title": "Samprotavimas",
@@ -140,7 +142,8 @@
     },
     "badge": {
       "builtin": "Įtaisytas",
-      "user": "Pasirinktinis"
+      "user": "Pasirinktinis",
+      "skill": "Įgūdis"
     }
   },
   "mentions": {
@@ -276,6 +279,8 @@
       "description": "Spartieji klavišai, prasidedantys /.",
       "enableCommands": "Įjungti pasvirųjų brūkšnių komandas",
       "enableCommandsDesc": "Kai išjungta, įvedus / lauke nieko neįvyksta ir siunčiant jokia komanda neišskleidžiama.",
+      "skillCommands": "Įgūdžių komandos",
+      "skillCommandsDesc": "Įdiegti įgūdžiai rodomi kaip /skill:<name>. Išjungus pašalinama tik nuoroda – modelis vis tiek gali naudoti įgūdį.",
       "applyTiming": "Suveikimo laikas",
       "applyTimingSend": "Siunčiant",
       "applyTimingSelect": "Pasirenkant",
@@ -522,6 +527,15 @@
     "files": {
       "title": "Failai",
       "description": "Tvarkykite AI asistento sukurtus arba rankiniu būdu įkeltus failus.",
+      "tabs": {
+        "skills": "Įgūdžiai"
+      },
+      "summary": "{{count}} failai · {{size}}",
+      "search": "Ieškoti failų",
+      "noResults": "Nieko nerasta pagal „{{query}}“",
+      "upload": "Įkelti failą",
+      "uploaded": "Įkelta failų: {{count}}",
+      "uploadRejected": "Galima saugoti tik tekstinius failus",
       "noFiles": "Failų dar neišsaugota.",
       "name": "Pavadinimas",
       "size": "Dydis",
@@ -608,6 +622,58 @@
       "prompt": "OCR prompt",
       "promptDesc": "Instrukcijos, siunčiamos kartu su vaizdu regos modeliui.",
       "resetPrompt": "Atkurti numatytąjį"
+    }
+  },
+  "skills": {
+    "import": {
+      "button": "Importuoti įgūdžius",
+      "fromArchive": "Importuoti iš ZIP",
+      "fromFolder": "Importuoti iš aplanko",
+      "fromGitHub": "Importuoti iš GitHub",
+      "installed": "Importuota {{count}} įgūdžių",
+      "skipped": "{{count}} įgūdžiai jau įdiegti",
+      "failed": "Įgūdžių importas nepavyko",
+      "noManifest": "SKILL.md nerastas"
+    },
+    "review": {
+      "title": "Importuoti įgūdžius",
+      "found": "Šiame pakete rasta: {{count}}",
+      "selected": "Pasirinkta: {{count}}",
+      "selectAll": "Pažymėti viską",
+      "selectNone": "Išvalyti pasirinkimą",
+      "installed": "Įdiegta",
+      "replaceHint": "Importas pakeis įdiegtą kopiją",
+      "skip": "Negalima įdiegti",
+      "confirm": "Importuoti {{count}}"
+    },
+    "github": {
+      "title": "Importuoti iš GitHub",
+      "url": "Saugykla",
+      "hint": "Saugykla, šaka ar failas — nenurodžius šakos naudojama numatytoji.",
+      "download": "Atsisiųsti",
+      "stop": "Stabdyti",
+      "received": "Gauta {{size}}",
+      "scanning": "Skaitoma saugykla…",
+      "reading": "Skaitomi įgūdžiai…",
+      "downloading": "Atsisiunčiamas archyvas…",
+      "rateLimited": "GitHub riboja užklausas – bandykite dar kartą po kelių minučių",
+      "invalidUrl": "Tai ne GitHub saugyklos adresas",
+      "notFound": "Saugykla ar šaka nerasta (privačios saugyklos nepalaikomos)",
+      "tooLarge": "Ši saugykla per didelė importuoti",
+      "network": "Nepavyko prisijungti prie GitHub"
+    },
+    "list": {
+      "installed": "Įdiegta: {{count}}",
+      "needsAttention": "Dėmesio reikia: {{count}}",
+      "empty": "Įgūdžių neįdiegta",
+      "noManifest": "Šiame aplanke nėra SKILL.md",
+      "updated": "Atnaujinta {{date}}",
+      "copyCommand": "Kopijuoti komandą",
+      "open": "Atidaryti SKILL.md",
+      "download": "Atsisiųsti įgūdį",
+      "delete": "Ištrinti įgūdį",
+      "deleteConfirm": "Ištrinti „{{name}}“ ir jo failus ({{count}})? To atšaukti negalima.",
+      "hiddenFromModel": "Paslėpta nuo modelio kvietimų"
     }
   }
 }

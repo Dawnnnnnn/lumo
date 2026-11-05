@@ -55,6 +55,7 @@ describe('resolveEnabledCommands', () => {
     const settings: CommandSettings = {
       enabled: false,
       applyTiming: 'send',
+      skillCommandsEnabled: true,
       disabledBuiltins: [],
       userCommands: [user({ name: 'fy' })],
     };
@@ -65,6 +66,7 @@ describe('resolveEnabledCommands', () => {
     const settings: CommandSettings = {
       enabled: true,
       applyTiming: 'send',
+      skillCommandsEnabled: true,
       disabledBuiltins: ['exit'],
       userCommands: [user({ name: 'fy' }), user({ name: 'off', enabled: false })],
     };
@@ -76,6 +78,7 @@ describe('resolveEnabledCommands', () => {
     const settings: CommandSettings = {
       enabled: true,
       applyTiming: 'send',
+      skillCommandsEnabled: true,
       disabledBuiltins: [],
       userCommands: [user({ name: 'new', phrase: 'should not win' })],
     };
@@ -127,6 +130,7 @@ describe('match + expand', () => {
   const commands = resolveEnabledCommands({
     enabled: true,
     applyTiming: 'send',
+    skillCommandsEnabled: true,
     disabledBuiltins: [],
     userCommands: [user({ name: 'fy', phrase: '翻译此页面' })],
   });
@@ -163,6 +167,7 @@ describe('match + expand', () => {
     const list = resolveEnabledCommands({
       enabled: true,
       applyTiming: 'send',
+      skillCommandsEnabled: true,
       disabledBuiltins: [],
       userCommands: [
         user({ name: 'note' }),
@@ -206,6 +211,19 @@ describe('normalizeCommandSettings', () => {
     expect(normalizeCommandSettings({}).applyTiming).toBe('send');
     expect(normalizeCommandSettings({ applyTiming: 'select' }).applyTiming).toBe('select');
     expect(normalizeCommandSettings({ applyTiming: 'immediately' }).applyTiming).toBe('send');
+  });
+
+  it('keeps the skill-command switch, defaulting to on for older configs', () => {
+    // A config written before the switch existed means "as before", which was on.
+    expect(normalizeCommandSettings({}).skillCommandsEnabled).toBe(true);
+    expect(normalizeCommandSettings({ skillCommandsEnabled: true }).skillCommandsEnabled).toBe(true);
+    expect(normalizeCommandSettings({ skillCommandsEnabled: false }).skillCommandsEnabled).toBe(false);
+    // Anything that is not `false` is on, so a hand-edited export cannot park
+    // the family by accident.
+    expect(
+      normalizeCommandSettings({ skillCommandsEnabled: 'no' as unknown as boolean })
+        .skillCommandsEnabled,
+    ).toBe(true);
   });
 
   it('createUserCommand returns a usable blank', () => {

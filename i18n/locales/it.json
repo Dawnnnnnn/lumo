@@ -116,7 +116,9 @@
       "output": "Output",
       "screenshot": "Screenshot",
       "screenshotUnavailable": "Screenshot non disponibile",
-      "unknownError": "Errore sconosciuto"
+      "unknownError": "Errore sconosciuto",
+      "readSkill": "Leggi competenza",
+      "readSkillResource": "Leggi la risorsa della competenza"
     },
     "reasoning": {
       "title": "Ragionamento",
@@ -140,7 +142,8 @@
     },
     "badge": {
       "builtin": "Integrato",
-      "user": "Personalizzato"
+      "user": "Personalizzato",
+      "skill": "Competenza"
     }
   },
   "mentions": {
@@ -275,6 +278,8 @@
       "description": "Scorciatoie che iniziano con /.",
       "enableCommands": "Attiva comandi slash",
       "enableCommandsDesc": "Se disattivato, digitare / nel campo non fa nulla e nessun comando viene espanso all'invio.",
+      "skillCommands": "Comandi delle competenze",
+      "skillCommandsDesc": "Le competenze installate appaiono come /skill:<name>. Disattivare rimuove solo la scorciatoia: il modello può comunque usare la competenza.",
       "applyTiming": "Momento di attivazione",
       "applyTimingSend": "All'invio",
       "applyTimingSelect": "Alla selezione",
@@ -521,6 +526,15 @@
     "files": {
       "title": "File",
       "description": "Gestisci i file creati dall'assistente IA o caricati manualmente.",
+      "tabs": {
+        "skills": "Competenze"
+      },
+      "summary": "{{count}} file · {{size}}",
+      "search": "Cerca file",
+      "noResults": "Nessun risultato per «{{query}}»",
+      "upload": "Carica file",
+      "uploaded": "{{count}} file caricati",
+      "uploadRejected": "È possibile salvare solo file di testo",
       "noFiles": "Nessun file salvato.",
       "name": "Nome",
       "size": "Dimensione",
@@ -607,6 +621,58 @@
       "prompt": "Prompt OCR",
       "promptDesc": "Istruzioni inviate insieme all'immagine al modello visivo.",
       "resetPrompt": "Ripristina predefinito"
+    }
+  },
+  "skills": {
+    "import": {
+      "button": "Importa competenze",
+      "fromArchive": "Importa da ZIP",
+      "fromFolder": "Importa da cartella",
+      "fromGitHub": "Importa da GitHub",
+      "installed": "{{count}} competenze importate",
+      "skipped": "{{count}} competenze già installate",
+      "failed": "Importazione delle competenze non riuscita",
+      "noManifest": "Nessun SKILL.md trovato"
+    },
+    "review": {
+      "title": "Importa competenze",
+      "found": "{{count}} trovate in questo pacchetto",
+      "selected": "{{count}} selezionate",
+      "selectAll": "Seleziona tutto",
+      "selectNone": "Deseleziona tutto",
+      "installed": "Installata",
+      "replaceHint": "L'importazione sostituirà la copia installata",
+      "skip": "Non può essere installata",
+      "confirm": "Importa {{count}}"
+    },
+    "github": {
+      "title": "Importa da GitHub",
+      "url": "Repository",
+      "hint": "Un repository, un ramo o un file: senza ramo viene usato quello predefinito.",
+      "download": "Scarica",
+      "stop": "Interrompi",
+      "received": "{{size}} ricevuti",
+      "scanning": "Lettura del repository…",
+      "reading": "Lettura delle competenze…",
+      "downloading": "Download dell'archivio…",
+      "rateLimited": "GitHub sta limitando le richieste: riprova tra qualche minuto",
+      "invalidUrl": "Non è un indirizzo di repository GitHub",
+      "notFound": "Repository o ramo non trovato (i repository privati non sono supportati)",
+      "tooLarge": "Questo repository è troppo grande per essere importato",
+      "network": "Impossibile raggiungere GitHub"
+    },
+    "list": {
+      "installed": "{{count}} installate",
+      "needsAttention": "{{count}} da controllare",
+      "empty": "Nessuna competenza installata",
+      "noManifest": "Nessun SKILL.md in questa cartella",
+      "updated": "Aggiornato il {{date}}",
+      "copyCommand": "Copia comando",
+      "open": "Apri SKILL.md",
+      "download": "Scarica competenza",
+      "delete": "Elimina competenza",
+      "deleteConfirm": "Eliminare «{{name}}» e i suoi {{count}} file? L'operazione non è reversibile.",
+      "hiddenFromModel": "Nascosta all'invocazione del modello"
     }
   }
 }

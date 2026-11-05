@@ -116,7 +116,9 @@
       "output": "Ausgabe",
       "screenshot": "Screenshot",
       "screenshotUnavailable": "Screenshot nicht verfügbar",
-      "unknownError": "Unbekannter Fehler"
+      "unknownError": "Unbekannter Fehler",
+      "readSkill": "Skill lesen",
+      "readSkillResource": "Skill-Ressource lesen"
     },
     "reasoning": {
       "title": "Denkprozess",
@@ -140,7 +142,8 @@
     },
     "badge": {
       "builtin": "Integriert",
-      "user": "Benutzerdefiniert"
+      "user": "Benutzerdefiniert",
+      "skill": "Skill"
     }
   },
   "mentions": {
@@ -274,6 +277,8 @@
       "description": "Tastenkürzel, die mit / beginnen.",
       "enableCommands": "Slash-Befehle aktivieren",
       "enableCommandsDesc": "Wenn aus, bewirkt / im Eingabefeld nichts und beim Senden wird kein Befehl erweitert.",
+      "skillCommands": "Skill-Befehle",
+      "skillCommandsDesc": "Installierte Skills erscheinen als /skill:<name>. Ausschalten entfernt nur die Abkürzung — das Modell kann den Skill weiterhin nutzen.",
       "applyTiming": "Auslösezeitpunkt",
       "applyTimingSend": "Beim Senden",
       "applyTimingSelect": "Bei Auswahl",
@@ -520,6 +525,15 @@
     "files": {
       "title": "Dateien",
       "description": "Vom KI-Assistenten erstellte oder manuell hochgeladene Dateien verwalten.",
+      "tabs": {
+        "skills": "Skills"
+      },
+      "summary": "{{count}} Dateien · {{size}}",
+      "search": "Dateien durchsuchen",
+      "noResults": "Keine Treffer für „{{query}}“",
+      "upload": "Datei hochladen",
+      "uploaded": "{{count}} Dateien hochgeladen",
+      "uploadRejected": "Nur Textdateien können gespeichert werden",
       "noFiles": "Noch keine Dateien gespeichert.",
       "name": "Name",
       "size": "Größe",
@@ -606,6 +620,58 @@
       "prompt": "OCR-Prompt",
       "promptDesc": "Anweisungen, die zusammen mit dem Bild an das Vision-Modell gesendet werden.",
       "resetPrompt": "Auf Standard zurücksetzen"
+    }
+  },
+  "skills": {
+    "import": {
+      "button": "Skills importieren",
+      "fromArchive": "Aus ZIP importieren",
+      "fromFolder": "Aus Ordner importieren",
+      "fromGitHub": "Aus GitHub importieren",
+      "installed": "{{count}} Skills importiert",
+      "skipped": "{{count}} Skills sind bereits installiert",
+      "failed": "Skill-Import fehlgeschlagen",
+      "noManifest": "Keine SKILL.md gefunden"
+    },
+    "review": {
+      "title": "Skills importieren",
+      "found": "{{count}} in diesem Paket gefunden",
+      "selected": "{{count}} ausgewählt",
+      "selectAll": "Alle auswählen",
+      "selectNone": "Auswahl aufheben",
+      "installed": "Installiert",
+      "replaceHint": "Beim Import wird die installierte Kopie ersetzt",
+      "skip": "Kann nicht installiert werden",
+      "confirm": "{{count}} importieren"
+    },
+    "github": {
+      "title": "Aus GitHub importieren",
+      "url": "Repository",
+      "hint": "Ein Repository, Branch oder Dateipfad — ohne Branch wird der Standardbranch verwendet.",
+      "download": "Herunterladen",
+      "stop": "Stoppen",
+      "received": "{{size}} empfangen",
+      "scanning": "Repository wird gelesen…",
+      "reading": "Skills werden gelesen…",
+      "downloading": "Archiv wird heruntergeladen…",
+      "rateLimited": "GitHub begrenzt gerade die Anfragen — bitte in ein paar Minuten erneut versuchen",
+      "invalidUrl": "Das ist keine GitHub-Repository-Adresse",
+      "notFound": "Repository oder Branch nicht gefunden (private Repositories werden nicht unterstützt)",
+      "tooLarge": "Dieses Repository ist zu groß für den Import",
+      "network": "GitHub ist nicht erreichbar"
+    },
+    "list": {
+      "installed": "{{count}} installiert",
+      "needsAttention": "{{count}} brauchen Aufmerksamkeit",
+      "empty": "Keine Skills installiert",
+      "noManifest": "Keine SKILL.md in diesem Ordner",
+      "updated": "Aktualisiert {{date}}",
+      "copyCommand": "Befehl kopieren",
+      "open": "SKILL.md öffnen",
+      "download": "Skill herunterladen",
+      "delete": "Skill löschen",
+      "deleteConfirm": "„{{name}}“ und die zugehörigen {{count}} Dateien löschen? Das kann nicht rückgängig gemacht werden.",
+      "hiddenFromModel": "Von Modellaufruf ausgenommen"
     }
   }
 }

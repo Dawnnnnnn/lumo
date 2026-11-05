@@ -182,6 +182,48 @@ export function safeStringify(value: unknown): string {
   }
 }
 
+/**
+ * A tool call's display label, when the raw tool name plus its arguments make a
+ * worse header than the meaning behind them.
+ *
+ * `file_read` on `skills/pdf-tools/SKILL.md` is "read a skill"; the path is an
+ * implementation detail of where skills happen to live, and in a ~320px sidebar
+ * it pushes the useful part of the header out of view. Everything not matched
+ * here returns `undefined` and renders exactly as it always has, so the
+ * heuristic can never make an ordinary call worse.
+ */
+export interface ToolCallDescription {
+  /** i18n key for the call's label, shown instead of the raw tool name. */
+  labelKey: string;
+  /** The subject of the call — for a skill, its name. */
+  detail: string;
+  /** Anything after the subject, such as a bundled resource path. */
+  hint?: string;
+}
+
+/** `skills/<skill-name>/<path inside the skill>` */
+const SKILL_PATH = /^skills\/([^/]+)\/(.+)$/;
+
+/** The skill manifest's file name; its presence means "this is the skill itself". */
+const SKILL_MANIFEST = 'SKILL.md';
+
+export function describeToolCall(name: string, input: unknown): ToolCallDescription | undefined {
+  // Only `file_read` gets a semantic label. `file_list` already names a
+  // directory, which reads fine next to its argument.
+  if (name !== 'file_read') return undefined;
+  if (!input || typeof input !== 'object') return undefined;
+  const raw = (input as Record<string, unknown>).name;
+  if (typeof raw !== 'string') return undefined;
+
+  const match = SKILL_PATH.exec(raw);
+  if (!match) return undefined;
+  const [, skill, rest] = match;
+  if (rest === SKILL_MANIFEST) {
+    return { labelKey: 'sidebar.tool.readSkill', detail: skill! };
+  }
+  return { labelKey: 'sidebar.tool.readSkillResource', detail: skill!, hint: rest };
+}
+
 /** Compact one-line preview of tool input, shown collapsed in the header. */
 export function summarizeToolInput(input: unknown): string {
   if (input == null) return '';

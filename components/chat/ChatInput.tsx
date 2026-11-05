@@ -22,10 +22,12 @@ import {
   type BuiltinCommandAction,
 } from '@/lib/slash-commands';
 import { MENTION_PREFIX } from '@/lib/mention-commands';
+import { loadSkillCommandText, withSkillCommands } from '@/lib/skills/commands';
 import { useSuggestionMenu, type SuggestionOption } from '@/lib/use-suggestion-menu';
 import { useMentionResolver } from '@/lib/use-mention-resolver';
 import { storage } from '@/store/storage';
 import { useEnabledCommands, useCommandSettings } from '@/store/useCommands';
+import { useSkills } from '@/store/useSkills';
 import { useMentionSettings } from '@/store/useMentions';
 import { useStorageWatch } from '@/store/useStorageWatch';
 import type { SendKey, TextAttachment, UISettings } from '@/types';
@@ -116,8 +118,27 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(function Ch
   // that effect cannot observe: a font-size setting that re-scales the line
   // height while the draft is untouched.
   const resizeRef = useRef<(() => void) | null>(null);
-  const commands = useEnabledCommands();
   const { settings: commandSettings } = useCommandSettings();
+  // Installed skills contribute `/skill:<name>` commands. They are merged here
+  // rather than in `resolveEnabledCommands` because they come from storage, not
+  // from the command settings the options page edits — but they are still
+  // commands, so the master switch gates them too: with commands off, `/` is
+  // just a slash and nothing expands.
+  const builtinAndUserCommands = useEnabledCommands();
+  const skills = useSkills();
+  const commands = useMemo(() => {
+    // The master switch empties the vocabulary; the skill switch only removes
+    // the `/skill:*` family, which is why they are two conditions rather than a
+    // third list passed down into `withSkillCommands`.
+    if (!commandSettings.enabled) return [];
+    if (!commandSettings.skillCommandsEnabled) return builtinAndUserCommands;
+    return withSkillCommands(builtinAndUserCommands, skills);
+  }, [
+    builtinAndUserCommands,
+    skills,
+    commandSettings.enabled,
+    commandSettings.skillCommandsEnabled,
+  ]);
   const { settings: mentionSettings } = useMentionSettings();
   const applyTiming = commandSettings.applyTiming;
   // `onCommand` is summoned from inside `resolveSuggestions`' `apply` closures
@@ -258,6 +279,25 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(function Ch
     setTextAttachments((prev) => prev.filter((a) => a.id !== id));
   };
  
+  /** Hands a finished draft to the turn and clears the composer. */
+  const sendDraft = useCallback(
+    (text: string) => {
+      if (!text && images.length === 0 && textAttachments.length === 0) return;
+      onSend(text, images, textAttachments);
+      setInput('');
+      setCaret(0);
+      setImages([]);
+      setTextAttachments([]);
+    },
+    [images, textAttachments, onSend],
+  );
+
+  /**
+   * Set while a skill command is being expanded. The expansion is a storage
+   * read, so without this a second Enter would send the same skill twice.
+   */
+  const expandingSkillRef = useRef(false);
+
   /**
    * Resolves a leading slash command before the draft leaves the composer.
    *
@@ -265,6 +305,9 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(function Ch
    * - Built-in commands report their action to the panel and leave any trailing
    *   text (and every attachment) in the box, so `/new hello` starts a new chat
    *   with "hello" still ready to edit rather than silently dropping it.
+   * - Skill commands load the skill's own instructions and send them ahead of
+   *   the user's request, which is how a skill can be used in a conversation
+   *   that is already running.
    */
   const handleSend = () => {
     if (isStreaming) return;
@@ -285,17 +328,24 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(function Ch
       return;
     }
 
+    if (invocation?.command.kind === 'skill') {
+      if (expandingSkillRef.current) return;
+      expandingSkillRef.current = true;
+      const { command, rest } = invocation;
+      void loadSkillCommandText(command, rest)
+        .then(sendDraft)
+        .finally(() => {
+          expandingSkillRef.current = false;
+        });
+      return;
+    }
+
     const text =
       invocation?.command.kind === 'user'
         ? expandPhraseCommand(invocation.command.phrase, invocation.rest)
         : input.trim();
 
-    if (!text && images.length === 0 && textAttachments.length === 0) return;
-    onSend(text, images, textAttachments);
-    setInput('');
-    setCaret(0);
-    setImages([]);
-    setTextAttachments([]);
+    sendDraft(text);
   };
 
   // ─── Mention resolver ──────────────────────────────────────────────────
@@ -332,11 +382,15 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(function Ch
           description:
             command.kind === 'builtin'
               ? t(builtinCommandDescriptionPath(command.id))
-              : command.phrase,
+              : command.kind === 'skill'
+                ? command.description
+                : command.phrase,
           badge:
             command.kind === 'builtin'
               ? t('commands.badge.builtin')
-              : t('commands.badge.user'),
+              : command.kind === 'skill'
+                ? t('commands.badge.skill')
+                : t('commands.badge.user'),
         };
 
         // 'select' timing: picking the row runs the command right away. The
@@ -344,7 +398,10 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(function Ch
         // keeping whatever the user typed after the trigger. The `apply`
         // closure receives the live value because the query is not enough to
         // know the trailing text at resolve time.
-        if (applyTiming === 'select') {
+        // A skill expands to a storage read, so it can never run inside this
+        // synchronous `apply`. Selecting the row completes the trigger and the
+        // expansion happens on send, exactly like 'send' timing.
+        if (applyTiming === 'select' && command.kind !== 'skill') {
           return {
             ...base,
             insertText: '',

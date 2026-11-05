@@ -116,7 +116,9 @@
       "output": "Utdata",
       "screenshot": "Skjermbilde",
       "screenshotUnavailable": "Skjermbilde ikke tilgjengelig",
-      "unknownError": "Ukjent feil"
+      "unknownError": "Ukjent feil",
+      "readSkill": "Les ferdighet",
+      "readSkillResource": "Les ferdighetsressurs"
     },
     "reasoning": {
       "title": "Resonnering",
@@ -140,7 +142,8 @@
     },
     "badge": {
       "builtin": "Innebygd",
-      "user": "Tilpasset"
+      "user": "Tilpasset",
+      "skill": "Ferdighet"
     }
   },
   "mentions": {
@@ -274,6 +277,8 @@
       "description": "Snarveier som begynner med /.",
       "enableCommands": "Aktiver skråstrekkommandoer",
       "enableCommandsDesc": "Når dette er av, gjør / i feltet ingenting, og ingen kommando utvides ved sending.",
+      "skillCommands": "Ferdighetskommandoer",
+      "skillCommandsDesc": "Installerte ferdigheter vises som /skill:<name>. Slår du av, fjernes bare snarveien — modellen kan fortsatt bruke ferdigheten.",
       "applyTiming": "Utløsningstidspunkt",
       "applyTimingSend": "Ved sending",
       "applyTimingSelect": "Ved valg",
@@ -520,6 +525,15 @@
     "files": {
       "title": "Filer",
       "description": "Administrer filer som er opprettet av AI-assistenten eller lastet opp manuelt.",
+      "tabs": {
+        "skills": "Ferdigheter"
+      },
+      "summary": "{{count}} filer · {{size}}",
+      "search": "Søk i filer",
+      "noResults": "Ingenting samsvarer med «{{query}}»",
+      "upload": "Last opp fil",
+      "uploaded": "{{count}} filer lastet opp",
+      "uploadRejected": "Bare tekstfiler kan lagres",
       "noFiles": "Ingen lagrede filer ennå.",
       "name": "Navn",
       "size": "Størrelse",
@@ -606,6 +620,58 @@
       "prompt": "OCR-prompt",
       "promptDesc": "Instruksjoner som sendes sammen med bildet til synsmodellen.",
       "resetPrompt": "Gjenopprett standard"
+    }
+  },
+  "skills": {
+    "import": {
+      "button": "Importer ferdigheter",
+      "fromArchive": "Importer fra ZIP",
+      "fromFolder": "Importer fra mappe",
+      "fromGitHub": "Importer fra GitHub",
+      "installed": "Importerte {{count}} ferdigheter",
+      "skipped": "{{count}} ferdigheter er allerede installert",
+      "failed": "Import av ferdigheter mislyktes",
+      "noManifest": "Fant ingen SKILL.md"
+    },
+    "review": {
+      "title": "Importer ferdigheter",
+      "found": "{{count}} funnet i denne pakken",
+      "selected": "{{count}} valgt",
+      "selectAll": "Velg alle",
+      "selectNone": "Fjern valg",
+      "installed": "Installert",
+      "replaceHint": "Import erstatter den installerte kopien",
+      "skip": "Kan ikke installeres",
+      "confirm": "Importer {{count}}"
+    },
+    "github": {
+      "title": "Importer fra GitHub",
+      "url": "Repository",
+      "hint": "Et repository, en gren eller en fil — uten gren brukes standardgrenen.",
+      "download": "Last ned",
+      "stop": "Stopp",
+      "received": "{{size}} mottatt",
+      "scanning": "Leser repository…",
+      "reading": "Leser ferdigheter…",
+      "downloading": "Laster ned arkivet…",
+      "rateLimited": "GitHub begrenser antall forespørsler — prøv igjen om noen minutter",
+      "invalidUrl": "Det er ikke en GitHub-repositoryadresse",
+      "notFound": "Fant ikke repository eller gren (private repos støttes ikke)",
+      "tooLarge": "Dette repositoriet er for stort til å importeres",
+      "network": "Fikk ikke kontakt med GitHub"
+    },
+    "list": {
+      "installed": "{{count}} installert",
+      "needsAttention": "{{count}} trenger oppmerksomhet",
+      "empty": "Ingen ferdigheter installert",
+      "noManifest": "Ingen SKILL.md i denne mappen",
+      "updated": "Oppdatert {{date}}",
+      "copyCommand": "Kopier kommando",
+      "open": "Åpne SKILL.md",
+      "download": "Last ned ferdighet",
+      "delete": "Slett ferdighet",
+      "deleteConfirm": "Slette «{{name}}» og de {{count}} filene? Dette kan ikke angres.",
+      "hiddenFromModel": "Skjult for modellkall"
     }
   }
 }

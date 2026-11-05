@@ -36,6 +36,7 @@ import { classifyError, toError } from '@/lib/provider-error';
 import { MAX_RETRIES, retryDelay } from '@/lib/retry-policy';
 import { decideStreamFailure } from '@/lib/stream-failure';
 import { resolveSystemPrompt } from '@/lib/system-prompt';
+import { appendSkillsIndex } from '@/lib/skills';
 import { compactTurn, type SummarizeMessages } from '@/lib/turn-compaction';
 import { notifyTurnComplete } from '@/lib/turn-notifier';
 import { TurnPersistence } from '@/store/turn/persistence';
@@ -165,13 +166,21 @@ export class TurnRunner {
 
   private async prepare(): Promise<void> {
     const conversation = this.input.conversation;
+    const base =
+      conversation.systemPrompt !== undefined
+        ? conversation.systemPrompt
+        : resolveSystemPrompt(await storage.getSystemPrompt());
     if (conversation.systemPrompt !== undefined) {
-      this.system = conversation.systemPrompt;
       this.persistence.adopt(conversation);
     } else {
-      this.system = resolveSystemPrompt(await storage.getSystemPrompt());
-      this.persistence.adopt({ ...conversation, systemPrompt: this.system ?? undefined });
+      this.persistence.adopt({ ...conversation, systemPrompt: base ?? undefined });
     }
+    // The skills index is rebuilt for every turn instead of being snapshotted
+    // with the user's prompt. The snapshot exists so a resumed run replays what
+    // was sent; the index is not part of the message history, and installing or
+    // deleting a skill has to take effect on the next message — not on the next
+    // conversation. See `lib/skills/index.ts`.
+    this.system = await appendSkillsIndex(base);
 
     // Read per turn so a cap or budget changed in the options page applies to
     // the next message instead of the next reload.

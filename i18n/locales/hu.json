@@ -116,7 +116,9 @@
       "output": "Kimenet",
       "screenshot": "Képernyőkép",
       "screenshotUnavailable": "A képernyőkép nem érhető el",
-      "unknownError": "Ismeretlen hiba"
+      "unknownError": "Ismeretlen hiba",
+      "readSkill": "Készség olvasása",
+      "readSkillResource": "Készség erőforrásának olvasása"
     },
     "reasoning": {
       "title": "Érvelés",
@@ -140,7 +142,8 @@
     },
     "badge": {
       "builtin": "Beépített",
-      "user": "Egyéni"
+      "user": "Egyéni",
+      "skill": "Készség"
     }
   },
   "mentions": {
@@ -274,6 +277,8 @@
       "description": "/ jellel kezdődő gyorsparancsok.",
       "enableCommands": "Perparancsok engedélyezése",
       "enableCommandsDesc": "Kikapcsolva a / beírása a mezőbe nem tesz semmit, és küldéskor nem bontódik ki parancs.",
+      "skillCommands": "Készségparancsok",
+      "skillCommandsDesc": "A telepített készségek /skill:<name> formában jelennek meg. Kikapcsolás csak a gyorsparancsot szünteti meg — a modell továbbra is használhatja a készséget.",
       "applyTiming": "Kiváltás ideje",
       "applyTimingSend": "Küldéskor",
       "applyTimingSelect": "Kiválasztáskor",
@@ -520,6 +525,15 @@
     "files": {
       "title": "Fájlok",
       "description": "Az AI-asszisztens által létrehozott vagy manuálisan feltöltött fájlok kezelése.",
+      "tabs": {
+        "skills": "Készségek"
+      },
+      "summary": "{{count}} fájl · {{size}}",
+      "search": "Fájlok keresése",
+      "noResults": "Nincs egyezés erre: „{{query}}“",
+      "upload": "Fájl feltöltése",
+      "uploaded": "{{count}} fájl feltöltve",
+      "uploadRejected": "Csak szövegfájlok tárolhatók",
       "noFiles": "Még nincsenek mentett fájlok.",
       "name": "Név",
       "size": "Méret",
@@ -606,6 +620,58 @@
       "prompt": "OCR-prompt",
       "promptDesc": "A képpel együtt a látásmodellnek küldött utasítások.",
       "resetPrompt": "Alapértelmezés visszaállítása"
+    }
+  },
+  "skills": {
+    "import": {
+      "button": "Készségek importálása",
+      "fromArchive": "Importálás ZIP-ből",
+      "fromFolder": "Importálás mappából",
+      "fromGitHub": "Importálás GitHubról",
+      "installed": "{{count}} készség importálva",
+      "skipped": "{{count}} készség már telepítve van",
+      "failed": "A készségek importálása sikertelen",
+      "noManifest": "Nem található SKILL.md"
+    },
+    "review": {
+      "title": "Készségek importálása",
+      "found": "{{count}} található ebben a csomagban",
+      "selected": "{{count}} kiválasztva",
+      "selectAll": "Összes kiválasztása",
+      "selectNone": "Kijelölés törlése",
+      "installed": "Telepítve",
+      "replaceHint": "Az importálás lecseréli a telepített példányt",
+      "skip": "Nem telepíthető",
+      "confirm": "{{count}} importálása"
+    },
+    "github": {
+      "title": "Importálás GitHubról",
+      "url": "Tároló",
+      "hint": "Tároló, ág vagy fájl — ág nélkül az alapértelmezett ágat használja.",
+      "download": "Letöltés",
+      "stop": "Leállítás",
+      "received": "{{size}} fogadva",
+      "scanning": "Tároló olvasása…",
+      "reading": "Készségek olvasása…",
+      "downloading": "Archívum letöltése…",
+      "rateLimited": "A GitHub korlátozza a kéréseket — próbálja újra néhány perc múlva",
+      "invalidUrl": "Ez nem GitHub-tároló címe",
+      "notFound": "A tároló vagy ág nem található (a privát tárolókat nem támogatja)",
+      "tooLarge": "Ez a tároló túl nagy az importáláshoz",
+      "network": "Nem sikerült elérni a GitHubot"
+    },
+    "list": {
+      "installed": "{{count}} telepítve",
+      "needsAttention": "{{count}} figyelmet igényel",
+      "empty": "Nincs telepített készség",
+      "noManifest": "Ebben a mappában nincs SKILL.md",
+      "updated": "Frissítve: {{date}}",
+      "copyCommand": "Parancs másolása",
+      "open": "SKILL.md megnyitása",
+      "download": "Készség letöltése",
+      "delete": "Készség törlése",
+      "deleteConfirm": "Törlöd a(z) „{{name}}“ készséget és {{count}} fájlját? Ez nem vonható vissza.",
+      "hiddenFromModel": "Rejtett a modellhívások elől"
     }
   }
 }

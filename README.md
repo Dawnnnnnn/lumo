@@ -45,6 +45,44 @@ You can also [build from source](#getting-started) yourself.
 | **DevTools Advanced** | CDP-based input simulation, accessibility tree, full-page screenshots, device/network emulation |
 | **File Manager** | Read, write, patch, and preview files stored in the extension (IndexedDB) |
 
+### Agent Skills
+
+A skill is a directory under `skills/` holding a `SKILL.md` with YAML frontmatter,
+following the [Agent Skills specification](https://agentskills.io/specification):
+
+```markdown
+---
+name: pdf-tools
+description: Extract text and tables from PDFs. Use when reading or converting one.
+---
+
+Read `references/formats.md` before converting a document.
+```
+
+- Only the index — name, description and path — is added to the system prompt. The
+  instructions are read on demand with `file_read`, so a skill costs a few dozen
+  tokens until it is actually used.
+- `/skill:pdf-tools extract report.pdf` loads a skill explicitly, for the cases
+  where the model does not route to it on its own.
+- **Settings → Files → Skills** is the management view: every installed skill with
+  its routing description, `/skill:<name>` trigger, license, file count, and the
+  validation diagnostics that explain why a skill does not load — plus delete for
+  the whole skill.
+- Skills are imported from a `.zip`, a folder, a drop, or a **GitHub repository
+  URL**. A repository is listed first — one API request for its tree, then only the
+  manifests, so the review can show descriptions and sizes before anything is
+  downloaded — and only the skills you pick have their files fetched. If that
+  listing is blocked, rate limited or too large to list, the whole archive is
+  downloaded instead; only when both paths fail is the import reported as failed.
+  Every import is reviewed before anything is written: the package's skills are
+  listed with the same metadata the Skills tab shows, new ones arrive selected,
+  already-installed ones are listed but unchecked (ticking one is how an update
+  happens), and manifests that cannot load are shown with the reason. **Files** is the
+  document view: upload, search, preview, download, and drop a folder to import
+  its files. Nested directories are preserved, an archive holding several skills
+  installs all of them, and every `SKILL.md` inside becomes one skill. Files under
+  `skills/` are kept when the file manager is cleared.
+
 ### External MCP Server Support
 - Connect to remote MCP servers via **HTTP Streamable** or **SSE** transport
 - Add/remove/enable/disable servers from the settings UI
@@ -71,7 +109,8 @@ You can also [build from source](#getting-started) yourself.
 - Custom system prompts
 - Light / Dark theme
 - Internationalization (English & Chinese)
-- File manager for AI-generated files
+- File manager for AI-generated files, with a separate Skills view for installed
+  capabilities (metadata, diagnostics, import, delete)
 - Chat debug inspector
 
 ## Tech Stack

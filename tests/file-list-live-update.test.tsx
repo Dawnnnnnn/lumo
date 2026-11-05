@@ -4,7 +4,7 @@
  *
  * `ConversationFiles` used to poll IndexedDB every 3 seconds — the only polling
  * loop in the app, and one that kept running while idle and while collapsed.
- * `FileManager` did not refresh at all: it loaded once on mount, so a file an
+ * `FilesPage` did not refresh at all: it loaded once on mount, so a file an
  * agent wrote after the options tab was opened never appeared.
  *
  * Both now react to `files:changed`. These tests drive the real components and
@@ -47,6 +47,7 @@ vi.mock('@/lib/mcp', () => ({
     deleteFile: async () => true,
   },
   getPreviewCategory: () => 'text',
+  isSystemPath: (path: string) => path.startsWith('skills/'),
 }));
 
 vi.mock('@/lib/conversation-store', () => ({
@@ -54,7 +55,7 @@ vi.mock('@/lib/conversation-store', () => ({
 }));
 
 const { ConversationFiles } = await import('@/components/chat/ConversationFiles');
-const { FileManager } = await import('@/entrypoints/options/FileManager');
+const { FilesPage } = await import('@/entrypoints/options/files/FilesPage');
 
 beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: true });
@@ -146,9 +147,9 @@ describe('ConversationFiles', () => {
   });
 });
 
-describe('FileManager', () => {
+describe('FilesPage', () => {
   it('shows a file that appeared after the tab was opened', async () => {
-    render(<FileManager />);
+    render(<FilesPage />);
     await settle();
     expect(screen.queryByText('notes.md')).toBeNull();
 
@@ -164,7 +165,7 @@ describe('FileManager', () => {
 
   it('reloads silently, keeping the list on screen instead of flashing a spinner', async () => {
     storedFiles = [meta('a.md')];
-    render(<FileManager />);
+    render(<FilesPage />);
     await settle();
 
     storedFiles = [meta('a.md'), meta('b.md')];
@@ -182,7 +183,7 @@ describe('FileManager', () => {
 
   it('stops reacting once unmounted', async () => {
     storedFiles = [meta('a.md')];
-    const { unmount } = render(<FileManager />);
+    const { unmount } = render(<FilesPage />);
     await settle();
     unmount();
     const afterUnmount = listCalls;

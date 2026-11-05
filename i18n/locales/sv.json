@@ -116,7 +116,9 @@
       "output": "Utdata",
       "screenshot": "Skärmbild",
       "screenshotUnavailable": "Skärmbilden är inte tillgänglig",
-      "unknownError": "Okänt fel"
+      "unknownError": "Okänt fel",
+      "readSkill": "Läs färdighet",
+      "readSkillResource": "Läs färdighetsresurs"
     },
     "reasoning": {
       "title": "Resonemang",
@@ -140,7 +142,8 @@
     },
     "badge": {
       "builtin": "Inbyggd",
-      "user": "Anpassad"
+      "user": "Anpassad",
+      "skill": "Färdighet"
     }
   },
   "mentions": {
@@ -274,6 +277,8 @@
       "description": "Genvägar som börjar med /.",
       "enableCommands": "Aktivera snedstreckskommandon",
       "enableCommandsDesc": "När det är av gör / i fältet ingenting och inget kommando expanderas vid sändning.",
+      "skillCommands": "Färdighetskommandon",
+      "skillCommandsDesc": "Installerade färdigheter visas som /skill:<name>. Stänger du av tas bara genvägen bort — modellen kan fortfarande använda färdigheten.",
       "applyTiming": "Utlösningstidpunkt",
       "applyTimingSend": "Vid sändning",
       "applyTimingSelect": "Vid val",
@@ -520,6 +525,15 @@
     "files": {
       "title": "Filer",
       "description": "Hantera filer som skapats av AI-assistenten eller laddats upp manuellt.",
+      "tabs": {
+        "skills": "Färdigheter"
+      },
+      "summary": "{{count}} filer · {{size}}",
+      "search": "Sök filer",
+      "noResults": "Inget matchar ”{{query}}”",
+      "upload": "Ladda upp fil",
+      "uploaded": "{{count}} filer uppladdade",
+      "uploadRejected": "Endast textfiler kan sparas",
       "noFiles": "Inga sparade filer än.",
       "name": "Namn",
       "size": "Storlek",
@@ -606,6 +620,58 @@
       "prompt": "OCR-prompt",
       "promptDesc": "Instruktioner som skickas tillsammans med bilden till synmodellen.",
       "resetPrompt": "Återställ standard"
+    }
+  },
+  "skills": {
+    "import": {
+      "button": "Importera färdigheter",
+      "fromArchive": "Importera från ZIP",
+      "fromFolder": "Importera från mapp",
+      "fromGitHub": "Importera från GitHub",
+      "installed": "Importerade {{count}} färdigheter",
+      "skipped": "{{count}} färdigheter är redan installerade",
+      "failed": "Import av färdigheter misslyckades",
+      "noManifest": "Ingen SKILL.md hittades"
+    },
+    "review": {
+      "title": "Importera färdigheter",
+      "found": "{{count}} hittades i paketet",
+      "selected": "{{count}} valda",
+      "selectAll": "Markera alla",
+      "selectNone": "Rensa urval",
+      "installed": "Installerad",
+      "replaceHint": "Importen ersätter den installerade kopian",
+      "skip": "Kan inte installeras",
+      "confirm": "Importera {{count}}"
+    },
+    "github": {
+      "title": "Importera från GitHub",
+      "url": "Repository",
+      "hint": "Ett repository, en gren eller en fil — utan gren används standardgrenen.",
+      "download": "Ladda ned",
+      "stop": "Stoppa",
+      "received": "{{size}} mottagna",
+      "scanning": "Läser repository…",
+      "reading": "Läser färdigheter…",
+      "downloading": "Laddar ned arkivet…",
+      "rateLimited": "GitHub begränsar antalet förfrågningar — försök igen om några minuter",
+      "invalidUrl": "Det är inte en GitHub-repositoryadress",
+      "notFound": "Hittade inte repository eller gren (privata repon stöds inte)",
+      "tooLarge": "Det här repot är för stort för att importera",
+      "network": "Kunde inte nå GitHub"
+    },
+    "list": {
+      "installed": "{{count}} installerade",
+      "needsAttention": "{{count}} behöver åtgärdas",
+      "empty": "Inga färdigheter installerade",
+      "noManifest": "Ingen SKILL.md i den här mappen",
+      "updated": "Uppdaterad {{date}}",
+      "copyCommand": "Kopiera kommando",
+      "open": "Öppna SKILL.md",
+      "download": "Ladda ned färdighet",
+      "delete": "Ta bort färdighet",
+      "deleteConfirm": "Ta bort ”{{name}}” och dess {{count}} filer? Det går inte att ångra.",
+      "hiddenFromModel": "Dold från modellanrop"
     }
   }
 }

@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AnimatePresence, motion } from 'motion/react';
 import { Button } from '@/components/ui/button';
@@ -17,12 +18,15 @@ export function ConfirmDeleteBar({
   onConfirm,
   onCancel,
   className,
+  style,
 }: {
   open: boolean;
   message: string;
   onConfirm: () => void;
   onCancel: () => void;
   className?: string;
+  /** Inline style, used by nested rows to align the message with their name. */
+  style?: CSSProperties;
 }) {
   return (
     <AnimatePresence initial={false}>
@@ -45,7 +49,9 @@ export function ConfirmDeleteBar({
               className,
             )}
           >
-            <span className="min-w-0 flex-1 break-words text-xs text-destructive">{message}</span>
+            <span className="min-w-0 flex-1 break-words text-xs text-destructive" style={style}>
+          {message}
+        </span>
             <ConfirmActions onConfirm={onConfirm} onCancel={onCancel} />
           </div>
         </motion.div>

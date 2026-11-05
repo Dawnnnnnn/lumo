@@ -116,7 +116,9 @@
       "output": "Sortie",
       "screenshot": "Capture d'écran",
       "screenshotUnavailable": "Capture d'écran indisponible",
-      "unknownError": "Erreur inconnue"
+      "unknownError": "Erreur inconnue",
+      "readSkill": "Lire la compétence",
+      "readSkillResource": "Lire la ressource de la compétence"
     },
     "reasoning": {
       "title": "Raisonnement",
@@ -140,7 +142,8 @@
     },
     "badge": {
       "builtin": "Intégré",
-      "user": "Personnalisé"
+      "user": "Personnalisé",
+      "skill": "Compétence"
     }
   },
   "mentions": {
@@ -275,6 +278,8 @@
       "description": "Raccourcis commençant par /.",
       "enableCommands": "Activer les commandes slash",
       "enableCommandsDesc": "Lorsque c'est désactivé, taper / dans le champ ne fait rien et aucune commande n'est développée à l'envoi.",
+      "skillCommands": "Commandes de compétences",
+      "skillCommandsDesc": "Les compétences installées apparaissent sous la forme /skill:<name>. Désactiver ne supprime que le raccourci — le modèle peut toujours utiliser la compétence.",
       "applyTiming": "Moment de déclenchement",
       "applyTimingSend": "À l'envoi",
       "applyTimingSelect": "À la sélection",
@@ -521,6 +526,15 @@
     "files": {
       "title": "Fichiers",
       "description": "Gérer les fichiers créés par l'assistant IA ou importés manuellement.",
+      "tabs": {
+        "skills": "Compétences"
+      },
+      "summary": "{{count}} fichiers · {{size}}",
+      "search": "Rechercher des fichiers",
+      "noResults": "Aucun résultat pour « {{query}} »",
+      "upload": "Importer un fichier",
+      "uploaded": "{{count}} fichiers importés",
+      "uploadRejected": "Seuls les fichiers texte peuvent être stockés",
       "noFiles": "Aucun fichier stocké pour l'instant.",
       "name": "Nom",
       "size": "Taille",
@@ -607,6 +621,58 @@
       "prompt": "Prompt OCR",
       "promptDesc": "Instructions envoyées avec l'image au modèle de vision.",
       "resetPrompt": "Réinitialiser"
+    }
+  },
+  "skills": {
+    "import": {
+      "button": "Importer des compétences",
+      "fromArchive": "Importer depuis un ZIP",
+      "fromFolder": "Importer depuis un dossier",
+      "fromGitHub": "Importer depuis GitHub",
+      "installed": "{{count}} compétences importées",
+      "skipped": "{{count}} compétences déjà installées",
+      "failed": "Échec de l'import des compétences",
+      "noManifest": "Aucun SKILL.md trouvé"
+    },
+    "review": {
+      "title": "Importer des compétences",
+      "found": "{{count}} trouvées dans ce paquet",
+      "selected": "{{count}} sélectionnées",
+      "selectAll": "Tout sélectionner",
+      "selectNone": "Tout désélectionner",
+      "installed": "Installée",
+      "replaceHint": "L'import remplacera la copie installée",
+      "skip": "Ne peut pas être installée",
+      "confirm": "Importer {{count}}"
+    },
+    "github": {
+      "title": "Importer depuis GitHub",
+      "url": "Dépôt",
+      "hint": "Un dépôt, une branche ou un fichier — la branche par défaut est utilisée si aucune n'est indiquée.",
+      "download": "Télécharger",
+      "stop": "Arrêter",
+      "received": "{{size}} reçus",
+      "scanning": "Lecture du dépôt…",
+      "reading": "Lecture des compétences…",
+      "downloading": "Téléchargement de l'archive…",
+      "rateLimited": "GitHub limite les requêtes — réessayez dans quelques minutes",
+      "invalidUrl": "Ce n'est pas une adresse de dépôt GitHub",
+      "notFound": "Dépôt ou branche introuvable (les dépôts privés ne sont pas pris en charge)",
+      "tooLarge": "Ce dépôt est trop volumineux pour être importé",
+      "network": "Impossible de joindre GitHub"
+    },
+    "list": {
+      "installed": "{{count}} installées",
+      "needsAttention": "{{count}} à vérifier",
+      "empty": "Aucune compétence installée",
+      "noManifest": "Pas de SKILL.md dans ce dossier",
+      "updated": "Mis à jour le {{date}}",
+      "copyCommand": "Copier la commande",
+      "open": "Ouvrir SKILL.md",
+      "download": "Télécharger la compétence",
+      "delete": "Supprimer la compétence",
+      "deleteConfirm": "Supprimer « {{name}} » et ses {{count}} fichiers ? Action irréversible.",
+      "hiddenFromModel": "Masquée des appels du modèle"
     }
   }
 }

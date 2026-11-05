@@ -41,14 +41,20 @@ export type DroppedFileKind = 'text' | 'image' | 'unsupported';
  * better answer for extensions the map has never heard of (`.log` arrives as
  * `text/plain`), so it is the fallback rather than the primary.
  */
-export function resolveDroppedMimeType(file: File): string {
+/** The only two properties classification needs; a `Blob` plus a path satisfies it. */
+export interface DroppedFileLike {
+  name: string;
+  type: string;
+}
+
+export function resolveDroppedMimeType(file: DroppedFileLike): string {
   const fromName = inferMimeType(file.name);
   if (fromName !== 'application/octet-stream') return fromName;
   return file.type || 'application/octet-stream';
 }
 
 /** Classifies a dropped file into the three cases described at the top. */
-export function classifyDroppedFile(file: File): DroppedFileKind {
+export function classifyDroppedFile(file: DroppedFileLike): DroppedFileKind {
   const category = getPreviewCategory(resolveDroppedMimeType(file));
   return category === 'unsupported' ? 'unsupported' : category;
 }
@@ -62,7 +68,7 @@ export function hasOsFiles(dataTransfer: DataTransfer): boolean {
  * Splits a stored-file name into the parts a rename has to keep.
  *
  * The directory prefix matters because names like `notes/report.md` are how this
- * app models folders (see `groupFilesByDirectory`), and the extension matters
+ * app models folders (see `buildFileTree`), and the extension matters
  * because it is what `inferMimeType` reads back on the next load.
  */
 function splitFileName(name: string): { dir: string; stem: string; ext: string } {
@@ -109,17 +115,38 @@ export async function importTextFiles(
   files: FileList | File[],
   options?: { conversationId?: string },
 ): Promise<string[]> {
+  return importFileEntries(
+    Array.from(files).map((file) => ({ name: file.name, file })),
+    options,
+  );
+}
+
+/**
+ * Import blobs under explicit names.
+ *
+ * Separate from `importTextFiles` because a dropped *directory* has paths but no
+ * `File` objects with those names (see `lib/skills/import/browser.ts`), and a
+ * skill package has bytes whose origin path is the only name worth keeping.
+ * Creating a `File` just to satisfy the type would copy nothing but would hide
+ * that fact; naming the real input is honest.
+ */
+export async function importFileEntries(
+  entries: ReadonlyArray<{ name: string; file: Blob }>,
+  options?: { conversationId?: string },
+): Promise<string[]> {
   const written: string[] = [];
 
   // Sequential on purpose: `uniqueFileName` probes storage, so two files with
   // the same name in one drop would otherwise both be handed the same free name
   // and the second would overwrite the first.
-  for (const file of Array.from(files)) {
-    if (classifyDroppedFile(file) !== 'text') continue;
-    const mimeType = resolveDroppedMimeType(file);
-    // Only the base name: a dropped file's `name` has no path, and inventing a
-    // folder prefix would scatter imports into groups the user never made.
-    const name = await uniqueFileName(file.name);
+  for (const entry of entries) {
+    const file = entry.file;
+    const like: DroppedFileLike = { name: entry.name, type: file.type };
+    if (classifyDroppedFile(like) !== 'text') continue;
+    const mimeType = resolveDroppedMimeType(like);
+    // An entry that already carries a path keeps it (a dropped directory), a
+    // bare file name gets one only if the caller supplied one.
+    const name = await uniqueFileName(entry.name);
     // Re-typed rather than stored as-is, so the blob the preview tab reads back
     // carries the same MIME type as the metadata — a `.ts` file must not be a
     // `video/mp2t` blob described as `text/typescript`.
@@ -132,7 +159,7 @@ export async function importTextFiles(
       written.push(name);
     } catch (err) {
       // One unwritable file must not abandon the rest of the drop.
-      console.error('Failed to import dropped file:', file.name, err);
+      console.error('Failed to import dropped file:', entry.name, err);
     }
   }
 

@@ -116,7 +116,9 @@
       "output": "פלט",
       "screenshot": "צילום מסך",
       "screenshotUnavailable": "צילום המסך אינו זמין",
-      "unknownError": "שגיאה לא ידועה"
+      "unknownError": "שגיאה לא ידועה",
+      "readSkill": "קריאת מיומנות",
+      "readSkillResource": "קריאת משאב מיומנות"
     },
     "reasoning": {
       "title": "הסקה",
@@ -140,7 +142,8 @@
     },
     "badge": {
       "builtin": "מובנה",
-      "user": "מותאם"
+      "user": "מותאם",
+      "skill": "מיומנות"
     }
   },
   "mentions": {
@@ -275,6 +278,8 @@
       "description": "קיצורים שמתחילים ב-/.",
       "enableCommands": "הפעלת פקודות לוכסן",
       "enableCommandsDesc": "כשזה כבוי, הקלדת / בשדה לא עושה דבר ואף פקודה לא מתרחבת בשליחה.",
+      "skillCommands": "פקודות מיומנות",
+      "skillCommandsDesc": "מיומנויות מותקנות מופיעות כ־/skill:<name>. כיבוי מסיר רק את הקיצור — המודל עדיין יכול להשתמש במיומנות.",
       "applyTiming": "מועד הפעלה",
       "applyTimingSend": "בשליחה",
       "applyTimingSelect": "בבחירה",
@@ -521,6 +526,15 @@
     "files": {
       "title": "קבצים",
       "description": "נהל קבצים שנוצרו על ידי עוזר ה-AI או שהועלו ידנית.",
+      "tabs": {
+        "skills": "מיומנויות"
+      },
+      "summary": "{{count}} קבצים · {{size}}",
+      "search": "חיפוש קבצים",
+      "noResults": "אין התאמה ל־\"{{query}}\"",
+      "upload": "העלאת קובץ",
+      "uploaded": "הועלו {{count}} קבצים",
+      "uploadRejected": "ניתן לשמור רק קבצי טקסט",
       "noFiles": "אין קבצים שמורים עדיין.",
       "name": "שם",
       "size": "גודל",
@@ -607,6 +621,58 @@
       "prompt": "פרומפט OCR",
       "promptDesc": "הוראות הנשלחות יחד עם התמונה למודל הראייה.",
       "resetPrompt": "שחזור ברירת מחדל"
+    }
+  },
+  "skills": {
+    "import": {
+      "button": "ייבוא מיומנויות",
+      "fromArchive": "ייבוא מ-ZIP",
+      "fromFolder": "ייבוא מתיקייה",
+      "fromGitHub": "ייבוא מ-GitHub",
+      "installed": "יובאו {{count}} מיומנויות",
+      "skipped": "{{count}} מיומנויות כבר מותקנות",
+      "failed": "ייבוא המיומנויות נכשל",
+      "noManifest": "לא נמצא SKILL.md"
+    },
+    "review": {
+      "title": "ייבוא מיומנויות",
+      "found": "נמצאו {{count}} בחבילה זו",
+      "selected": "נבחרו {{count}}",
+      "selectAll": "בחר הכול",
+      "selectNone": "נקה בחירה",
+      "installed": "מותקנת",
+      "replaceHint": "הייבוא יחליף את העותק המותקן",
+      "skip": "לא ניתן להתקין",
+      "confirm": "ייבא {{count}}"
+    },
+    "github": {
+      "title": "ייבוא מ-GitHub",
+      "url": "מאגר",
+      "hint": "מאגר, ענף או קובץ — בלי ענף ישתמש בענף ברירת המחדל.",
+      "download": "הורדה",
+      "stop": "עצור",
+      "received": "התקבלו {{size}}",
+      "scanning": "קורא את המאגר…",
+      "reading": "קורא מיומנויות…",
+      "downloading": "מוריד את הארכיון…",
+      "rateLimited": "GitHub מגביל בקשות — נסו שוב בעוד כמה דקות",
+      "invalidUrl": "זו אינה כתובת מאגר GitHub",
+      "notFound": "המאגר או הענף לא נמצאו (מאגרים פרטיים אינם נתמכים)",
+      "tooLarge": "המאגר הזה גדול מדי לייבוא",
+      "network": "לא ניתן להגיע ל-GitHub"
+    },
+    "list": {
+      "installed": "{{count}} מותקנות",
+      "needsAttention": "{{count}} דורשות טיפול",
+      "empty": "אין מיומנויות מותקנות",
+      "noManifest": "אין SKILL.md בתיקייה זו",
+      "updated": "עודכן {{date}}",
+      "copyCommand": "העתקת הפקודה",
+      "open": "פתח SKILL.md",
+      "download": "הורדת המיומנות",
+      "delete": "מחיקת המיומנות",
+      "deleteConfirm": "למחוק את \"{{name}}\" ואת {{count}} הקבצים שלה? אין לבטל פעולה זו.",
+      "hiddenFromModel": "מוסתרת מקריאות המודל"
     }
   }
 }

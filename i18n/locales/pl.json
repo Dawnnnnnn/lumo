@@ -116,7 +116,9 @@
       "output": "Wyjście",
       "screenshot": "Zrzut ekranu",
       "screenshotUnavailable": "Zrzut ekranu niedostępny",
-      "unknownError": "Nieznany błąd"
+      "unknownError": "Nieznany błąd",
+      "readSkill": "Przeczytaj umiejętność",
+      "readSkillResource": "Przeczytaj zasób umiejętności"
     },
     "reasoning": {
       "title": "Rozumowanie",
@@ -140,7 +142,8 @@
     },
     "badge": {
       "builtin": "Wbudowane",
-      "user": "Niestandardowe"
+      "user": "Niestandardowe",
+      "skill": "Umiejętność"
     }
   },
   "mentions": {
@@ -276,6 +279,8 @@
       "description": "Skróty zaczynające się od /.",
       "enableCommands": "Włącz polecenia ukośnika",
       "enableCommandsDesc": "Po wyłączeniu wpisanie / w polu nic nie robi i żadne polecenie nie rozwija się przy wysyłaniu.",
+      "skillCommands": "Polecenia umiejętności",
+      "skillCommandsDesc": "Zainstalowane umiejętności pojawiają się jako /skill:<name>. Wyłączenie usuwa tylko skrót — model nadal może korzystać z umiejętności.",
       "applyTiming": "Moment wyzwolenia",
       "applyTimingSend": "Przy wysyłaniu",
       "applyTimingSelect": "Przy wybieraniu",
@@ -522,6 +527,15 @@
     "files": {
       "title": "Pliki",
       "description": "Zarządzaj plikami utworzonymi przez asystenta AI lub przesłanymi ręcznie.",
+      "tabs": {
+        "skills": "Umiejętności"
+      },
+      "summary": "{{count}} plików · {{size}}",
+      "search": "Szukaj plików",
+      "noResults": "Brak wyników dla „{{query}}“",
+      "upload": "Prześlij plik",
+      "uploaded": "Przesłano {{count}} plików",
+      "uploadRejected": "Można zapisywać tylko pliki tekstowe",
       "noFiles": "Brak zapisanych plików.",
       "name": "Nazwa",
       "size": "Rozmiar",
@@ -608,6 +622,58 @@
       "prompt": "Prompt OCR",
       "promptDesc": "Instrukcje wysyłane razem z obrazem do modelu wizyjnego.",
       "resetPrompt": "Przywróć domyślne"
+    }
+  },
+  "skills": {
+    "import": {
+      "button": "Importuj umiejętności",
+      "fromArchive": "Importuj z ZIP",
+      "fromFolder": "Importuj z folderu",
+      "fromGitHub": "Importuj z GitHub",
+      "installed": "Zaimportowano {{count}} umiejętności",
+      "skipped": "{{count}} umiejętności jest już zainstalowanych",
+      "failed": "Import umiejętności nie powiódł się",
+      "noManifest": "Nie znaleziono SKILL.md"
+    },
+    "review": {
+      "title": "Importuj umiejętności",
+      "found": "Znaleziono {{count}} w tym pakiecie",
+      "selected": "Wybrano {{count}}",
+      "selectAll": "Zaznacz wszystkie",
+      "selectNone": "Wyczyść zaznaczenie",
+      "installed": "Zainstalowana",
+      "replaceHint": "Import zastąpi zainstalowaną kopię",
+      "skip": "Nie można zainstalować",
+      "confirm": "Importuj {{count}}"
+    },
+    "github": {
+      "title": "Importuj z GitHub",
+      "url": "Repozytorium",
+      "hint": "Repozytorium, gałąź lub plik — bez gałęzi użyta zostanie domyślna.",
+      "download": "Pobierz",
+      "stop": "Zatrzymaj",
+      "received": "Odebrano {{size}}",
+      "scanning": "Odczytywanie repozytorium…",
+      "reading": "Odczytywanie umiejętności…",
+      "downloading": "Pobieranie archiwum…",
+      "rateLimited": "GitHub ogranicza liczbę żądań — spróbuj ponownie za kilka minut",
+      "invalidUrl": "To nie jest adres repozytorium GitHub",
+      "notFound": "Nie znaleziono repozytorium lub gałęzi (prywatne repozytoria nie są obsługiwane)",
+      "tooLarge": "To repozytorium jest zbyt duże do zaimportowania",
+      "network": "Nie można połączyć się z GitHub"
+    },
+    "list": {
+      "installed": "Zainstalowano: {{count}}",
+      "needsAttention": "Wymaga uwagi: {{count}}",
+      "empty": "Brak zainstalowanych umiejętności",
+      "noManifest": "W tym folderze nie ma SKILL.md",
+      "updated": "Zaktualizowano {{date}}",
+      "copyCommand": "Kopiuj polecenie",
+      "open": "Otwórz SKILL.md",
+      "download": "Pobierz umiejętność",
+      "delete": "Usuń umiejętność",
+      "deleteConfirm": "Usunąć „{{name}}“ i jego pliki ({{count}})? Nie można tego cofnąć.",
+      "hiddenFromModel": "Ukryta przed wywołaniami modelu"
     }
   }
 }

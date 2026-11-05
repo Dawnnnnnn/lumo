@@ -116,7 +116,9 @@
       "output": "Uitvoer",
       "screenshot": "Schermafbeelding",
       "screenshotUnavailable": "Schermafbeelding niet beschikbaar",
-      "unknownError": "Onbekende fout"
+      "unknownError": "Onbekende fout",
+      "readSkill": "Vaardigheid lezen",
+      "readSkillResource": "Vaardigheidsbron lezen"
     },
     "reasoning": {
       "title": "Redenering",
@@ -140,7 +142,8 @@
     },
     "badge": {
       "builtin": "Ingebouwd",
-      "user": "Aangepast"
+      "user": "Aangepast",
+      "skill": "Vaardigheid"
     }
   },
   "mentions": {
@@ -274,6 +277,8 @@
       "description": "Snelkoppelingen die met / beginnen.",
       "enableCommands": "Slash-opdrachten inschakelen",
       "enableCommandsDesc": "Als dit uit staat, doet / in het veld niets en wordt bij verzenden geen opdracht uitgebreid.",
+      "skillCommands": "Vaardigheidsopdrachten",
+      "skillCommandsDesc": "Geïnstalleerde vaardigheden verschijnen als /skill:<name>. Uitzetten verwijdert alleen de snelkoppeling — het model kan de vaardigheid nog steeds gebruiken.",
       "applyTiming": "Triggersmoment",
       "applyTimingSend": "Bij verzenden",
       "applyTimingSelect": "Bij selecteren",
@@ -520,6 +525,15 @@
     "files": {
       "title": "Bestanden",
       "description": "Beheer bestanden die door de AI-assistent zijn gemaakt of handmatig zijn geüpload.",
+      "tabs": {
+        "skills": "Vaardigheden"
+      },
+      "summary": "{{count}} bestanden · {{size}}",
+      "search": "Bestanden zoeken",
+      "noResults": "Niets komt overeen met \"{{query}}\"",
+      "upload": "Bestand uploaden",
+      "uploaded": "{{count}} bestanden geüpload",
+      "uploadRejected": "Alleen tekstbestanden kunnen worden opgeslagen",
       "noFiles": "Nog geen bestanden opgeslagen.",
       "name": "Naam",
       "size": "Grootte",
@@ -606,6 +620,58 @@
       "prompt": "OCR-prompt",
       "promptDesc": "Instructies die samen met de afbeelding naar het vision-model worden gestuurd.",
       "resetPrompt": "Standaard herstellen"
+    }
+  },
+  "skills": {
+    "import": {
+      "button": "Vaardigheden importeren",
+      "fromArchive": "Importeren uit ZIP",
+      "fromFolder": "Importeren uit map",
+      "fromGitHub": "Importeren uit GitHub",
+      "installed": "{{count}} vaardigheden geïmporteerd",
+      "skipped": "{{count}} vaardigheden zijn al geïnstalleerd",
+      "failed": "Importeren van vaardigheden mislukt",
+      "noManifest": "Geen SKILL.md gevonden"
+    },
+    "review": {
+      "title": "Vaardigheden importeren",
+      "found": "{{count}} gevonden in dit pakket",
+      "selected": "{{count}} geselecteerd",
+      "selectAll": "Alles selecteren",
+      "selectNone": "Selectie wissen",
+      "installed": "Geïnstalleerd",
+      "replaceHint": "Importeren vervangt de geïnstalleerde kopie",
+      "skip": "Kan niet worden geïnstalleerd",
+      "confirm": "{{count}} importeren"
+    },
+    "github": {
+      "title": "Importeren uit GitHub",
+      "url": "Repository",
+      "hint": "Een repository, branch of bestand — zonder branch wordt de standaardbranch gebruikt.",
+      "download": "Downloaden",
+      "stop": "Stoppen",
+      "received": "{{size}} ontvangen",
+      "scanning": "Repository lezen…",
+      "reading": "Vaardigheden lezen…",
+      "downloading": "Archief downloaden…",
+      "rateLimited": "GitHub beperkt het aantal verzoeken — probeer het over een paar minuten opnieuw",
+      "invalidUrl": "Dat is geen GitHub-repositoryadres",
+      "notFound": "Repository of branch niet gevonden (privérepositories worden niet ondersteund)",
+      "tooLarge": "Deze repository is te groot om te importeren",
+      "network": "GitHub is niet bereikbaar"
+    },
+    "list": {
+      "installed": "{{count}} geïnstalleerd",
+      "needsAttention": "{{count}} vragen aandacht",
+      "empty": "Geen vaardigheden geïnstalleerd",
+      "noManifest": "Geen SKILL.md in deze map",
+      "updated": "Bijgewerkt {{date}}",
+      "copyCommand": "Opdracht kopiëren",
+      "open": "SKILL.md openen",
+      "download": "Vaardigheid downloaden",
+      "delete": "Vaardigheid verwijderen",
+      "deleteConfirm": "\"{{name}}\" en de bijbehorende {{count}} bestanden verwijderen? Dit kan niet ongedaan worden gemaakt.",
+      "hiddenFromModel": "Verborgen voor modelaanroepen"
     }
   }
 }

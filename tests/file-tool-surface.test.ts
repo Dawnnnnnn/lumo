@@ -48,6 +48,24 @@ describe('FileMcpServer tool surface', () => {
     expect((aiTools.file_patch as { description: string }).description).toMatch(/IGNORED/);
   });
 
+  it('lets the model list one directory, which is how it finds bundled skill resources', () => {
+    const schema = (aiTools.file_list as { inputSchema: z.ZodType }).inputSchema;
+    const json = z.toJSONSchema(schema, { io: 'input' }) as {
+      properties: Record<string, unknown>;
+    };
+    expect(Object.keys(json.properties)).toEqual(['path']);
+    expect((aiTools.file_list as { description: string }).description).toMatch(/directory/i);
+  });
+
+  it('offers a move tool so a skill directory can be renamed as a unit', () => {
+    expect(Object.keys(aiTools)).toContain('file_move');
+    const schema = (aiTools.file_move as { inputSchema: z.ZodType }).inputSchema;
+    const json = z.toJSONSchema(schema, { io: 'input' }) as {
+      required?: string[];
+    };
+    expect(json.required?.sort()).toEqual(['from', 'to']);
+  });
+
   it('exposes paging on file_read so a large file cannot blow the context window', () => {
     const schema = (aiTools.file_read as { inputSchema: z.ZodType }).inputSchema;
     const json = z.toJSONSchema(schema, { io: 'input' }) as {

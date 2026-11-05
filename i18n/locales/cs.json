@@ -116,7 +116,9 @@
       "output": "Výstup",
       "screenshot": "Snímek obrazovky",
       "screenshotUnavailable": "Snímek obrazovky není k dispozici",
-      "unknownError": "Neznámá chyba"
+      "unknownError": "Neznámá chyba",
+      "readSkill": "Přečíst dovednost",
+      "readSkillResource": "Přečíst prostředek dovednosti"
     },
     "reasoning": {
       "title": "Uvažování",
@@ -140,7 +142,8 @@
     },
     "badge": {
       "builtin": "Vestavěné",
-      "user": "Vlastní"
+      "user": "Vlastní",
+      "skill": "Dovednost"
     }
   },
   "mentions": {
@@ -276,6 +279,8 @@
       "description": "Zkratky začínající /.",
       "enableCommands": "Povolit lomítkové příkazy",
       "enableCommandsDesc": "Po vypnutí zadání / v poli nic neudělá a při odeslání se žádný příkaz nerozbalí.",
+      "skillCommands": "Příkazy dovedností",
+      "skillCommandsDesc": "Nainstalované dovednosti se zobrazují jako /skill:<name>. Vypnutím se odstraní jen zkratka — model může dovednost dál používat.",
       "applyTiming": "Kdy se aktivuje",
       "applyTimingSend": "Při odeslání",
       "applyTimingSelect": "Při výběru",
@@ -522,6 +527,15 @@
     "files": {
       "title": "Soubory",
       "description": "Spravujte soubory vytvořené asistentem AI nebo nahrané ručně.",
+      "tabs": {
+        "skills": "Dovednosti"
+      },
+      "summary": "{{count}} souborů · {{size}}",
+      "search": "Hledat soubory",
+      "noResults": "Nic neodpovídá „{{query}}“",
+      "upload": "Nahrát soubor",
+      "uploaded": "Nahráno {{count}} souborů",
+      "uploadRejected": "Uložit lze pouze textové soubory",
       "noFiles": "Zatím nejsou uloženy žádné soubory.",
       "name": "Název",
       "size": "Velikost",
@@ -608,6 +622,58 @@
       "prompt": "Prompt OCR",
       "promptDesc": "Pokyny odesílané společně s obrázkem modelu vidění.",
       "resetPrompt": "Obnovit výchozí"
+    }
+  },
+  "skills": {
+    "import": {
+      "button": "Importovat dovednosti",
+      "fromArchive": "Importovat ze ZIP",
+      "fromFolder": "Importovat ze složky",
+      "fromGitHub": "Importovat z GitHubu",
+      "installed": "Importováno {{count}} dovedností",
+      "skipped": "{{count}} dovedností je již nainstalováno",
+      "failed": "Import dovedností se nezdařil",
+      "noManifest": "SKILL.md nebyl nalezen"
+    },
+    "review": {
+      "title": "Importovat dovednosti",
+      "found": "V tomto balíčku nalezeno {{count}}",
+      "selected": "Vybráno {{count}}",
+      "selectAll": "Vybrat vše",
+      "selectNone": "Zrušit výběr",
+      "installed": "Nainstalováno",
+      "replaceHint": "Import nahradí nainstalovanou kopii",
+      "skip": "Nelze nainstalovat",
+      "confirm": "Importovat {{count}}"
+    },
+    "github": {
+      "title": "Importovat z GitHubu",
+      "url": "Repozitář",
+      "hint": "Repozitář, větev nebo soubor — bez větve se použije výchozí.",
+      "download": "Stáhnout",
+      "stop": "Zastavit",
+      "received": "Přijato {{size}}",
+      "scanning": "Čtení repozitáře…",
+      "reading": "Čtení dovedností…",
+      "downloading": "Stahování archivu…",
+      "rateLimited": "GitHub omezuje požadavky — zkuste to znovu za několik minut",
+      "invalidUrl": "To není adresa repozitáře na GitHubu",
+      "notFound": "Repozitář nebo větev nenalezeny (soukromé repozitáře nejsou podporovány)",
+      "tooLarge": "Tento repozitář je pro import příliš velký",
+      "network": "Nepodařilo se připojit ke GitHubu"
+    },
+    "list": {
+      "installed": "Nainstalováno: {{count}}",
+      "needsAttention": "Vyžaduje pozornost: {{count}}",
+      "empty": "Nejsou nainstalované žádné dovednosti",
+      "noManifest": "V této složce není SKILL.md",
+      "updated": "Aktualizováno {{date}}",
+      "copyCommand": "Kopírovat příkaz",
+      "open": "Otevřít SKILL.md",
+      "download": "Stáhnout dovednost",
+      "delete": "Smazat dovednost",
+      "deleteConfirm": "Smazat „{{name}}“ a jeho {{count}} souborů? Nelze vrátit zpět.",
+      "hiddenFromModel": "Skrytá před voláním modelu"
     }
   }
 }

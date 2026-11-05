@@ -116,7 +116,9 @@
       "output": "Output",
       "screenshot": "Tangkapan skrin",
       "screenshotUnavailable": "Tangkapan skrin tidak tersedia",
-      "unknownError": "Ralat tidak diketahui"
+      "unknownError": "Ralat tidak diketahui",
+      "readSkill": "Baca kemahiran",
+      "readSkillResource": "Baca sumber kemahiran"
     },
     "reasoning": {
       "title": "Penaakulan",
@@ -140,7 +142,8 @@
     },
     "badge": {
       "builtin": "Terbina dalam",
-      "user": "Tersuai"
+      "user": "Tersuai",
+      "skill": "Kemahiran"
     }
   },
   "mentions": {
@@ -274,6 +277,8 @@
       "description": "Pintasan yang bermula dengan /.",
       "enableCommands": "Dayakan perintah garis miring",
       "enableCommandsDesc": "Apabila dimatikan, menaip / dalam medan tidak melakukan apa-apa dan tiada perintah dikembangkan semasa dihantar.",
+      "skillCommands": "Arahan kemahiran",
+      "skillCommandsDesc": "Kemahiran yang dipasang muncul sebagai /skill:<name>. Menyahdayakan hanya membuang pintasan — model masih boleh menggunakan kemahiran itu.",
       "applyTiming": "Masa pencetus",
       "applyTimingSend": "Semasa dihantar",
       "applyTimingSelect": "Semasa dipilih",
@@ -520,6 +525,15 @@
     "files": {
       "title": "Fail",
       "description": "Urus fail yang dibuat oleh pembantu AI atau dimuat naik secara manual.",
+      "tabs": {
+        "skills": "Kemahiran"
+      },
+      "summary": "{{count}} fail · {{size}}",
+      "search": "Cari fail",
+      "noResults": "Tiada padanan untuk \"{{query}}\"",
+      "upload": "Muat naik fail",
+      "uploaded": "{{count}} fail dimuat naik",
+      "uploadRejected": "Hanya fail teks boleh disimpan",
       "noFiles": "Belum ada fail disimpan.",
       "name": "Nama",
       "size": "Saiz",
@@ -606,6 +620,58 @@
       "prompt": "Prompt OCR",
       "promptDesc": "Arahan yang dihantar bersama imej kepada model penglihatan.",
       "resetPrompt": "Pulihkan lalai"
+    }
+  },
+  "skills": {
+    "import": {
+      "button": "Import kemahiran",
+      "fromArchive": "Import daripada ZIP",
+      "fromFolder": "Import daripada folder",
+      "fromGitHub": "Import daripada GitHub",
+      "installed": "{{count}} kemahiran diimport",
+      "skipped": "{{count}} kemahiran sudah dipasang",
+      "failed": "Import kemahiran gagal",
+      "noManifest": "SKILL.md tidak ditemui"
+    },
+    "review": {
+      "title": "Import kemahiran",
+      "found": "{{count}} ditemui dalam pakej ini",
+      "selected": "{{count}} dipilih",
+      "selectAll": "Pilih semua",
+      "selectNone": "Kosongkan pilihan",
+      "installed": "Dipasang",
+      "replaceHint": "Import akan menggantikan salinan yang dipasang",
+      "skip": "Tidak boleh dipasang",
+      "confirm": "Import {{count}}"
+    },
+    "github": {
+      "title": "Import daripada GitHub",
+      "url": "Repositori",
+      "hint": "Repositori, cawangan atau fail — tanpa cawangan, cawangan lalai digunakan.",
+      "download": "Muat turun",
+      "stop": "Henti",
+      "received": "{{size}} diterima",
+      "scanning": "Membaca repositori…",
+      "reading": "Membaca kemahiran…",
+      "downloading": "Memuat turun arkib…",
+      "rateLimited": "GitHub mengehadkan permintaan — cuba lagi dalam beberapa minit",
+      "invalidUrl": "Itu bukan alamat repositori GitHub",
+      "notFound": "Repositori atau cawangan tidak ditemui (repositori peribadi tidak disokong)",
+      "tooLarge": "Repositori ini terlalu besar untuk diimport",
+      "network": "Tidak dapat menghubungi GitHub"
+    },
+    "list": {
+      "installed": "{{count}} dipasang",
+      "needsAttention": "{{count}} perlu perhatian",
+      "empty": "Tiada kemahiran dipasang",
+      "noManifest": "Tiada SKILL.md dalam folder ini",
+      "updated": "Dikemas kini {{date}}",
+      "copyCommand": "Salin arahan",
+      "open": "Buka SKILL.md",
+      "download": "Muat turun kemahiran",
+      "delete": "Padam kemahiran",
+      "deleteConfirm": "Padam \"{{name}}\" dan {{count}} failnya? Tindakan ini tidak boleh dibatalkan.",
+      "hiddenFromModel": "Tersembunyi daripada seruan model"
     }
   }
 }

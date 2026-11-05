@@ -114,7 +114,7 @@ vi.mock('@/components/chat/ChatHeader', () => ({ ChatHeader: () => null }));
 vi.mock('@/components/chat/ChatMessageList', () => ({ ChatMessageList: () => null }));
 vi.mock('@/components/chat/ConversationHistory', () => ({ ConversationHistory: () => null }));
 
-const { FileManager } = await import('@/entrypoints/options/FileManager');
+const { FilesPage } = await import('@/entrypoints/options/files/FilesPage');
 const { ChatPanel } = await import('@/components/chat/ChatPanel');
 
 /**
@@ -316,7 +316,7 @@ describe('side panel receiving files from the OS', () => {
 
 describe('options file manager receiving files from the OS', () => {
   it('stores a dropped text file with no conversation attached', async () => {
-    const { container } = render(<FileManager />);
+    const { container } = render(<FilesPage />);
     await settle();
 
     const surface = container.firstElementChild!;
@@ -333,7 +333,7 @@ describe('options file manager receiving files from the OS', () => {
   });
 
   it('ignores a drag that carries no OS files', async () => {
-    const { container } = render(<FileManager />);
+    const { container } = render(<FilesPage />);
     await settle();
 
     const surface = container.firstElementChild!;
@@ -352,7 +352,7 @@ describe('options file manager receiving files from the OS', () => {
   });
 
   it('marks itself as a drop target only while OS files are over it', async () => {
-    const { container } = render(<FileManager />);
+    const { container } = render(<FilesPage />);
     await settle();
 
     // The surface spans the whole pane so a near-miss cannot navigate the tab to

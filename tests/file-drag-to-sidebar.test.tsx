@@ -34,6 +34,7 @@ vi.mock('@/lib/mcp', () => ({
     deleteFile: async () => true,
   },
   getPreviewCategory: () => 'text',
+  isSystemPath: (path: string) => path.startsWith('skills/'),
 }));
 
 vi.mock('@/lib/conversation-store', () => ({
@@ -84,7 +85,7 @@ vi.mock('@/components/chat/ChatHeader', () => ({ ChatHeader: () => null }));
 vi.mock('@/components/chat/ChatMessageList', () => ({ ChatMessageList: () => null }));
 vi.mock('@/components/chat/ConversationHistory', () => ({ ConversationHistory: () => null }));
 
-const { FileManager } = await import('@/entrypoints/options/FileManager');
+const { FilesPage } = await import('@/entrypoints/options/files/FilesPage');
 const { ChatPanel } = await import('@/components/chat/ChatPanel');
 
 /** A `DataTransfer` stand-in: jsdom has no usable implementation. */
@@ -143,7 +144,7 @@ afterEach(() => {
 
 describe('options file list as a drag source', () => {
   it('carries the file reference on the row itself, with a plain-text fallback', async () => {
-    render(<FileManager />);
+    render(<FilesPage />);
     await settle();
 
     const row = screen.getByText(FILE_NAME).closest('[draggable="true"]');
@@ -158,19 +159,21 @@ describe('options file list as a drag source', () => {
     expect(dataTransfer.effectAllowed).toBe('copy');
   });
 
-  it('adds no control to the row beyond the existing preview/download/delete actions', async () => {
-    render(<FileManager />);
+  it('adds no control to the row beyond its action menu', async () => {
+    render(<FilesPage />);
     await settle();
 
     const row = screen.getByText(FILE_NAME).closest('[draggable="true"]')!;
-    expect(row.querySelectorAll('button')).toHaveLength(3);
+    // Preview / download / delete live behind one trigger, so the drag surface
+    // stays a row rather than a toolbar.
+    expect(row.querySelectorAll('button')).toHaveLength(1);
   });
 });
 
 describe('the drag depends on an open side panel', () => {
   it('stops offering the drag while no panel is open', async () => {
     sidePanelContexts = [];
-    render(<FileManager />);
+    render(<FilesPage />);
     await settle();
 
     const row = screen.getByText(FILE_NAME).closest('[draggable]')!;
@@ -181,7 +184,7 @@ describe('the drag depends on an open side panel', () => {
 
   it('re-checks when the tab is focused, so opening the panel is noticed', async () => {
     sidePanelContexts = [];
-    render(<FileManager />);
+    render(<FilesPage />);
     await settle();
     expect(screen.getByText(FILE_NAME).closest('[draggable]')!.getAttribute('draggable')).toBe('false');
 
@@ -198,7 +201,7 @@ describe('the drag depends on an open side panel', () => {
   it('keeps the drag when presence cannot be detected at all', async () => {
     // Chrome < 116: a failed probe must not take the feature away.
     sidePanelContexts = null;
-    render(<FileManager />);
+    render(<FilesPage />);
     await settle();
 
     expect(screen.getByText(FILE_NAME).closest('[draggable]')!.getAttribute('draggable')).toBe('true');

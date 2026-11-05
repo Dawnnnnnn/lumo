@@ -104,6 +104,15 @@ export interface CommandSettings {
   enabled: boolean;
   /** When a picked command takes effect. Defaults to `'send'`. */
   applyTiming: CommandApplyTiming;
+  /**
+   * Whether `/skill:<name>` commands exist at all.
+   *
+   * A family switch, not a master switch: turning it off leaves `/new`, the
+   * user's own phrases and everything else working, and it never touches the
+   * skills index the model reads — the shortcut disappears, the capability does
+   * not.
+   */
+  skillCommandsEnabled: boolean;
   /** User-authored phrase commands, in the order the options page shows them. */
   userCommands: UserCommand[];
   /**
@@ -119,6 +128,7 @@ export interface CommandSettings {
 export const DEFAULT_COMMAND_SETTINGS: CommandSettings = {
   enabled: true,
   applyTiming: 'send',
+  skillCommandsEnabled: true,
   userCommands: [],
   disabledBuiltins: [],
 };
@@ -173,6 +183,20 @@ export type ResolvedCommand =
       id: string;
       name: string;
       phrase: string;
+    }
+  | {
+      /**
+       * A skill command (`/skill:<name>`), derived from the installed skills
+       * rather than from settings — see `lib/skills/commands.ts`.
+       */
+      kind: 'skill';
+      /** Skill name, which is also the trigger suffix. */
+      id: string;
+      name: string;
+      /** Storage path of the skill's `SKILL.md`. */
+      path: string;
+      /** Routing description, shown in the picker. */
+      description: string;
     };
 
 /**
@@ -497,6 +521,8 @@ export function normalizeCommandSettings(raw: unknown): CommandSettings {
   return {
     enabled: source.enabled !== false,
     applyTiming: source.applyTiming === 'select' ? 'select' : 'send',
+    // A config written before this switch existed means "as before", which was on.
+    skillCommandsEnabled: source.skillCommandsEnabled !== false,
     userCommands,
     disabledBuiltins,
   };

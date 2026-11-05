@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { ConfirmDeleteBar } from '@/entrypoints/options/models/ConfirmDeleteBar';
+import { ConfirmDeleteBar } from '@/entrypoints/options/components/ConfirmDeleteBar';
 import { SettingsHeader } from '@/entrypoints/options/components/SettingsHeader';
 import { CommandDialog } from '@/entrypoints/options/commands/CommandDialog';
 import {
@@ -175,6 +175,20 @@ export function CommandSettingsPage() {
               />
             );
           })}
+
+          {/* The `/skill:*` family, listed with the other shipped commands
+              because that is what it is: behaviour the user can only switch on
+              or off. It sits at the end because it gates a family rather than a
+              single action, and its own description carries that distinction. */}
+          <CommandCard
+            name="skill:*"
+            description={t('options.commands.skillCommandsDesc')}
+            badgeHighlighted
+            enabled={settings.skillCommandsEnabled}
+            onToggle={(enabled) => void setSettings({ ...settings, skillCommandsEnabled: enabled })}
+            conflictNames={[]}
+            switchLabel={t('options.commands.skillCommands')}
+          />
         </div>
       </section>
 
@@ -275,6 +289,7 @@ function CommandCard({
   onToggle,
   conflictNames,
   actions,
+  switchLabel,
 }: {
   name: string;
   description: string;
@@ -284,6 +299,8 @@ function CommandCard({
   onToggle: (enabled: boolean) => void;
   conflictNames: string[];
   actions?: React.ReactNode;
+  /** Accessible name for this row's switch; defaults to the generic "Enabled". */
+  switchLabel?: string;
 }) {
   const { t } = useTranslation();
 
@@ -310,7 +327,7 @@ function CommandCard({
         checked={enabled}
         onCheckedChange={onToggle}
         className="shrink-0"
-        aria-label={t('options.commands.enabled')}
+        aria-label={switchLabel ?? t('options.commands.enabled')}
       />
     </div>
   );

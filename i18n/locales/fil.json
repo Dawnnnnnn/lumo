@@ -116,7 +116,9 @@
       "output": "Output",
       "screenshot": "Screenshot",
       "screenshotUnavailable": "Hindi available ang screenshot",
-      "unknownError": "Hindi kilalang error"
+      "unknownError": "Hindi kilalang error",
+      "readSkill": "Basahin ang skill",
+      "readSkillResource": "Basahin ang resource ng skill"
     },
     "reasoning": {
       "title": "Pangangatwiran",
@@ -140,7 +142,8 @@
     },
     "badge": {
       "builtin": "Built-in",
-      "user": "Custom"
+      "user": "Custom",
+      "skill": "Skill"
     }
   },
   "mentions": {
@@ -274,6 +277,8 @@
       "description": "Mga shortcut na nagsisimula sa /.",
       "enableCommands": "I-enable ang slash commands",
       "enableCommandsDesc": "Kapag naka-off, walang ginagawa ang pag-type ng / sa field at walang command na lumalawak kapag ipinadala.",
+      "skillCommands": "Mga command ng skill",
+      "skillCommandsDesc": "Lumalabas ang mga naka-install na skill bilang /skill:<name>. Ang pag-off ay tinatanggal lang ang shortcut — magagamit pa rin ng modelo ang skill.",
       "applyTiming": "Oras ng pag-trigger",
       "applyTimingSend": "Kapag ipinadala",
       "applyTimingSelect": "Kapag pinili",
@@ -520,6 +525,15 @@
     "files": {
       "title": "Mga file",
       "description": "Pamahalaan ang mga file na ginawa ng AI assistant o manu-manong in-upload.",
+      "tabs": {
+        "skills": "Mga skill"
+      },
+      "summary": "{{count}} file · {{size}}",
+      "search": "Maghanap ng file",
+      "noResults": "Walang tumutugma sa \"{{query}}\"",
+      "upload": "Mag-upload ng file",
+      "uploaded": "{{count}} file ang na-upload",
+      "uploadRejected": "Mga text file lang ang maaaring i-save",
       "noFiles": "Wala pang naka-save na file.",
       "name": "Pangalan",
       "size": "Laki",
@@ -606,6 +620,58 @@
       "prompt": "Prompt ng OCR",
       "promptDesc": "Mga tagubiling ipinapadala kasama ng larawan sa vision model.",
       "resetPrompt": "Ibalik sa default"
+    }
+  },
+  "skills": {
+    "import": {
+      "button": "Mag-import ng skill",
+      "fromArchive": "Mag-import mula sa ZIP",
+      "fromFolder": "Mag-import mula sa folder",
+      "fromGitHub": "Mag-import mula sa GitHub",
+      "installed": "Na-import ang {{count}} skill",
+      "skipped": "{{count}} skill ang naka-install na",
+      "failed": "Nabigo ang pag-import ng skill",
+      "noManifest": "Walang natagpuang SKILL.md"
+    },
+    "review": {
+      "title": "Mag-import ng skill",
+      "found": "{{count}} ang natagpuan sa package na ito",
+      "selected": "{{count}} ang napili",
+      "selectAll": "Piliin lahat",
+      "selectNone": "I-clear ang pinili",
+      "installed": "Naka-install",
+      "replaceHint": "Papalitan ng import ang naka-install na kopya",
+      "skip": "Hindi mai-install",
+      "confirm": "I-import ang {{count}}"
+    },
+    "github": {
+      "title": "Mag-import mula sa GitHub",
+      "url": "Repository",
+      "hint": "Repository, branch, o file — kung walang branch, default branch ang gagamitin.",
+      "download": "I-download",
+      "stop": "Itigil",
+      "received": "{{size}} ang natanggap",
+      "scanning": "Binabasa ang repository…",
+      "reading": "Binabasa ang mga skill…",
+      "downloading": "Dina-download ang archive…",
+      "rateLimited": "Nililimitahan ng GitHub ang mga kahilingan — subukang muli pagkalipas ng ilang minuto",
+      "invalidUrl": "Hindi ito address ng GitHub repository",
+      "notFound": "Hindi mahanap ang repository o branch (hindi sinusuportahan ang pribadong repository)",
+      "tooLarge": "Masyadong malaki ang repository na ito para i-import",
+      "network": "Hindi maabot ang GitHub"
+    },
+    "list": {
+      "installed": "{{count}} naka-install",
+      "needsAttention": "{{count}} ang kailangan ng pansin",
+      "empty": "Walang naka-install na skill",
+      "noManifest": "Walang SKILL.md sa folder na ito",
+      "updated": "Na-update {{date}}",
+      "copyCommand": "Kopyahin ang command",
+      "open": "Buksan ang SKILL.md",
+      "download": "I-download ang skill",
+      "delete": "Tanggalin ang skill",
+      "deleteConfirm": "Tanggalin ang \"{{name}}\" at ang {{count}} file nito? Hindi na ito maibabalik.",
+      "hiddenFromModel": "Nakatago sa mga model call"
     }
   }
 }

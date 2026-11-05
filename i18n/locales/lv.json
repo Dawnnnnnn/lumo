@@ -116,7 +116,9 @@
       "output": "Izvade",
       "screenshot": "Ekrānuzņēmums",
       "screenshotUnavailable": "Ekrānuzņēmums nav pieejams",
-      "unknownError": "Nezināma kļūda"
+      "unknownError": "Nezināma kļūda",
+      "readSkill": "Lasīt prasmi",
+      "readSkillResource": "Lasīt prasmes resursu"
     },
     "reasoning": {
       "title": "Spriešana",
@@ -140,7 +142,8 @@
     },
     "badge": {
       "builtin": "Iebūvēts",
-      "user": "Pielāgots"
+      "user": "Pielāgots",
+      "skill": "Prasme"
     }
   },
   "mentions": {
@@ -275,6 +278,8 @@
       "description": "Saīsnes, kas sākas ar /.",
       "enableCommands": "Iespējot slīpsvītras komandas",
       "enableCommandsDesc": "Kad izslēgts, / ievadīšana laukā neko nedara un nosūtot neviena komanda netiek izvērsta.",
+      "skillCommands": "Prasmju komandas",
+      "skillCommandsDesc": "Instalētās prasmes parādās kā /skill:<name>. Izslēdzot tiek noņemts tikai saīsinājums — modelis joprojām var izmantot prasmi.",
       "applyTiming": "Aktivizēšanas laiks",
       "applyTimingSend": "Sūtot",
       "applyTimingSelect": "Atlasot",
@@ -521,6 +526,15 @@
     "files": {
       "title": "Faili",
       "description": "Pārvaldiet failus, ko izveidojis AI asistents vai augšupielādējis lietotājs.",
+      "tabs": {
+        "skills": "Prasmes"
+      },
+      "summary": "{{count}} faili · {{size}}",
+      "search": "Meklēt failus",
+      "noResults": "Nekas neatbilst \"{{query}}\"",
+      "upload": "Augšupielādēt failu",
+      "uploaded": "Augšupielādēti {{count}} faili",
+      "uploadRejected": "Var saglabāt tikai teksta failus",
       "noFiles": "Vēl nav saglabātu failu.",
       "name": "Nosaukums",
       "size": "Izmērs",
@@ -607,6 +621,58 @@
       "prompt": "OCR prompt",
       "promptDesc": "Instrukcijas, kas kopā ar attēlu tiek sūtītas redzes modelim.",
       "resetPrompt": "Atjaunot noklusējumu"
+    }
+  },
+  "skills": {
+    "import": {
+      "button": "Importēt prasmes",
+      "fromArchive": "Importēt no ZIP",
+      "fromFolder": "Importēt no mapes",
+      "fromGitHub": "Importēt no GitHub",
+      "installed": "Importētas {{count}} prasmes",
+      "skipped": "{{count}} prasmes jau ir instalētas",
+      "failed": "Prasmju imports neizdevās",
+      "noManifest": "SKILL.md nav atrasts"
+    },
+    "review": {
+      "title": "Importēt prasmes",
+      "found": "Šajā pakotnē atrasti {{count}}",
+      "selected": "Atlasīti {{count}}",
+      "selectAll": "Atlasīt visus",
+      "selectNone": "Notīrīt atlasi",
+      "installed": "Instalēts",
+      "replaceHint": "Imports aizstās instalēto kopiju",
+      "skip": "Nevar instalēt",
+      "confirm": "Importēt {{count}}"
+    },
+    "github": {
+      "title": "Importēt no GitHub",
+      "url": "Repozitorijs",
+      "hint": "Repozitorijs, atzars vai fails — bez atzara tiek izmantots noklusējuma atzars.",
+      "download": "Lejupielādēt",
+      "stop": "Apturēt",
+      "received": "Saņemti {{size}}",
+      "scanning": "Lasu repozitoriju…",
+      "reading": "Lasu prasmes…",
+      "downloading": "Lejupielādēju arhīvu…",
+      "rateLimited": "GitHub ierobežo pieprasījumus — mēģiniet vēlreiz pēc dažām minūtēm",
+      "invalidUrl": "Tā nav GitHub repozitorija adrese",
+      "notFound": "Repozitorijs vai atzars nav atrasts (privātie repozitoriji netiek atbalstīti)",
+      "tooLarge": "Šis repozitorijs ir pārāk liels, lai to importētu",
+      "network": "Neizdevās sazināties ar GitHub"
+    },
+    "list": {
+      "installed": "Instalētas: {{count}}",
+      "needsAttention": "Uzmanību prasa: {{count}}",
+      "empty": "Nav instalētu prasmju",
+      "noManifest": "Šajā mapē nav SKILL.md",
+      "updated": "Atjaunināts {{date}}",
+      "copyCommand": "Kopēt komandu",
+      "open": "Atvērt SKILL.md",
+      "download": "Lejupielādēt prasmi",
+      "delete": "Dzēst prasmi",
+      "deleteConfirm": "Dzēst \"{{name}}\" un tās {{count}} failus? To nevar atsaukt.",
+      "hiddenFromModel": "Paslēpta no modeļa izsaukumiem"
     }
   }
 }

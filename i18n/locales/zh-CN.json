@@ -116,7 +116,9 @@
       "output": "结果",
       "screenshot": "截图",
       "screenshotUnavailable": "截图不可用",
-      "unknownError": "未知错误"
+      "unknownError": "未知错误",
+      "readSkill": "读取技能",
+      "readSkillResource": "读取技能资源"
     },
     "reasoning": {
       "title": "推理过程",
@@ -140,7 +142,8 @@
     },
     "badge": {
       "builtin": "系统",
-      "user": "自定义"
+      "user": "自定义",
+      "skill": "技能"
     }
   },
   "mentions": {
@@ -274,6 +277,8 @@
       "description": "以 / 开头的快捷输入。",
       "enableCommands": "启用命令",
       "enableCommandsDesc": "关闭后，在输入框中输入 / 不会触发任何命令，也不会展开短语。",
+      "skillCommands": "技能命令",
+      "skillCommandsDesc": "已安装的技能会以 /skill:<name> 出现。关闭只移除这一快捷方式，模型仍然可以使用该技能。",
       "applyTiming": "触发时机",
       "applyTimingSend": "发送时",
       "applyTimingSelect": "选中时",
@@ -520,6 +525,15 @@
     "files": {
       "title": "文件",
       "description": "管理由 AI 助手创建或手动上传的文件。",
+      "tabs": {
+        "skills": "技能"
+      },
+      "summary": "{{count}} 个文件 · {{size}}",
+      "search": "搜索文件",
+      "noResults": "没有匹配“{{query}}”的项目",
+      "upload": "上传文件",
+      "uploaded": "已上传 {{count}} 个文件",
+      "uploadRejected": "仅支持存储文本文件",
       "noFiles": "暂无存储文件。",
       "name": "名称",
       "size": "大小",
@@ -606,6 +620,58 @@
       "prompt": "OCR 提示词",
       "promptDesc": "随图片一起发送给视觉模型的指令。",
       "resetPrompt": "恢复默认"
+    }
+  },
+  "skills": {
+    "import": {
+      "button": "导入技能",
+      "fromArchive": "从 ZIP 导入",
+      "fromFolder": "从文件夹导入",
+      "fromGitHub": "从 GitHub 导入",
+      "installed": "已导入 {{count}} 个技能",
+      "skipped": "{{count}} 个技能已存在",
+      "failed": "技能导入失败",
+      "noManifest": "未找到 SKILL.md"
+    },
+    "review": {
+      "title": "导入技能",
+      "found": "在此包中找到 {{count}} 个技能",
+      "selected": "已选择 {{count}} 个",
+      "selectAll": "全选",
+      "selectNone": "取消选择",
+      "installed": "已安装",
+      "replaceHint": "导入将替换已安装的副本",
+      "skip": "无法安装",
+      "confirm": "导入 {{count}} 个"
+    },
+    "github": {
+      "title": "从 GitHub 导入",
+      "url": "仓库",
+      "hint": "仓库、分支或文件地址 —— 不填分支时使用默认分支。",
+      "download": "下载",
+      "stop": "停止",
+      "received": "已接收 {{size}}",
+      "scanning": "正在读取仓库…",
+      "reading": "正在读取技能…",
+      "downloading": "正在下载整包…",
+      "rateLimited": "GitHub 正在限制请求频率 —— 请几分钟后重试",
+      "invalidUrl": "这不是 GitHub 仓库地址",
+      "notFound": "未找到仓库或分支（不支持私有仓库）",
+      "tooLarge": "该仓库太大，无法导入",
+      "network": "无法连接 GitHub"
+    },
+    "list": {
+      "installed": "已安装 {{count}} 个",
+      "needsAttention": "{{count}} 个待处理",
+      "empty": "尚未安装技能",
+      "noManifest": "此文件夹中没有 SKILL.md",
+      "updated": "更新于 {{date}}",
+      "copyCommand": "复制命令",
+      "open": "打开 SKILL.md",
+      "download": "下载技能",
+      "delete": "删除技能",
+      "deleteConfirm": "删除“{{name}}”及其 {{count}} 个文件？此操作无法撤销。",
+      "hiddenFromModel": "不参与模型调用"
     }
   }
 }

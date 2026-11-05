@@ -116,7 +116,9 @@
       "output": "Излаз",
       "screenshot": "Снимак екрана",
       "screenshotUnavailable": "Снимак екрана није доступан",
-      "unknownError": "Непозната грешка"
+      "unknownError": "Непозната грешка",
+      "readSkill": "Pročitaj veštinu",
+      "readSkillResource": "Pročitaj resurs veštine"
     },
     "reasoning": {
       "title": "Резоновање",
@@ -140,7 +142,8 @@
     },
     "badge": {
       "builtin": "Уграђено",
-      "user": "Прилагођено"
+      "user": "Прилагођено",
+      "skill": "Veština"
     }
   },
   "mentions": {
@@ -275,6 +278,8 @@
       "description": "Пречице које почињу са /.",
       "enableCommands": "Омогући команде са косом цртом",
       "enableCommandsDesc": "Кад је искључено, уписивање / у поље не чини ништа и ниједна се команда не развија при слању.",
+      "skillCommands": "Наредбе вештина",
+      "skillCommandsDesc": "Инсталиране вештине се приказују као /skill:<name>. Искључивање уклања само пречицу — модел и даље може да користи вештину.",
       "applyTiming": "Време активирања",
       "applyTimingSend": "При слању",
       "applyTimingSelect": "При избору",
@@ -521,6 +526,15 @@
     "files": {
       "title": "Датотеке",
       "description": "Управљајте датотекама које је направио AI асистент или које су ручно отпремљене.",
+      "tabs": {
+        "skills": "Вештине"
+      },
+      "summary": "{{count}} датотека · {{size}}",
+      "search": "Претражи датотеке",
+      "noResults": "Ништа не одговара „{{query}}“",
+      "upload": "Отпреми датотеку",
+      "uploaded": "Отпремљено {{count}} датотека",
+      "uploadRejected": "Могу се сачувати само текстуалне датотеке",
       "noFiles": "Још нема сачуваних датотека.",
       "name": "Назив",
       "size": "Величина",
@@ -607,6 +621,58 @@
       "prompt": "OCR промпт",
       "promptDesc": "Упутства која се шаљу заједно са сликом моделу вида.",
       "resetPrompt": "Врати подразумевано"
+    }
+  },
+  "skills": {
+    "import": {
+      "button": "Uvezi veštine",
+      "fromArchive": "Увези из ZIP",
+      "fromFolder": "Увези из фасцикле",
+      "fromGitHub": "Увези са GitHub-а",
+      "installed": "Uvezeno {{count}} veština",
+      "skipped": "{{count}} veština je već instalirano",
+      "failed": "Uvoz veština nije uspeo",
+      "noManifest": "SKILL.md nije pronađen"
+    },
+    "review": {
+      "title": "Увези вештине",
+      "found": "У овом пакету пронађено {{count}}",
+      "selected": "Изабрано {{count}}",
+      "selectAll": "Изабери све",
+      "selectNone": "Очисти избор",
+      "installed": "Инсталирано",
+      "replaceHint": "Увоз ће заменити инсталирану копију",
+      "skip": "Није могуће инсталирати",
+      "confirm": "Увези {{count}}"
+    },
+    "github": {
+      "title": "Увези са GitHub-а",
+      "url": "Репозиторијум",
+      "hint": "Репозиторијум, грана или датотека — без гране користи се подразумевана.",
+      "download": "Преузми",
+      "stop": "Заустави",
+      "received": "Примљено {{size}}",
+      "scanning": "Читам репозиторијум…",
+      "reading": "Читам вештине…",
+      "downloading": "Преузимам архиву…",
+      "rateLimited": "GitHub ограничава захтеве — покушајте поново за неколико минута",
+      "invalidUrl": "То није адреса GitHub репозиторијума",
+      "notFound": "Репозиторијум или грана нису пронађени (приватни репозиторијуми нису подржани)",
+      "tooLarge": "Овај репозиторијум је превелик за увоз",
+      "network": "Није могуће дохватити GitHub"
+    },
+    "list": {
+      "installed": "Инсталирано: {{count}}",
+      "needsAttention": "Захтева пажњу: {{count}}",
+      "empty": "Нема инсталираних вештина",
+      "noManifest": "У овој фасцикли нема SKILL.md",
+      "updated": "Ажурирано {{date}}",
+      "copyCommand": "Копирај наредбу",
+      "open": "Отвори SKILL.md",
+      "download": "Преузми вештину",
+      "delete": "Избриши вештину",
+      "deleteConfirm": "Избрисати „{{name}}“ и његових {{count}} датотека? То се не може опозвати.",
+      "hiddenFromModel": "Скривено од позива модела"
     }
   }
 }

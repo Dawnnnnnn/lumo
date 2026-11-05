@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import {
   ChevronRight,
   Wrench,
+  BookOpen,
   Loader2,
   Check,
   AlertCircle,
@@ -16,7 +17,12 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
-import { normalizeToolOutput, safeStringify, summarizeToolInput } from '@/lib/tool-output';
+import {
+  describeToolCall,
+  normalizeToolOutput,
+  safeStringify,
+  summarizeToolInput,
+} from '@/lib/tool-output';
 import { useBlobImageUrl } from '@/lib/use-blob-image-url';
 import type { ToolPart } from '@/lib/message-parts';
 
@@ -150,7 +156,13 @@ export function Tool({ part, name, isStreaming = false, className }: ToolProps) 
   const { t } = useTranslation();
   const state = toolDisplayState(part.state, isStreaming);
   const statusLabel = useToolStatusLabel(state);
-  const inputSummary = summarizeToolInput(part.input);
+  // A skill read is named by the skill, not by the storage path that happens to
+  // hold it. Everything else keeps the raw tool name and its argument summary.
+  const described = describeToolCall(name, part.input);
+  const inputSummary = described
+    ? [described.detail, described.hint].filter(Boolean).join(' / ')
+    : summarizeToolInput(part.input);
+  const HeaderIcon = described ? BookOpen : Wrench;
   // Failures are expanded up front; successful calls stay collapsed so long
   // tool chains remain scannable in a narrow sidebar.
   const failed = state === 'output-error';
@@ -166,9 +178,12 @@ export function Tool({ part, name, isStreaming = false, className }: ToolProps) 
     >
       <CollapsibleTrigger className="group/tool gap-1.5 px-2 py-1.5 hover:bg-muted/70 transition-colors min-w-0">
         <ChevronRight className="h-3 w-3 shrink-0 text-muted-foreground transition-transform group-data-[state=open]/tool:rotate-90 rtl:-scale-x-100" />
-        <Wrench className="h-3 w-3 shrink-0 text-muted-foreground" />
-        <span className="font-mono text-[0.6875rem] font-medium truncate shrink-0 max-w-[45%]">
-          {name}
+        <HeaderIcon className="h-3 w-3 shrink-0 text-muted-foreground" />
+        <span
+          className="font-mono text-[0.6875rem] font-medium truncate shrink-0 max-w-[45%]"
+          title={described ? name : undefined}
+        >
+          {described ? t(described.labelKey) : name}
         </span>
         {inputSummary && (
           <span className="text-[0.6875rem] text-muted-foreground/70 truncate min-w-0 flex-1">

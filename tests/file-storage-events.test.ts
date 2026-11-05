@@ -13,49 +13,78 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { onEvent, resetEventBusForTests, type LumoEventMap } from '@/lib/event-bus';
 
-const files = new Map<string, string>();
-
 /**
+ * Minimal three-store IndexedDB stand-in: `files` (content), `meta` (metadata),
+ * `dirs` (directories).
+ *
  * The IndexedDB layer is stubbed at the `openDB` boundary rather than run through
  * `fake-indexeddb`, whose structured clone drops Blob identity — the caveat
- * `checkpoint-storage.test.ts` records. What matters here is that the request's
- * success path emits, not that IndexedDB works.
+ * `checkpoint-storage.test.ts` records. What matters here is that each write
+ * reaches both stores and that the success path emits.
  */
-function fakeRequest<T>(result: T) {
-  const request: Record<string, unknown> = { result, onsuccess: null, onerror: null };
+type Row = Record<string, unknown>;
+
+const stores: Record<string, Map<string, Row>> = {
+  files: new Map(),
+  meta: new Map(),
+  dirs: new Map(),
+};
+
+function fakeRequest<T>(thunk: () => T) {
+  const request: Record<string, unknown> = { result: undefined, onsuccess: null, onerror: null };
   // Fire on the next microtask, as IndexedDB does.
   void Promise.resolve().then(() => {
-    (request.onsuccess as (() => void) | null)?.();
+    try {
+      request.result = thunk();
+      (request.onsuccess as (() => void) | null)?.();
+    } catch (error) {
+      request.error = error;
+      (request.onerror as (() => void) | null)?.();
+    }
   });
   return request;
+}
+
+function fakeStore(name: string) {
+  const rows = stores[name]!;
+  const keyOf = (value: Row) => String(value.name ?? value.path);
+  return {
+    put: (value: Row) => fakeRequest(() => {
+      rows.set(keyOf(value), value);
+    }),
+    delete: (key: string) => fakeRequest(() => {
+      rows.delete(key);
+    }),
+    get: (key: string) => fakeRequest(() => rows.get(key)),
+    count: (key: string) => fakeRequest(() => (rows.has(key) ? 1 : 0)),
+    getAllKeys: () => fakeRequest(() => [...rows.keys()]),
+    getAll: () => fakeRequest(() => [...rows.values()]),
+    clear: () => fakeRequest(() => {
+      rows.clear();
+    }),
+  };
 }
 
 vi.stubGlobal('indexedDB', {
   open: () => {
     const db = {
       objectStoreNames: { contains: () => true },
-      transaction: () => ({
-        objectStore: () => ({
-          put: (value: { name: string; content: { size: number } }) => {
-            files.set(value.name, 'stored');
-            return fakeRequest(undefined);
-          },
-          delete: (name: string) => {
-            files.delete(name);
-            return fakeRequest(undefined);
-          },
-          get: (name: string) =>
-            fakeRequest(files.has(name) ? { name, content: new Blob(['x']) } : undefined),
-          count: (name: string) => fakeRequest(files.has(name) ? 1 : 0),
-          getAllKeys: () => fakeRequest([...files.keys()]),
-          clear: () => {
-            files.clear();
-            return fakeRequest(undefined);
-          },
-        }),
-      }),
+      transaction: (names: string | string[]) => {
+        const requested = Array.isArray(names) ? names : [names];
+        const tx: Record<string, unknown> = {
+          objectStore: (name: string) => fakeStore(name),
+          oncomplete: null,
+          onerror: null,
+          onabort: null,
+        };
+        // IndexedDB completes a transaction after the task that issued its
+        // requests, never synchronously.
+        setTimeout(() => (tx.oncomplete as (() => void) | null)?.(), 0);
+        void requested;
+        return tx;
+      },
     };
-    return fakeRequest(db);
+    return fakeRequest(() => db);
   },
 });
 
@@ -65,7 +94,7 @@ let events: LumoEventMap['files:changed'][] = [];
 let off: (() => void) | null = null;
 
 beforeEach(() => {
-  files.clear();
+  for (const rows of Object.values(stores)) rows.clear();
   events = [];
   off = onEvent('files:changed', (payload) => events.push(payload));
 });
@@ -124,8 +153,11 @@ describe('fileStorage change notifications', () => {
 
     expect(removed).toBe(2);
     // One event listing everything, not one per file: a single-file view still
-    // has to find its own name in the list to know it is now stale.
-    expect(events).toEqual([{ names: ['a.md', 'b.md'], reason: 'delete' }]);
+    // has to find its own name in the list to know it is now stale. The order
+    // within the list is not part of that contract.
+    expect(events).toHaveLength(1);
+    expect([...events[0]!.names].sort()).toEqual(['a.md', 'b.md']);
+    expect(events[0]!.reason).toBe('delete');
   });
 
   it('says nothing when a clear removed nothing', async () => {

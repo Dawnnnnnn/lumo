@@ -31,6 +31,36 @@ vi.mock('@/store/useStorageWatch', () => ({
   useStorageWatch: () => {},
 }));
 
+/**
+ * Installed skills are read from storage, which this suite does not run. The
+ * hook is stubbed at the boundary the composer uses, and the skill file is
+ * served from an in-memory map.
+ */
+let mockSkills: Array<{
+  name: string;
+  description: string;
+  disableModelInvocation: boolean;
+  path: string;
+  dir: string;
+  updatedAt: number;
+}> = [];
+
+vi.mock('@/store/useSkills', () => ({
+  useSkills: () => mockSkills,
+}));
+
+const skillFiles = new Map<string, string>();
+
+vi.mock('@/lib/mcp/file-storage', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/lib/mcp/file-storage')>();
+  return {
+    ...actual,
+    fileStorage: {
+      readFileAsText: async (name: string) => skillFiles.get(name) ?? null,
+    },
+  };
+});
+
 const baseProps = {
   isStreaming: false,
   canAcceptImages: false,
@@ -60,9 +90,25 @@ function typeValue(textarea: HTMLTextAreaElement, value: string) {
 }
 
 beforeEach(() => {
+  mockSkills = [
+    {
+      name: 'pdf-tools',
+      description: 'Extract text and tables from PDFs.',
+      disableModelInvocation: false,
+      path: 'skills/pdf-tools/SKILL.md',
+      dir: 'skills/pdf-tools/',
+      updatedAt: 1,
+    },
+  ];
+  skillFiles.clear();
+  skillFiles.set(
+    'skills/pdf-tools/SKILL.md',
+    '---\nname: pdf-tools\ndescription: Extract text.\n---\n\nSTEER: read references/formats.md first.\n',
+  );
   commandSettings = {
     enabled: true,
     applyTiming: 'send',
+    skillCommandsEnabled: true,
     disabledBuiltins: [],
     userCommands: [
       { id: 'fy', name: 'fy', phrase: '翻译此页面', enabled: true },
@@ -190,6 +236,7 @@ describe('send-time resolution', () => {
     commandSettings = {
       enabled: false,
       applyTiming: 'send',
+      skillCommandsEnabled: true,
       disabledBuiltins: [],
       userCommands: [],
     };
@@ -216,6 +263,7 @@ describe('select timing', () => {
     commandSettings = {
       enabled: true,
       applyTiming: 'select',
+      skillCommandsEnabled: true,
       disabledBuiltins: [],
       userCommands: [
         { id: 'fy', name: 'fy', phrase: '翻译此页面', enabled: true },
@@ -279,6 +327,67 @@ describe('select timing', () => {
 
     await waitFor(() => {
       expect(onSend).toHaveBeenCalledWith('翻译此页面 这一段', [], []);
+    });
+  });
+});
+
+describe('skill commands', () => {
+  it('offers installed skills in the picker', async () => {
+    const { textarea, container } = await renderInput();
+    typeValue(textarea, '/skill');
+
+    await waitFor(() => {
+      expect(container.textContent).toContain('/skill:pdf-tools');
+      expect(container.textContent).toContain('Extract text and tables from PDFs.');
+    });
+  });
+
+  it('sends the skill instructions ahead of the request', async () => {
+    const onSend = vi.fn();
+    const { textarea } = await renderInput({ onSend });
+    typeValue(textarea, '/skill:pdf-tools extract a.pdf');
+    fireEvent.keyDown(textarea, { key: 'Enter' });
+
+    await waitFor(() => expect(onSend).toHaveBeenCalled());
+    const [text] = (onSend as unknown as { mock: { calls: string[][] } }).mock.calls[0]!;
+    expect(text).toContain('STEER: read references/formats.md first.');
+    expect(text).toContain('</skill>');
+    expect(text).toContain('extract a.pdf');
+    // The frontmatter is metadata, not instructions.
+    expect(text).not.toContain('description: Extract text.');
+    expect(textarea.value).toBe('');
+  });
+
+  it('hides skill commands when the family switch is off, keeping the rest', async () => {
+    commandSettings = { ...commandSettings, skillCommandsEnabled: false };
+    const onSend = vi.fn();
+    const { textarea, container } = await renderInput({ onSend });
+
+    typeValue(textarea, '/skill');
+    await waitFor(() => expect(textarea.value).toBe('/skill'));
+    expect(container.textContent).not.toContain('/skill:pdf-tools');
+
+    // Built-ins and the user's phrases are untouched by the family switch.
+    typeValue(textarea, '/new');
+    await waitFor(() => expect(container.textContent).toContain('/new'));
+
+    // And a typed skill trigger is ordinary text on send.
+    typeValue(textarea, '/skill:pdf-tools extract a.pdf');
+    fireEvent.keyDown(textarea, { key: 'Enter' });
+    await waitFor(() => {
+      expect(onSend).toHaveBeenCalledWith('/skill:pdf-tools extract a.pdf', [], []);
+    });
+  });
+
+  it('sends the text as typed when the skill disappeared under the draft', async () => {
+    skillFiles.clear();
+    const onSend = vi.fn();
+    const { textarea } = await renderInput({ onSend });
+    typeValue(textarea, '/skill:pdf-tools extract a.pdf');
+    fireEvent.keyDown(textarea, { key: 'Enter' });
+
+    await waitFor(() => {
+      expect(onSend).toHaveBeenCalledWith('/skill:pdf-tools extract a.pdf', [], []);
     });
   });
 });

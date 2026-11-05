@@ -116,7 +116,9 @@
       "output": "Ieșire",
       "screenshot": "Captură de ecran",
       "screenshotUnavailable": "Captura de ecran nu este disponibilă",
-      "unknownError": "Eroare necunoscută"
+      "unknownError": "Eroare necunoscută",
+      "readSkill": "Citește abilitatea",
+      "readSkillResource": "Citește resursa abilității"
     },
     "reasoning": {
       "title": "Raționament",
@@ -140,7 +142,8 @@
     },
     "badge": {
       "builtin": "Integrat",
-      "user": "Personalizat"
+      "user": "Personalizat",
+      "skill": "Abilitate"
     }
   },
   "mentions": {
@@ -275,6 +278,8 @@
       "description": "Scurtături care încep cu /.",
       "enableCommands": "Activează comenzile slash",
       "enableCommandsDesc": "Când este dezactivat, tastarea / în câmp nu face nimic și nicio comandă nu se extinde la trimitere.",
+      "skillCommands": "Comenzi pentru abilități",
+      "skillCommandsDesc": "Abilitățile instalate apar ca /skill:<name>. Dezactivarea elimină doar scurtătura — modelul poate folosi în continuare abilitatea.",
       "applyTiming": "Momentul declanșării",
       "applyTimingSend": "La trimitere",
       "applyTimingSelect": "La selectare",
@@ -521,6 +526,15 @@
     "files": {
       "title": "Fișiere",
       "description": "Gestionează fișierele create de asistentul AI sau încărcate manual.",
+      "tabs": {
+        "skills": "Abilități"
+      },
+      "summary": "{{count}} fișiere · {{size}}",
+      "search": "Caută fișiere",
+      "noResults": "Nimic nu corespunde cu „{{query}}“",
+      "upload": "Încarcă fișier",
+      "uploaded": "Încărcate {{count}} fișiere",
+      "uploadRejected": "Se pot stoca doar fișiere text",
       "noFiles": "Încă niciun fișier salvat.",
       "name": "Nume",
       "size": "Dimensiune",
@@ -607,6 +621,58 @@
       "prompt": "Prompt OCR",
       "promptDesc": "Instrucțiuni trimise împreună cu imaginea către modelul de vedere.",
       "resetPrompt": "Restaurează implicit"
+    }
+  },
+  "skills": {
+    "import": {
+      "button": "Importă abilități",
+      "fromArchive": "Importați din ZIP",
+      "fromFolder": "Importați din folder",
+      "fromGitHub": "Importă din GitHub",
+      "installed": "{{count}} abilități importate",
+      "skipped": "{{count}} abilități sunt deja instalate",
+      "failed": "Importul abilităților a eșuat",
+      "noManifest": "Nu s-a găsit SKILL.md"
+    },
+    "review": {
+      "title": "Importă abilități",
+      "found": "{{count}} găsite în acest pachet",
+      "selected": "{{count}} selectate",
+      "selectAll": "Selectează tot",
+      "selectNone": "Golește selecția",
+      "installed": "Instalată",
+      "replaceHint": "Importul va înlocui copia instalată",
+      "skip": "Nu poate fi instalată",
+      "confirm": "Importă {{count}}"
+    },
+    "github": {
+      "title": "Importă din GitHub",
+      "url": "Repository",
+      "hint": "Un repository, o ramură sau un fișier — fără ramură se folosește cea implicită.",
+      "download": "Descarcă",
+      "stop": "Oprește",
+      "received": "{{size}} primiți",
+      "scanning": "Se citește repository-ul…",
+      "reading": "Se citesc abilitățile…",
+      "downloading": "Se descarcă arhiva…",
+      "rateLimited": "GitHub limitează solicitările — încercați din nou în câteva minute",
+      "invalidUrl": "Aceasta nu este o adresă de repository GitHub",
+      "notFound": "Repository-ul sau ramura nu au fost găsite (repository-urile private nu sunt acceptate)",
+      "tooLarge": "Acest repository este prea mare pentru import",
+      "network": "Nu s-a putut contacta GitHub"
+    },
+    "list": {
+      "installed": "{{count}} instalate",
+      "needsAttention": "{{count}} necesită atenție",
+      "empty": "Nu există abilități instalate",
+      "noManifest": "Nu există SKILL.md în acest folder",
+      "updated": "Actualizat {{date}}",
+      "copyCommand": "Copiază comanda",
+      "open": "Deschide SKILL.md",
+      "download": "Descarcă abilitatea",
+      "delete": "Șterge abilitatea",
+      "deleteConfirm": "Ștergi „{{name}}“ și cele {{count}} fișiere ale sale? Această acțiune nu poate fi anulată.",
+      "hiddenFromModel": "Ascunsă de la invocarea modelului"
     }
   }
 }

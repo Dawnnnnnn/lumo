@@ -116,7 +116,9 @@
       "output": "Keluaran",
       "screenshot": "Tangkapan layar",
       "screenshotUnavailable": "Tangkapan layar tidak tersedia",
-      "unknownError": "Kesalahan tidak diketahui"
+      "unknownError": "Kesalahan tidak diketahui",
+      "readSkill": "Baca skill",
+      "readSkillResource": "Baca sumber daya skill"
     },
     "reasoning": {
       "title": "Penalaran",
@@ -140,7 +142,8 @@
     },
     "badge": {
       "builtin": "Bawaan",
-      "user": "Kustom"
+      "user": "Kustom",
+      "skill": "Skill"
     }
   },
   "mentions": {
@@ -274,6 +277,8 @@
       "description": "Pintasan yang dimulai dengan /.",
       "enableCommands": "Aktifkan perintah garis miring",
       "enableCommandsDesc": "Saat nonaktif, mengetik / di kolom tidak melakukan apa pun dan tidak ada perintah yang diperluas saat dikirim.",
+      "skillCommands": "Perintah skill",
+      "skillCommandsDesc": "Skill yang terpasang muncul sebagai /skill:<name>. Menonaktifkan hanya menghapus pintasan — model tetap dapat memakai skill tersebut.",
       "applyTiming": "Waktu pemicuan",
       "applyTimingSend": "Saat dikirim",
       "applyTimingSelect": "Saat dipilih",
@@ -520,6 +525,15 @@
     "files": {
       "title": "Berkas",
       "description": "Kelola berkas yang dibuat oleh asisten AI atau diunggah secara manual.",
+      "tabs": {
+        "skills": "Skill"
+      },
+      "summary": "{{count}} berkas · {{size}}",
+      "search": "Cari berkas",
+      "noResults": "Tidak ada yang cocok dengan \"{{query}}\"",
+      "upload": "Unggah berkas",
+      "uploaded": "{{count}} berkas diunggah",
+      "uploadRejected": "Hanya berkas teks yang dapat disimpan",
       "noFiles": "Belum ada berkas yang tersimpan.",
       "name": "Nama",
       "size": "Ukuran",
@@ -606,6 +620,58 @@
       "prompt": "Prompt OCR",
       "promptDesc": "Instruksi yang dikirim bersama gambar ke model visi.",
       "resetPrompt": "Kembalikan default"
+    }
+  },
+  "skills": {
+    "import": {
+      "button": "Impor skill",
+      "fromArchive": "Impor dari ZIP",
+      "fromFolder": "Impor dari folder",
+      "fromGitHub": "Impor dari GitHub",
+      "installed": "{{count}} skill diimpor",
+      "skipped": "{{count}} skill sudah terpasang",
+      "failed": "Impor skill gagal",
+      "noManifest": "SKILL.md tidak ditemukan"
+    },
+    "review": {
+      "title": "Impor skill",
+      "found": "{{count}} ditemukan di paket ini",
+      "selected": "{{count}} dipilih",
+      "selectAll": "Pilih semua",
+      "selectNone": "Hapus pilihan",
+      "installed": "Terpasang",
+      "replaceHint": "Impor akan menggantikan salinan yang terpasang",
+      "skip": "Tidak dapat dipasang",
+      "confirm": "Impor {{count}}"
+    },
+    "github": {
+      "title": "Impor dari GitHub",
+      "url": "Repositori",
+      "hint": "Repositori, cabang, atau berkas — tanpa cabang, cabang default dipakai.",
+      "download": "Unduh",
+      "stop": "Hentikan",
+      "received": "{{size}} diterima",
+      "scanning": "Membaca repositori…",
+      "reading": "Membaca skill…",
+      "downloading": "Mengunduh arsip…",
+      "rateLimited": "GitHub membatasi permintaan — coba lagi dalam beberapa menit",
+      "invalidUrl": "Itu bukan alamat repositori GitHub",
+      "notFound": "Repositori atau cabang tidak ditemukan (repositori privat tidak didukung)",
+      "tooLarge": "Repositori ini terlalu besar untuk diimpor",
+      "network": "Tidak dapat menghubungi GitHub"
+    },
+    "list": {
+      "installed": "{{count}} terpasang",
+      "needsAttention": "{{count}} perlu perhatian",
+      "empty": "Tidak ada skill terpasang",
+      "noManifest": "Tidak ada SKILL.md di folder ini",
+      "updated": "Diperbarui {{date}}",
+      "copyCommand": "Salin perintah",
+      "open": "Buka SKILL.md",
+      "download": "Unduh skill",
+      "delete": "Hapus skill",
+      "deleteConfirm": "Hapus \"{{name}}\" dan {{count}} berkasnya? Tindakan ini tidak dapat dibatalkan.",
+      "hiddenFromModel": "Tersembunyi dari pemanggilan model"
     }
   }
 }

@@ -116,7 +116,9 @@
       "output": "結果",
       "screenshot": "螢幕截圖",
       "screenshotUnavailable": "無法擷取螢幕截圖",
-      "unknownError": "未知錯誤"
+      "unknownError": "未知錯誤",
+      "readSkill": "讀取技能",
+      "readSkillResource": "讀取技能資源"
     },
     "reasoning": {
       "title": "推理過程",
@@ -140,7 +142,8 @@
     },
     "badge": {
       "builtin": "內建",
-      "user": "自訂"
+      "user": "自訂",
+      "skill": "技能"
     }
   },
   "mentions": {
@@ -274,6 +277,8 @@
       "description": "以 / 開頭的快捷輸入。",
       "enableCommands": "啟用指令",
       "enableCommandsDesc": "關閉後，在輸入框中輸入 / 不會觸發任何指令，也不會展開短語。",
+      "skillCommands": "技能指令",
+      "skillCommandsDesc": "已安裝的技能會以 /skill:<name> 出現。關閉只移除這項快捷方式，模型仍可使用該技能。",
       "applyTiming": "觸發時機",
       "applyTimingSend": "傳送時",
       "applyTimingSelect": "選取時",
@@ -520,6 +525,15 @@
     "files": {
       "title": "檔案",
       "description": "管理由 AI 助理建立或手動上傳的檔案。",
+      "tabs": {
+        "skills": "技能"
+      },
+      "summary": "{{count}} 個檔案 · {{size}}",
+      "search": "搜尋檔案",
+      "noResults": "沒有符合「{{query}}」的項目",
+      "upload": "上傳檔案",
+      "uploaded": "已上傳 {{count}} 個檔案",
+      "uploadRejected": "僅支援儲存文字檔",
       "noFiles": "尚無儲存的檔案。",
       "name": "名稱",
       "size": "大小",
@@ -606,6 +620,58 @@
       "prompt": "OCR 提示詞",
       "promptDesc": "隨圖片一起傳送給視覺模型的指令。",
       "resetPrompt": "恢復預設"
+    }
+  },
+  "skills": {
+    "import": {
+      "button": "匯入技能",
+      "fromArchive": "從 ZIP 匯入",
+      "fromFolder": "從資料夾匯入",
+      "fromGitHub": "從 GitHub 匯入",
+      "installed": "已匯入 {{count}} 個技能",
+      "skipped": "{{count}} 個技能已存在",
+      "failed": "技能匯入失敗",
+      "noManifest": "找不到 SKILL.md"
+    },
+    "review": {
+      "title": "匯入技能",
+      "found": "在此套件中找到 {{count}} 個技能",
+      "selected": "已選取 {{count}} 個",
+      "selectAll": "全選",
+      "selectNone": "取消選取",
+      "installed": "已安裝",
+      "replaceHint": "匯入將取代已安裝的副本",
+      "skip": "無法安裝",
+      "confirm": "匯入 {{count}} 個"
+    },
+    "github": {
+      "title": "從 GitHub 匯入",
+      "url": "儲存庫",
+      "hint": "儲存庫、分支或檔案位址 —— 未填分支時使用預設分支。",
+      "download": "下載",
+      "stop": "停止",
+      "received": "已接收 {{size}}",
+      "scanning": "正在讀取儲存庫…",
+      "reading": "正在讀取技能…",
+      "downloading": "正在下載整包…",
+      "rateLimited": "GitHub 正在限制請求頻率 —— 請幾分鐘後重試",
+      "invalidUrl": "這不是 GitHub 儲存庫位址",
+      "notFound": "找不到儲存庫或分支（不支援私有儲存庫）",
+      "tooLarge": "此儲存庫太大，無法匯入",
+      "network": "無法連線至 GitHub"
+    },
+    "list": {
+      "installed": "已安裝 {{count}} 個",
+      "needsAttention": "{{count}} 個待處理",
+      "empty": "尚未安裝技能",
+      "noManifest": "此資料夾中沒有 SKILL.md",
+      "updated": "更新於 {{date}}",
+      "copyCommand": "複製指令",
+      "open": "開啟 SKILL.md",
+      "download": "下載技能",
+      "delete": "刪除技能",
+      "deleteConfirm": "刪除「{{name}}」及其 {{count}} 個檔案？此操作無法復原。",
+      "hiddenFromModel": "不參與模型呼叫"
     }
   }
 }

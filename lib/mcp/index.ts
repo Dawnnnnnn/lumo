@@ -11,7 +11,22 @@ export { ExtensionMcpServer } from './extension-server';
 export { refreshExtensionProvider, retryExtensionProviders } from './extension-registry';
 export { MCP_PORT_NAME, PROBE_CHANNEL, PROBE_VERSION } from './extension-protocol';
 export { fileStorage } from './file-storage';
-export type { FileMetadata, StoredFile } from './file-storage';
+export {
+  baseName,
+  directoryKind,
+  isSystemPath,
+  normalizeDirPath,
+  normalizeFilePath,
+  parentDirPath,
+  SYSTEM_DIR_PREFIXES,
+} from './file-storage';
+export type {
+  DirectoryKind,
+  DirectoryListing,
+  DirectoryRecord,
+  FileMetadata,
+  StoredFile,
+} from './file-storage';
 export { inferMimeType, getPreviewCategory, getLanguageFromMime, isLikelyTextContent } from './file-storage';
 export { registerMcpCollectors } from './collectors';
 export {

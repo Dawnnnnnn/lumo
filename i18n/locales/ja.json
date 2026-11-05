@@ -116,7 +116,9 @@
       "output": "出力",
       "screenshot": "スクリーンショット",
       "screenshotUnavailable": "スクリーンショットを取得できません",
-      "unknownError": "不明なエラー"
+      "unknownError": "不明なエラー",
+      "readSkill": "スキルを読み込む",
+      "readSkillResource": "スキルのリソースを読み込む"
     },
     "reasoning": {
       "title": "推論",
@@ -140,7 +142,8 @@
     },
     "badge": {
       "builtin": "組み込み",
-      "user": "カスタム"
+      "user": "カスタム",
+      "skill": "スキル"
     }
   },
   "mentions": {
@@ -274,6 +277,8 @@
       "description": "/ で始まるショートカットです。",
       "enableCommands": "スラッシュコマンドを有効にする",
       "enableCommandsDesc": "オフにすると、入力欄で / を入力しても何も起きず、送信時にコマンドも展開されません。",
+      "skillCommands": "スキルコマンド",
+      "skillCommandsDesc": "インストール済みのスキルは /skill:<name> として表示されます。オフにするとショートカットだけが消え、モデルは引き続きスキルを使えます。",
       "applyTiming": "実行タイミング",
       "applyTimingSend": "送信時",
       "applyTimingSelect": "選択時",
@@ -520,6 +525,15 @@
     "files": {
       "title": "ファイル",
       "description": "AI アシスタントが作成したファイルや手動でアップロードしたファイルを管理します。",
+      "tabs": {
+        "skills": "スキル"
+      },
+      "summary": "{{count}} ファイル · {{size}}",
+      "search": "ファイルを検索",
+      "noResults": "「{{query}}」に一致する項目はありません",
+      "upload": "ファイルをアップロード",
+      "uploaded": "{{count}} ファイルをアップロードしました",
+      "uploadRejected": "保存できるのはテキストファイルのみです",
       "noFiles": "保存されたファイルはまだありません。",
       "name": "名前",
       "size": "サイズ",
@@ -606,6 +620,58 @@
       "prompt": "OCR プロンプト",
       "promptDesc": "画像と一緒にビジョンモデルへ送信する指示です。",
       "resetPrompt": "既定に戻す"
+    }
+  },
+  "skills": {
+    "import": {
+      "button": "スキルをインポート",
+      "fromArchive": "ZIP からインポート",
+      "fromFolder": "フォルダーからインポート",
+      "fromGitHub": "GitHub からインポート",
+      "installed": "{{count}} 件のスキルをインポートしました",
+      "skipped": "{{count}} 件のスキルはすでにインストールされています",
+      "failed": "スキルのインポートに失敗しました",
+      "noManifest": "SKILL.md が見つかりません"
+    },
+    "review": {
+      "title": "スキルをインポート",
+      "found": "このパッケージに {{count}} 件見つかりました",
+      "selected": "{{count}} 件を選択中",
+      "selectAll": "すべて選択",
+      "selectNone": "選択を解除",
+      "installed": "インストール済み",
+      "replaceHint": "インポートするとインストール済みのコピーが置き換わります",
+      "skip": "インストールできません",
+      "confirm": "{{count}} 件をインポート"
+    },
+    "github": {
+      "title": "GitHub からインポート",
+      "url": "リポジトリ",
+      "hint": "リポジトリ、ブランチ、またはファイル — ブランチを省略すると既定のブランチを使います。",
+      "download": "ダウンロード",
+      "stop": "停止",
+      "received": "{{size}} 受信済み",
+      "scanning": "リポジトリを読み取り中…",
+      "reading": "スキルを読み取り中…",
+      "downloading": "アーカイブをダウンロード中…",
+      "rateLimited": "GitHub がリクエストを制限しています — 数分後にもう一度お試しください",
+      "invalidUrl": "GitHub リポジトリのアドレスではありません",
+      "notFound": "リポジトリまたはブランチが見つかりません（プライベートリポジトリは未対応）",
+      "tooLarge": "このリポジトリはインポートするには大きすぎます",
+      "network": "GitHub に接続できませんでした"
+    },
+    "list": {
+      "installed": "{{count}} 件インストール済み",
+      "needsAttention": "{{count}} 件の対応が必要",
+      "empty": "スキルがインストールされていません",
+      "noManifest": "このフォルダに SKILL.md がありません",
+      "updated": "更新: {{date}}",
+      "copyCommand": "コマンドをコピー",
+      "open": "SKILL.md を開く",
+      "download": "スキルをダウンロード",
+      "delete": "スキルを削除",
+      "deleteConfirm": "「{{name}}」とその {{count}} ファイルを削除しますか？元に戻せません。",
+      "hiddenFromModel": "モデルからの呼び出し対象外"
     }
   }
 }

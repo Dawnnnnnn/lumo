@@ -23,7 +23,7 @@ import { SystemPromptSettingsPage } from './SystemPromptSettings';
 import { CommandSettingsPage } from './CommandSettings';
 import { MentionSettingsPage } from './MentionSettings';
 import { ChatDebugPage } from './ChatDebug';
-import { FileManager } from './FileManager';
+import { FilesPage } from './files/FilesPage';
 import { AboutPage } from './About';
 
 const NAV_ITEMS = [
@@ -67,13 +67,21 @@ const NAV_ICONS: Record<NavItem, React.ReactNode> = {
   about: <Info className="h-4 w-4" />,
 };
 
-function isValidNav(hash: string): hash is NavItem {
-  return (NAV_ITEMS as readonly string[]).includes(hash);
+function isValidNav(hash: string | undefined): hash is NavItem {
+  return typeof hash === 'string' && (NAV_ITEMS as readonly string[]).includes(hash);
 }
 
+/**
+ * The hash may carry a sub-view: `#files/skills`.
+ *
+ * Only the first segment selects a page. Sub-views own the rest, so a page can
+ * deep-link into its own state without the sidebar having to know about it — and
+ * a hash it does not recognise still lands on that page rather than on the
+ * default one.
+ */
 function getNavFromHash(): NavItem {
-  const hash = window.location.hash.replace('#', '');
-  return isValidNav(hash) ? hash : 'models';
+  const [base] = window.location.hash.replace('#', '').split('/');
+  return isValidNav(base) ? base : 'models';
 }
 
 function useHashNav() {
@@ -146,7 +154,7 @@ export default function App() {
         {activeNav === 'commands' && <CommandSettingsPage />}
         {activeNav === 'mentions' && <MentionSettingsPage />}
         {activeNav === 'mcp' && <McpSettings />}
-        {activeNav === 'files' && <FileManager />}
+        {activeNav === 'files' && <FilesPage />}
         {activeNav === 'ui' && <UISettingsPage />}
         {activeNav === 'chatDebug' && <ChatDebugPage />}
         {activeNav === 'about' && <AboutPage />}

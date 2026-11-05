@@ -116,7 +116,9 @@
       "output": "Saída",
       "screenshot": "Captura de ecrã",
       "screenshotUnavailable": "Captura de ecrã indisponível",
-      "unknownError": "Erro desconhecido"
+      "unknownError": "Erro desconhecido",
+      "readSkill": "Ler competência",
+      "readSkillResource": "Ler recurso da competência"
     },
     "reasoning": {
       "title": "Raciocínio",
@@ -140,7 +142,8 @@
     },
     "badge": {
       "builtin": "Integrado",
-      "user": "Personalizado"
+      "user": "Personalizado",
+      "skill": "Competência"
     }
   },
   "mentions": {
@@ -275,6 +278,8 @@
       "description": "Atalhos que começam com /.",
       "enableCommands": "Ativar comandos de barra",
       "enableCommandsDesc": "Quando desativado, digitar / no campo não faz nada e nenhum comando é expandido ao enviar.",
+      "skillCommands": "Comandos de competências",
+      "skillCommandsDesc": "As competências instaladas aparecem como /skill:<name>. Desativar remove apenas o atalho — o modelo continua a poder usar a competência.",
       "applyTiming": "Momento de ativação",
       "applyTimingSend": "Ao enviar",
       "applyTimingSelect": "Ao selecionar",
@@ -521,6 +526,15 @@
     "files": {
       "title": "Ficheiros",
       "description": "Gerencie ficheiros criados pelo assistente de IA ou enviados manualmente.",
+      "tabs": {
+        "skills": "Competências"
+      },
+      "summary": "{{count}} ficheiros · {{size}}",
+      "search": "Pesquisar ficheiros",
+      "noResults": "Nada corresponde a «{{query}}»",
+      "upload": "Carregar ficheiro",
+      "uploaded": "{{count}} ficheiros carregados",
+      "uploadRejected": "Só é possível guardar ficheiros de texto",
       "noFiles": "Nenhum ficheiro salvo ainda.",
       "name": "Nome",
       "size": "Tamanho",
@@ -607,6 +621,58 @@
       "prompt": "Prompt de OCR",
       "promptDesc": "Instruções enviadas junto com a imagem ao modelo de visão.",
       "resetPrompt": "Restaurar predefinição"
+    }
+  },
+  "skills": {
+    "import": {
+      "button": "Importar competências",
+      "fromArchive": "Importar de ZIP",
+      "fromFolder": "Importar de pasta",
+      "fromGitHub": "Importar do GitHub",
+      "installed": "{{count}} competências importadas",
+      "skipped": "{{count}} competências já instaladas",
+      "failed": "Falha ao importar competências",
+      "noManifest": "Nenhum SKILL.md encontrado"
+    },
+    "review": {
+      "title": "Importar competências",
+      "found": "{{count}} encontradas neste pacote",
+      "selected": "{{count}} selecionadas",
+      "selectAll": "Selecionar tudo",
+      "selectNone": "Limpar seleção",
+      "installed": "Instalada",
+      "replaceHint": "A importação substituirá a cópia instalada",
+      "skip": "Não pode ser instalada",
+      "confirm": "Importar {{count}}"
+    },
+    "github": {
+      "title": "Importar do GitHub",
+      "url": "Repositório",
+      "hint": "Um repositório, ramo ou ficheiro — sem ramo é usado o predefinido.",
+      "download": "Transferir",
+      "stop": "Parar",
+      "received": "{{size}} recebidos",
+      "scanning": "A ler o repositório…",
+      "reading": "A ler as competências…",
+      "downloading": "A transferir o ficheiro…",
+      "rateLimited": "O GitHub está a limitar os pedidos — tente novamente dentro de alguns minutos",
+      "invalidUrl": "Esse não é um endereço de repositório do GitHub",
+      "notFound": "Repositório ou ramo não encontrado (repositórios privados não são suportados)",
+      "tooLarge": "Este repositório é demasiado grande para importar",
+      "network": "Não foi possível contactar o GitHub"
+    },
+    "list": {
+      "installed": "{{count}} instaladas",
+      "needsAttention": "{{count}} precisam de atenção",
+      "empty": "Nenhuma competência instalada",
+      "noManifest": "Nenhum SKILL.md nesta pasta",
+      "updated": "Atualizado em {{date}}",
+      "copyCommand": "Copiar comando",
+      "open": "Abrir SKILL.md",
+      "download": "Transferir competência",
+      "delete": "Eliminar competência",
+      "deleteConfirm": "Eliminar «{{name}}» e os seus {{count}} ficheiros? Não é possível anular.",
+      "hiddenFromModel": "Oculta da invocação do modelo"
     }
   }
 }

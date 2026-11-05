@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { normalizeToolOutput } from '@/lib/tool-output';
+import { describeToolCall, normalizeToolOutput } from '@/lib/tool-output';
 
 const RED_PNG_DATA =
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
@@ -44,5 +44,37 @@ describe('normalizeToolOutput (UI display path)', () => {
       isError: true,
     });
     expect(normalized.kind).toBe('error');
+  });
+});
+
+describe('describeToolCall (sidebar header)', () => {
+  it('names a skill read by the skill, not by its storage path', () => {
+    expect(describeToolCall('file_read', { name: 'skills/pdf-tools/SKILL.md' })).toEqual({
+      labelKey: 'sidebar.tool.readSkill',
+      detail: 'pdf-tools',
+    });
+  });
+
+  it('names a bundled resource by the skill plus the path inside it', () => {
+    expect(
+      describeToolCall('file_read', { name: 'skills/pdf-tools/references/formats.md' }),
+    ).toEqual({
+      labelKey: 'sidebar.tool.readSkillResource',
+      detail: 'pdf-tools',
+      hint: 'references/formats.md',
+    });
+  });
+
+  it('leaves every other read alone, so ordinary calls render as they always did', () => {
+    expect(describeToolCall('file_read', { name: 'notes/report.md' })).toBeUndefined();
+    expect(describeToolCall('file_read', { name: 'skillsnotes.md' })).toBeUndefined();
+    expect(describeToolCall('file_read', undefined)).toBeUndefined();
+    // `skills/` with no manifest segment is not a skill path.
+    expect(describeToolCall('file_read', { name: 'skills/pdf-tools' })).toBeUndefined();
+  });
+
+  it('does not relabel other tools', () => {
+    expect(describeToolCall('file_write', { name: 'skills/pdf-tools/SKILL.md' })).toBeUndefined();
+    expect(describeToolCall('file_list', { path: 'skills/pdf-tools/' })).toBeUndefined();
   });
 });

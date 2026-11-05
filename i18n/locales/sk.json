@@ -116,7 +116,9 @@
       "output": "Výstup",
       "screenshot": "Snímka obrazovky",
       "screenshotUnavailable": "Snímka obrazovky nie je k dispozícii",
-      "unknownError": "Neznáma chyba"
+      "unknownError": "Neznáma chyba",
+      "readSkill": "Prečítať zručnosť",
+      "readSkillResource": "Prečítať zdroj zručnosti"
     },
     "reasoning": {
       "title": "Uvažovanie",
@@ -140,7 +142,8 @@
     },
     "badge": {
       "builtin": "Vstavané",
-      "user": "Vlastné"
+      "user": "Vlastné",
+      "skill": "Zručnosť"
     }
   },
   "mentions": {
@@ -276,6 +279,8 @@
       "description": "Skratky začínajúce /.",
       "enableCommands": "Povoliť lomítkové príkazy",
       "enableCommandsDesc": "Po vypnutí zadanie / v poli nič neurobí a pri odoslaní sa žiadny príkaz nerozbalí.",
+      "skillCommands": "Príkazy zručností",
+      "skillCommandsDesc": "Nainštalované zručnosti sa zobrazujú ako /skill:<name>. Vypnutím sa odstráni len skratka — model môže zručnosť naďalej používať.",
       "applyTiming": "Kedy sa aktivuje",
       "applyTimingSend": "Pri odoslaní",
       "applyTimingSelect": "Pri výbere",
@@ -522,6 +527,15 @@
     "files": {
       "title": "Súbory",
       "description": "Spravujte súbory vytvorené asistentom AI alebo nahrané ručne.",
+      "tabs": {
+        "skills": "Zručnosti"
+      },
+      "summary": "{{count}} súborov · {{size}}",
+      "search": "Hľadať súbory",
+      "noResults": "Nič nezodpovedá „{{query}}“",
+      "upload": "Nahrať súbor",
+      "uploaded": "Nahratých {{count}} súborov",
+      "uploadRejected": "Uložiť možno len textové súbory",
       "noFiles": "Zatiaľ nie sú uložené žiadne súbory.",
       "name": "Názov",
       "size": "Veľkosť",
@@ -608,6 +622,58 @@
       "prompt": "Prompt OCR",
       "promptDesc": "Pokyny odosielané spolu s obrázkom modelu videnia.",
       "resetPrompt": "Obnoviť predvolené"
+    }
+  },
+  "skills": {
+    "import": {
+      "button": "Importovať zručnosti",
+      "fromArchive": "Importovať zo ZIP",
+      "fromFolder": "Importovať z priečinka",
+      "fromGitHub": "Importovať z GitHubu",
+      "installed": "Importovaných {{count}} zručností",
+      "skipped": "{{count}} zručností je už nainštalovaných",
+      "failed": "Import zručností zlyhal",
+      "noManifest": "SKILL.md sa nenašiel"
+    },
+    "review": {
+      "title": "Importovať zručnosti",
+      "found": "V tomto balíku nájdených {{count}}",
+      "selected": "Vybraných {{count}}",
+      "selectAll": "Vybrať všetko",
+      "selectNone": "Zrušiť výber",
+      "installed": "Nainštalované",
+      "replaceHint": "Import nahradí nainštalovanú kópiu",
+      "skip": "Nedá sa nainštalovať",
+      "confirm": "Importovať {{count}}"
+    },
+    "github": {
+      "title": "Importovať z GitHubu",
+      "url": "Repozitár",
+      "hint": "Repozitár, vetva alebo súbor — bez vetvy sa použije predvolená.",
+      "download": "Stiahnuť",
+      "stop": "Zastaviť",
+      "received": "Prijatých {{size}}",
+      "scanning": "Čítanie repozitára…",
+      "reading": "Čítanie zručností…",
+      "downloading": "Sťahovanie archívu…",
+      "rateLimited": "GitHub obmedzuje požiadavky — skúste to znova o niekoľko minút",
+      "invalidUrl": "To nie je adresa repozitára na GitHube",
+      "notFound": "Repozitár alebo vetva sa nenašli (súkromné repozitáre nie sú podporované)",
+      "tooLarge": "Tento repozitár je príliš veľký na import",
+      "network": "Nepodarilo sa spojiť s GitHubom"
+    },
+    "list": {
+      "installed": "Nainštalované: {{count}}",
+      "needsAttention": "Vyžaduje pozornosť: {{count}}",
+      "empty": "Nie sú nainštalované žiadne zručnosti",
+      "noManifest": "V tomto priečinku nie je SKILL.md",
+      "updated": "Aktualizované {{date}}",
+      "copyCommand": "Kopírovať príkaz",
+      "open": "Otvoriť SKILL.md",
+      "download": "Stiahnuť zručnosť",
+      "delete": "Odstrániť zručnosť",
+      "deleteConfirm": "Odstrániť „{{name}}“ a jeho {{count}} súborov? Nedá sa vrátiť späť.",
+      "hiddenFromModel": "Skrytá pred volaním modelu"
     }
   }
 }

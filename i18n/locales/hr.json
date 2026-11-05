@@ -116,7 +116,9 @@
       "output": "Izlaz",
       "screenshot": "Snimka zaslona",
       "screenshotUnavailable": "Snimka zaslona nije dostupna",
-      "unknownError": "Nepoznata pogreška"
+      "unknownError": "Nepoznata pogreška",
+      "readSkill": "Pročitaj vještinu",
+      "readSkillResource": "Pročitaj resurs vještine"
     },
     "reasoning": {
       "title": "Rasuđivanje",
@@ -140,7 +142,8 @@
     },
     "badge": {
       "builtin": "Ugrađeno",
-      "user": "Prilagođeno"
+      "user": "Prilagođeno",
+      "skill": "Vještina"
     }
   },
   "mentions": {
@@ -275,6 +278,8 @@
       "description": "Prečaci koji počinju s /.",
       "enableCommands": "Omogući naredbe s kosom crtom",
       "enableCommandsDesc": "Kad je isključeno, upisivanje / u polje ne čini ništa i nijedna se naredba ne razvija pri slanju.",
+      "skillCommands": "Naredbe vještina",
+      "skillCommandsDesc": "Instalirane vještine pojavljuju se kao /skill:<name>. Isključivanje uklanja samo prečac — model i dalje može koristiti vještinu.",
       "applyTiming": "Vrijeme aktiviranja",
       "applyTimingSend": "Pri slanju",
       "applyTimingSelect": "Pri odabiru",
@@ -521,6 +526,15 @@
     "files": {
       "title": "Datoteke",
       "description": "Upravljajte datotekama koje je izradio AI asistent ili koje su ručno prenesene.",
+      "tabs": {
+        "skills": "Vještine"
+      },
+      "summary": "{{count}} datoteka · {{size}}",
+      "search": "Pretraži datoteke",
+      "noResults": "Ništa ne odgovara „{{query}}“",
+      "upload": "Prenesi datoteku",
+      "uploaded": "Preneseno {{count}} datoteka",
+      "uploadRejected": "Moguće je spremiti samo tekstualne datoteke",
       "noFiles": "Još nema spremljenih datoteka.",
       "name": "Naziv",
       "size": "Veličina",
@@ -607,6 +621,58 @@
       "prompt": "OCR prompt",
       "promptDesc": "Upute koje se šalju zajedno sa slikom modelu za vid.",
       "resetPrompt": "Vrati zadano"
+    }
+  },
+  "skills": {
+    "import": {
+      "button": "Uvezi vještine",
+      "fromArchive": "Uvezi iz ZIP-a",
+      "fromFolder": "Uvezi iz mape",
+      "fromGitHub": "Uvezi s GitHuba",
+      "installed": "Uvezeno {{count}} vještina",
+      "skipped": "{{count}} vještina je već instalirano",
+      "failed": "Uvoz vještina nije uspio",
+      "noManifest": "SKILL.md nije pronađen"
+    },
+    "review": {
+      "title": "Uvezi vještine",
+      "found": "U ovom paketu pronađeno {{count}}",
+      "selected": "Odabrano {{count}}",
+      "selectAll": "Odaberi sve",
+      "selectNone": "Očisti odabir",
+      "installed": "Instalirano",
+      "replaceHint": "Uvoz će zamijeniti instaliranu kopiju",
+      "skip": "Nije moguće instalirati",
+      "confirm": "Uvezi {{count}}"
+    },
+    "github": {
+      "title": "Uvezi s GitHuba",
+      "url": "Repozitorij",
+      "hint": "Repozitorij, grana ili datoteka — bez grane koristi se zadana.",
+      "download": "Preuzmi",
+      "stop": "Zaustavi",
+      "received": "Primljeno {{size}}",
+      "scanning": "Čitam repozitorij…",
+      "reading": "Čitam vještine…",
+      "downloading": "Preuzimam arhivu…",
+      "rateLimited": "GitHub ograničava zahtjeve — pokušajte ponovno za nekoliko minuta",
+      "invalidUrl": "To nije adresa GitHub repozitorija",
+      "notFound": "Repozitorij ili grana nisu pronađeni (privatni repozitoriji nisu podržani)",
+      "tooLarge": "Ovaj je repozitorij prevelik za uvoz",
+      "network": "Nije moguće dohvatiti GitHub"
+    },
+    "list": {
+      "installed": "Instalirano: {{count}}",
+      "needsAttention": "Zahtijeva pažnju: {{count}}",
+      "empty": "Nema instaliranih vještina",
+      "noManifest": "U ovoj mapi nema SKILL.md",
+      "updated": "Ažurirano {{date}}",
+      "copyCommand": "Kopiraj naredbu",
+      "open": "Otvori SKILL.md",
+      "download": "Preuzmi vještinu",
+      "delete": "Izbriši vještinu",
+      "deleteConfirm": "Izbrisati „{{name}}“ i njegovih {{count}} datoteka? To se ne može poništiti.",
+      "hiddenFromModel": "Skriveno od poziva modela"
     }
   }
 }

@@ -116,7 +116,9 @@
       "output": "Matokeo",
       "screenshot": "Picha ya skrini",
       "screenshotUnavailable": "Picha ya skrini haipatikani",
-      "unknownError": "Hitilafu isiyojulikana"
+      "unknownError": "Hitilafu isiyojulikana",
+      "readSkill": "Soma ujuzi",
+      "readSkillResource": "Soma rasilimali ya ujuzi"
     },
     "reasoning": {
       "title": "Mawazo",
@@ -140,7 +142,8 @@
     },
     "badge": {
       "builtin": "Za kudumu",
-      "user": "Maalum"
+      "user": "Maalum",
+      "skill": "Ujuzi"
     }
   },
   "mentions": {
@@ -274,6 +277,8 @@
       "description": "Njia za mkato zinazoanza na /.",
       "enableCommands": "Washa amri za mkwaju",
       "enableCommandsDesc": "Ikizimwa, kuandika / kwenye sehemu hakufanyi kitu na hakuna amri inayopanuliwa unapotuma.",
+      "skillCommands": "Amri za ujuzi",
+      "skillCommandsDesc": "Ujuzi uliosakinishwa huonekana kama /skill:<name>. Kuzima kunaondoa njia ya mkato pekee — modeli bado inaweza kutumia ujuzi.",
       "applyTiming": "Wakati wa kuchochea",
       "applyTimingSend": "Unapotuma",
       "applyTimingSelect": "Unapochagua",
@@ -520,6 +525,15 @@
     "files": {
       "title": "Faili",
       "description": "Dhibiti faili zinazozalishwa na msaidizi wa AI au kupakiwa kwa mkono.",
+      "tabs": {
+        "skills": "Ujuzi"
+      },
+      "summary": "{{count}} faili · {{size}}",
+      "search": "Tafuta faili",
+      "noResults": "Hakuna kinacholingana na \"{{query}}\"",
+      "upload": "Pakia faili",
+      "uploaded": "Faili {{count}} zimepakiwa",
+      "uploadRejected": "Faili za maandishi pekee zinaweza kuhifadhiwa",
       "noFiles": "Bado hakuna faili zilizohifadhiwa.",
       "name": "Jina",
       "size": "Ukubwa",
@@ -606,6 +620,58 @@
       "prompt": "Kidokezo cha OCR",
       "promptDesc": "Maelekezo yanayotumwa pamoja na picha kwenda kwa modeli ya uoni.",
       "resetPrompt": "Rejesha chaguo-msingi"
+    }
+  },
+  "skills": {
+    "import": {
+      "button": "Ingiza ujuzi",
+      "fromArchive": "Ingiza kutoka ZIP",
+      "fromFolder": "Ingiza kutoka folda",
+      "fromGitHub": "Ingiza kutoka GitHub",
+      "installed": "Umeingiza ujuzi {{count}}",
+      "skipped": "Ujuzi {{count}} tayari umesakinishwa",
+      "failed": "Uingizaji wa ujuzi umeshindikana",
+      "noManifest": "SKILL.md haipatikani"
+    },
+    "review": {
+      "title": "Ingiza ujuzi",
+      "found": "{{count}} zimepatikana kwenye kifurushi hiki",
+      "selected": "{{count}} zimechaguliwa",
+      "selectAll": "Chagua zote",
+      "selectNone": "Ondoa uchaguzi",
+      "installed": "Imesakinishwa",
+      "replaceHint": "Uingizaji utabadilisha nakala iliyosakinishwa",
+      "skip": "Haiwezi kusakinishwa",
+      "confirm": "Ingiza {{count}}"
+    },
+    "github": {
+      "title": "Ingiza kutoka GitHub",
+      "url": "Hazina",
+      "hint": "Hazina, tawi au faili — bila tawi hutumika tawi chaguo-msingi.",
+      "download": "Pakua",
+      "stop": "Simamisha",
+      "received": "{{size}} zimepokelewa",
+      "scanning": "Inasoma hazina…",
+      "reading": "Inasoma ujuzi…",
+      "downloading": "Inapakua kumbukumbu…",
+      "rateLimited": "GitHub inaweka kikomo cha maombi — jaribu tena baada ya dakika chache",
+      "invalidUrl": "Hii si anwani ya hazina ya GitHub",
+      "notFound": "Hazina au tawi halijapatikana (hazina za kibinafsi hazitumiki)",
+      "tooLarge": "Hazina hii ni kubwa mno kuingiza",
+      "network": "Imeshindwa kufikia GitHub"
+    },
+    "list": {
+      "installed": "{{count}} imesakinishwa",
+      "needsAttention": "{{count}} zinahitaji uangalizi",
+      "empty": "Hakuna ujuzi uliosakinishwa",
+      "noManifest": "Hakuna SKILL.md katika folda hii",
+      "updated": "Imesasishwa {{date}}",
+      "copyCommand": "Nakili amri",
+      "open": "Fungua SKILL.md",
+      "download": "Pakua ujuzi",
+      "delete": "Futa ujuzi",
+      "deleteConfirm": "Futa \"{{name}}\" na faili zake {{count}}? Kitendo hiki hakiwezi kutenduliwa.",
+      "hiddenFromModel": "Imefichwa kutoka miito ya modeli"
     }
   }
 }

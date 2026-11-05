@@ -116,7 +116,9 @@
       "output": "Đầu ra",
       "screenshot": "Ảnh chụp màn hình",
       "screenshotUnavailable": "Ảnh chụp màn hình không khả dụng",
-      "unknownError": "Lỗi không xác định"
+      "unknownError": "Lỗi không xác định",
+      "readSkill": "Đọc kỹ năng",
+      "readSkillResource": "Đọc tài nguyên của kỹ năng"
     },
     "reasoning": {
       "title": "Suy luận",
@@ -140,7 +142,8 @@
     },
     "badge": {
       "builtin": "Tích hợp",
-      "user": "Tùy chỉnh"
+      "user": "Tùy chỉnh",
+      "skill": "Kỹ năng"
     }
   },
   "mentions": {
@@ -274,6 +277,8 @@
       "description": "Phím tắt bắt đầu bằng /.",
       "enableCommands": "Bật lệnh gạch chéo",
       "enableCommandsDesc": "Khi tắt, gõ / trong ô không làm gì và không có lệnh nào được mở rộng khi gửi.",
+      "skillCommands": "Lệnh kỹ năng",
+      "skillCommandsDesc": "Kỹ năng đã cài xuất hiện dưới dạng /skill:<name>. Tắt chỉ bỏ lối tắt — mô hình vẫn có thể dùng kỹ năng.",
       "applyTiming": "Thời điểm kích hoạt",
       "applyTimingSend": "Khi gửi",
       "applyTimingSelect": "Khi chọn",
@@ -520,6 +525,15 @@
     "files": {
       "title": "Tệp",
       "description": "Quản lý các tệp do trợ lý AI tạo hoặc được tải lên thủ công.",
+      "tabs": {
+        "skills": "Kỹ năng"
+      },
+      "summary": "{{count}} tệp · {{size}}",
+      "search": "Tìm tệp",
+      "noResults": "Không có kết quả cho \"{{query}}\"",
+      "upload": "Tải tệp lên",
+      "uploaded": "Đã tải lên {{count}} tệp",
+      "uploadRejected": "Chỉ có thể lưu tệp văn bản",
       "noFiles": "Chưa có tệp nào được lưu.",
       "name": "Tên",
       "size": "Kích thước",
@@ -606,6 +620,58 @@
       "prompt": "Lời nhắc OCR",
       "promptDesc": "Hướng dẫn được gửi cùng hình ảnh đến mô hình thị giác.",
       "resetPrompt": "Khôi phục mặc định"
+    }
+  },
+  "skills": {
+    "import": {
+      "button": "Nhập kỹ năng",
+      "fromArchive": "Nhập từ ZIP",
+      "fromFolder": "Nhập từ thư mục",
+      "fromGitHub": "Nhập từ GitHub",
+      "installed": "Đã nhập {{count}} kỹ năng",
+      "skipped": "{{count}} kỹ năng đã được cài đặt",
+      "failed": "Nhập kỹ năng thất bại",
+      "noManifest": "Không tìm thấy SKILL.md"
+    },
+    "review": {
+      "title": "Nhập kỹ năng",
+      "found": "Tìm thấy {{count}} trong gói này",
+      "selected": "Đã chọn {{count}}",
+      "selectAll": "Chọn tất cả",
+      "selectNone": "Bỏ chọn",
+      "installed": "Đã cài",
+      "replaceHint": "Nhập sẽ thay thế bản đã cài",
+      "skip": "Không thể cài đặt",
+      "confirm": "Nhập {{count}}"
+    },
+    "github": {
+      "title": "Nhập từ GitHub",
+      "url": "Kho lưu trữ",
+      "hint": "Kho lưu trữ, nhánh hoặc tệp — không có nhánh sẽ dùng nhánh mặc định.",
+      "download": "Tải xuống",
+      "stop": "Dừng",
+      "received": "Đã nhận {{size}}",
+      "scanning": "Đang đọc kho lưu trữ…",
+      "reading": "Đang đọc kỹ năng…",
+      "downloading": "Đang tải tệp nén…",
+      "rateLimited": "GitHub đang giới hạn yêu cầu — thử lại sau vài phút",
+      "invalidUrl": "Đây không phải địa chỉ kho lưu trữ GitHub",
+      "notFound": "Không tìm thấy kho lưu trữ hoặc nhánh (kho riêng tư không được hỗ trợ)",
+      "tooLarge": "Kho lưu trữ này quá lớn để nhập",
+      "network": "Không kết nối được với GitHub"
+    },
+    "list": {
+      "installed": "Đã cài {{count}}",
+      "needsAttention": "{{count}} cần xử lý",
+      "empty": "Chưa cài kỹ năng nào",
+      "noManifest": "Không có SKILL.md trong thư mục này",
+      "updated": "Cập nhật {{date}}",
+      "copyCommand": "Sao chép lệnh",
+      "open": "Mở SKILL.md",
+      "download": "Tải kỹ năng",
+      "delete": "Xóa kỹ năng",
+      "deleteConfirm": "Xóa \"{{name}}\" và {{count}} tệp của nó? Không thể hoàn tác.",
+      "hiddenFromModel": "Ẩn khỏi lệnh gọi mô hình"
     }
   }
 }

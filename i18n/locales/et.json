@@ -116,7 +116,9 @@
       "output": "Väljund",
       "screenshot": "Ekraanipilt",
       "screenshotUnavailable": "Ekraanipilt pole saadaval",
-      "unknownError": "Tundmatu viga"
+      "unknownError": "Tundmatu viga",
+      "readSkill": "Loe oskust",
+      "readSkillResource": "Loe oskuse ressurssi"
     },
     "reasoning": {
       "title": "Arutlemine",
@@ -140,7 +142,8 @@
     },
     "badge": {
       "builtin": "Sisseehitatud",
-      "user": "Kohandatud"
+      "user": "Kohandatud",
+      "skill": "Oskus"
     }
   },
   "mentions": {
@@ -274,6 +277,8 @@
       "description": "Otseteed, mis algavad märgiga /.",
       "enableCommands": "Luba kaldkriipsukäsud",
       "enableCommandsDesc": "Kui väljas, ei tee / sisestamine väljale midagi ja saatmisel ei laiendata ühtegi käsku.",
+      "skillCommands": "Oskuste käsud",
+      "skillCommandsDesc": "Installitud oskused kuvatakse kujul /skill:<name>. Väljalülitamine eemaldab ainult otsetee — mudel saab oskust endiselt kasutada.",
       "applyTiming": "Käivitamise aeg",
       "applyTimingSend": "Saatmisel",
       "applyTimingSelect": "Valimisel",
@@ -520,6 +525,15 @@
     "files": {
       "title": "Failid",
       "description": "Hallake AI assistendi loodud või käsitsi üleslaaditud faile.",
+      "tabs": {
+        "skills": "Oskused"
+      },
+      "summary": "{{count}} faili · {{size}}",
+      "search": "Otsi faile",
+      "noResults": "Midagi ei vasta päringule \"{{query}}\"",
+      "upload": "Laadi fail üles",
+      "uploaded": "Laaditi üles {{count}} faili",
+      "uploadRejected": "Salvestada saab ainult tekstifaile",
       "noFiles": "Salvestatud faile veel pole.",
       "name": "Nimi",
       "size": "Suurus",
@@ -606,6 +620,58 @@
       "prompt": "OCR prompt",
       "promptDesc": "Juhised, mis saadetakse koos pildiga nägemismudelile.",
       "resetPrompt": "Taasta vaikeväärtus"
+    }
+  },
+  "skills": {
+    "import": {
+      "button": "Impordi oskused",
+      "fromArchive": "Impordi ZIP-failist",
+      "fromFolder": "Impordi kaustast",
+      "fromGitHub": "Impordi GitHubist",
+      "installed": "Imporditud {{count}} oskust",
+      "skipped": "{{count}} oskust on juba installitud",
+      "failed": "Oskuste import ebaõnnestus",
+      "noManifest": "SKILL.md puudub"
+    },
+    "review": {
+      "title": "Impordi oskused",
+      "found": "Paketis leiti {{count}}",
+      "selected": "Valitud {{count}}",
+      "selectAll": "Vali kõik",
+      "selectNone": "Tühjenda valik",
+      "installed": "Installitud",
+      "replaceHint": "Import asendab installitud koopia",
+      "skip": "Ei saa installida",
+      "confirm": "Impordi {{count}}"
+    },
+    "github": {
+      "title": "Impordi GitHubist",
+      "url": "Repo",
+      "hint": "Repo, haru või fail — haru puudumisel kasutatakse vaikeharu.",
+      "download": "Laadi alla",
+      "stop": "Peata",
+      "received": "Vastu võetud {{size}}",
+      "scanning": "Loen repot…",
+      "reading": "Loen oskusi…",
+      "downloading": "Laadin arhiivi alla…",
+      "rateLimited": "GitHub piirab päringuid — proovi mõne minuti pärast uuesti",
+      "invalidUrl": "See ei ole GitHubi repo aadress",
+      "notFound": "Repo või haru ei leitud (privaatseid repoid ei toetata)",
+      "tooLarge": "See repo on importimiseks liiga suur",
+      "network": "GitHubiga ei saadud ühendust"
+    },
+    "list": {
+      "installed": "{{count}} installitud",
+      "needsAttention": "{{count}} vajavad tähelepanu",
+      "empty": "Oskusi pole installitud",
+      "noManifest": "Selles kaustas pole SKILL.md-d",
+      "updated": "Uuendatud {{date}}",
+      "copyCommand": "Kopeeri käsk",
+      "open": "Ava SKILL.md",
+      "download": "Laadi oskus alla",
+      "delete": "Kustuta oskus",
+      "deleteConfirm": "Kustutada \"{{name}}\" ja selle {{count}} faili? Seda ei saa tagasi võtta.",
+      "hiddenFromModel": "Modelli kutsetest peidetud"
     }
   }
 }

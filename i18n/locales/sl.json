@@ -116,7 +116,9 @@
       "output": "Izpis",
       "screenshot": "Posnetek zaslona",
       "screenshotUnavailable": "Posnetek zaslona ni na voljo",
-      "unknownError": "Neznana napaka"
+      "unknownError": "Neznana napaka",
+      "readSkill": "Preberi veščino",
+      "readSkillResource": "Preberi vir veščine"
     },
     "reasoning": {
       "title": "Sklepanje",
@@ -140,7 +142,8 @@
     },
     "badge": {
       "builtin": "Vgrajeno",
-      "user": "Po meri"
+      "user": "Po meri",
+      "skill": "Veščina"
     }
   },
   "mentions": {
@@ -276,6 +279,8 @@
       "description": "Bližnjice, ki se začnejo z /.",
       "enableCommands": "Omogoči ukaze s poševnico",
       "enableCommandsDesc": "Ko je izklopljeno, vnos / v polje ne naredi ničesar in noben ukaz se pri pošiljanju ne razširi.",
+      "skillCommands": "Ukazi veščin",
+      "skillCommandsDesc": "Nameščene veščine se prikažejo kot /skill:<name>. Izklop odstrani le bližnjico — model lahko veščino še vedno uporablja.",
       "applyTiming": "Čas sprožitve",
       "applyTimingSend": "Ob pošiljanju",
       "applyTimingSelect": "Ob izbiri",
@@ -522,6 +527,15 @@
     "files": {
       "title": "Datoteke",
       "description": "Upravljajte datoteke, ki jih je ustvaril pomočnik AI ali so bile ročno naložene.",
+      "tabs": {
+        "skills": "Veščine"
+      },
+      "summary": "{{count}} datotek · {{size}}",
+      "search": "Iskanje datotek",
+      "noResults": "Nič se ne ujema z »{{query}}«",
+      "upload": "Naloži datoteko",
+      "uploaded": "Naloženih {{count}} datotek",
+      "uploadRejected": "Shraniti je mogoče le besedilne datoteke",
       "noFiles": "Ni še shranjenih datotek.",
       "name": "Ime",
       "size": "Velikost",
@@ -608,6 +622,58 @@
       "prompt": "Prompt OCR",
       "promptDesc": "Navodila, poslana skupaj s sliko modelu vida.",
       "resetPrompt": "Obnovi privzeto"
+    }
+  },
+  "skills": {
+    "import": {
+      "button": "Uvozi veščine",
+      "fromArchive": "Uvozi iz ZIP",
+      "fromFolder": "Uvozi iz mape",
+      "fromGitHub": "Uvozi iz GitHuba",
+      "installed": "Uvoženih {{count}} veščin",
+      "skipped": "{{count}} veščin je že nameščenih",
+      "failed": "Uvoz veščin ni uspel",
+      "noManifest": "SKILL.md ni najden"
+    },
+    "review": {
+      "title": "Uvozi veščine",
+      "found": "V paketu najdenih {{count}}",
+      "selected": "Izbranih {{count}}",
+      "selectAll": "Izberi vse",
+      "selectNone": "Počisti izbor",
+      "installed": "Nameščeno",
+      "replaceHint": "Uvoz bo zamenjal nameščeno kopijo",
+      "skip": "Ni mogoče namestiti",
+      "confirm": "Uvozi {{count}}"
+    },
+    "github": {
+      "title": "Uvozi iz GitHuba",
+      "url": "Repozitorij",
+      "hint": "Repozitorij, veja ali datoteka — brez veje se uporabi privzeta.",
+      "download": "Prenesi",
+      "stop": "Ustavi",
+      "received": "Prejeto {{size}}",
+      "scanning": "Berem repozitorij…",
+      "reading": "Berem veščine…",
+      "downloading": "Prenašam arhiv…",
+      "rateLimited": "GitHub omejuje zahteve — poskusite znova čez nekaj minut",
+      "invalidUrl": "To ni naslov repozitorija GitHub",
+      "notFound": "Repozitorija ali veje ni bilo mogoče najti (zasebni repozitoriji niso podprti)",
+      "tooLarge": "Ta repozitorij je prevelik za uvoz",
+      "network": "GitHub ni dosegljiv"
+    },
+    "list": {
+      "installed": "Nameščenih: {{count}}",
+      "needsAttention": "Potrebuje pozornost: {{count}}",
+      "empty": "Ni nameščenih veščin",
+      "noManifest": "V tej mapi ni SKILL.md",
+      "updated": "Posodobljeno {{date}}",
+      "copyCommand": "Kopiraj ukaz",
+      "open": "Odpri SKILL.md",
+      "download": "Prenesi veščino",
+      "delete": "Izbriši veščino",
+      "deleteConfirm": "Izbrisati »{{name}}« in njegovih {{count}} datotek? Tega ni mogoče razveljaviti.",
+      "hiddenFromModel": "Skrita pred klici modela"
     }
   }
 }

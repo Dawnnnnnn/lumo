@@ -116,7 +116,9 @@
       "output": "ውጤት",
       "screenshot": "የማያ ገጽ ምስል",
       "screenshotUnavailable": "የማያ ገጽ ምስል አይገኝም",
-      "unknownError": "ያልታወቀ ስህተት"
+      "unknownError": "ያልታወቀ ስህተት",
+      "readSkill": "ክህሎት አንብብ",
+      "readSkillResource": "የክህሎት ምንጭ አንብብ"
     },
     "reasoning": {
       "title": "አመክንዮ",
@@ -140,7 +142,8 @@
     },
     "badge": {
       "builtin": "አብሮ የተሰራ",
-      "user": "ብጁ"
+      "user": "ብጁ",
+      "skill": "ክህሎት"
     }
   },
   "mentions": {
@@ -274,6 +277,8 @@
       "description": "በ / የሚጀምሩ አቋራጮች።",
       "enableCommands": "የስላሽ ትዕዛዞችን አንቃ",
       "enableCommandsDesc": "ሲጠፋ በመስኩ ውስጥ / መተየብ ምንም አያደርግም እና ሲላክ ምንም ትዕዛዝ አይስፋፋም።",
+      "skillCommands": "የክህሎት ትዕዛዞች",
+      "skillCommandsDesc": "የተጫኑ ክህሎቶች በ/skill:<name> ቅርጽ ይታያሉ። ማጥፋት አቋራጩን ብቻ ያስወግዳል — ሞዴሉ አሁንም ክህሎቱን መጠቀም ይችላል።",
       "applyTiming": "የሚቀሰቀስበት ጊዜ",
       "applyTimingSend": "ሲላክ",
       "applyTimingSelect": "ሲመረጥ",
@@ -520,6 +525,15 @@
     "files": {
       "title": "ፋይሎች",
       "description": "በAI ረዳቱ የተፈጠሩ ወይም በእጅ የተሰቀሉ ፋይሎችን ያስተዳድሩ።",
+      "tabs": {
+        "skills": "ክህሎቶች"
+      },
+      "summary": "{{count}} ፋይሎች · {{size}}",
+      "search": "ፋይሎችን ፈልግ",
+      "noResults": "ከ\"{{query}}\" ጋር የሚዛመድ ነገር የለም",
+      "upload": "ፋይል ስቀል",
+      "uploaded": "{{count}} ፋይሎች ተሰቅለዋል",
+      "uploadRejected": "የጽሑፍ ፋይሎች ብቻ ሊቀመጡ ይችላሉ",
       "noFiles": "እስካሁን ምንም ፋይል አልተቀመጠም።",
       "name": "ስም",
       "size": "መጠን",
@@ -606,6 +620,58 @@
       "prompt": "የOCR መመሪያ",
       "promptDesc": "ከምስሉ ጋር ወደ ራዕይ ሞዴል የሚላኩ መመሪያዎች።",
       "resetPrompt": "ወደ ነባሪ መልስ"
+    }
+  },
+  "skills": {
+    "import": {
+      "button": "ክህሎቶችን አስገባ",
+      "fromArchive": "ከZIP አስገባ",
+      "fromFolder": "ከአቃፊ አስገባ",
+      "fromGitHub": "ከGitHub አስገባ",
+      "installed": "{{count}} ክህሎት ተጭኗል",
+      "skipped": "{{count}} ክህሎት አስቀድሞ ተጭኗል",
+      "failed": "የክህሎት ማስገባት አልተሳካም",
+      "noManifest": "SKILL.md አልተገኘም"
+    },
+    "review": {
+      "title": "ክህሎቶችን አስገባ",
+      "found": "በዚህ ጥቅል ውስጥ {{count}} ተገኝተዋል",
+      "selected": "{{count}} ተመርጠዋል",
+      "selectAll": "ሁሉንም ምረጥ",
+      "selectNone": "ምርጫን አጽዳ",
+      "installed": "ተጭኗል",
+      "replaceHint": "ማስገባት የተጫነውን ቅጂ ይተካል",
+      "skip": "ማስገባት አይቻልም",
+      "confirm": "{{count}} አስገባ"
+    },
+    "github": {
+      "title": "ከGitHub አስገባ",
+      "url": "ማከማቻ",
+      "hint": "ማከማቻ፣ ቅርንጫፍ ወይም ፋይል — ቅርንጫፍ ካልተሰጠ ነባሪው ይጠቀማል።",
+      "download": "አውርድ",
+      "stop": "አቁም",
+      "received": "{{size}} ተቀብሏል",
+      "scanning": "ማከማቻው በመነበብ ላይ…",
+      "reading": "ክህሎቶች በመነበብ ላይ…",
+      "downloading": "ማህደሩ በማውረድ ላይ…",
+      "rateLimited": "GitHub ጥያቄዎችን እየገደበ ነው — ከጥቂት ደቂቃዎች በኋላ እንደገና ይሞክሩ",
+      "invalidUrl": "ይህ የGitHub ማከማቻ አድራሻ አይደለም",
+      "notFound": "ማከማቻው ወይም ቅርንጫፉ አልተገኘም (የግል ማከማቻዎች አይደገፉም)",
+      "tooLarge": "ይህ ማከማቻ ለማስገባት በጣም ትልቅ ነው",
+      "network": "GitHub ላይ መድረስ አልተቻለም"
+    },
+    "list": {
+      "installed": "{{count}} ተጭኗል",
+      "needsAttention": "{{count}} ትኩረት ይፈልጋሉ",
+      "empty": "ምንም ክህሎት አልተጫነም",
+      "noManifest": "በዚህ አቃፊ ውስጥ SKILL.md የለም",
+      "updated": "በ{{date}} ተሻሽሏል",
+      "copyCommand": "ትዕዛዙን ቅዳ",
+      "open": "SKILL.md ክፈት",
+      "download": "ክህሎቱን አውርድ",
+      "delete": "ክህሎቱን ሰርዝ",
+      "deleteConfirm": "\"{{name}}\" እና {{count}} ፋይሎቹን ሰርዝ? ይህ ሊቀለበስ አይችልም።",
+      "hiddenFromModel": "ከሞዴል ጥሪዎች ተደብቋል"
     }
   }
 }

@@ -116,7 +116,9 @@
       "output": "Çıktı",
       "screenshot": "Ekran görüntüsü",
       "screenshotUnavailable": "Ekran görüntüsü kullanılamıyor",
-      "unknownError": "Bilinmeyen hata"
+      "unknownError": "Bilinmeyen hata",
+      "readSkill": "Beceriyi oku",
+      "readSkillResource": "Beceri kaynağını oku"
     },
     "reasoning": {
       "title": "Akıl yürütme",
@@ -140,7 +142,8 @@
     },
     "badge": {
       "builtin": "Yerleşik",
-      "user": "Özel"
+      "user": "Özel",
+      "skill": "Beceri"
     }
   },
   "mentions": {
@@ -274,6 +277,8 @@
       "description": "/ ile başlayan kısayollar.",
       "enableCommands": "Eğik çizgi komutlarını etkinleştir",
       "enableCommandsDesc": "Kapalıyken alana / yazmak hiçbir şey yapmaz ve gönderirken hiçbir komut genişletilmez.",
+      "skillCommands": "Beceri komutları",
+      "skillCommandsDesc": "Yüklü beceriler /skill:<name> olarak görünür. Kapatmak yalnızca kısayolu kaldırır — model beceriyi kullanmaya devam edebilir.",
       "applyTiming": "Tetiklenme zamanı",
       "applyTimingSend": "Gönderirken",
       "applyTimingSelect": "Seçerken",
@@ -520,6 +525,15 @@
     "files": {
       "title": "Dosyalar",
       "description": "AI asistanı tarafından oluşturulan veya elle yüklenen dosyaları yönetin.",
+      "tabs": {
+        "skills": "Beceriler"
+      },
+      "summary": "{{count}} dosya · {{size}}",
+      "search": "Dosya ara",
+      "noResults": "\"{{query}}\" ile eşleşen yok",
+      "upload": "Dosya yükle",
+      "uploaded": "{{count}} dosya yüklendi",
+      "uploadRejected": "Yalnızca metin dosyaları saklanabilir",
       "noFiles": "Henüz kaydedilmiş dosya yok.",
       "name": "Ad",
       "size": "Boyut",
@@ -606,6 +620,58 @@
       "prompt": "OCR promptu",
       "promptDesc": "Görselle birlikte görsel modeline gönderilen talimatlar.",
       "resetPrompt": "Varsayılana dön"
+    }
+  },
+  "skills": {
+    "import": {
+      "button": "Becerileri içe aktar",
+      "fromArchive": "ZIP'ten içe aktar",
+      "fromFolder": "Klasörden içe aktar",
+      "fromGitHub": "GitHub'dan içe aktar",
+      "installed": "{{count}} beceri içe aktarıldı",
+      "skipped": "{{count}} beceri zaten yüklü",
+      "failed": "Beceri içe aktarma başarısız",
+      "noManifest": "SKILL.md bulunamadı"
+    },
+    "review": {
+      "title": "Becerileri içe aktar",
+      "found": "Bu pakette {{count}} bulundu",
+      "selected": "{{count}} seçildi",
+      "selectAll": "Tümünü seç",
+      "selectNone": "Seçimi temizle",
+      "installed": "Yüklü",
+      "replaceHint": "İçe aktarma, yüklü kopyanın yerini alır",
+      "skip": "Yüklenemez",
+      "confirm": "{{count}} içe aktar"
+    },
+    "github": {
+      "title": "GitHub'dan içe aktar",
+      "url": "Depo",
+      "hint": "Bir depo, dal veya dosya — dal verilmezse varsayılan dal kullanılır.",
+      "download": "İndir",
+      "stop": "Durdur",
+      "received": "{{size}} alındı",
+      "scanning": "Depo okunuyor…",
+      "reading": "Beceriler okunuyor…",
+      "downloading": "Arşiv indiriliyor…",
+      "rateLimited": "GitHub istekleri sınırlıyor — birkaç dakika sonra tekrar deneyin",
+      "invalidUrl": "Bu bir GitHub depo adresi değil",
+      "notFound": "Depo veya dal bulunamadı (özel depolar desteklenmiyor)",
+      "tooLarge": "Bu depo içe aktarmak için çok büyük",
+      "network": "GitHub'a ulaşılamadı"
+    },
+    "list": {
+      "installed": "{{count}} yüklü",
+      "needsAttention": "{{count}} ilgi bekliyor",
+      "empty": "Yüklü beceri yok",
+      "noManifest": "Bu klasörde SKILL.md yok",
+      "updated": "{{date}} tarihinde güncellendi",
+      "copyCommand": "Komutu kopyala",
+      "open": "SKILL.md'yi aç",
+      "download": "Beceriyi indir",
+      "delete": "Beceriyi sil",
+      "deleteConfirm": "\"{{name}}\" ve {{count}} dosyası silinsin mi? Bu işlem geri alınamaz.",
+      "hiddenFromModel": "Model çağrılarından gizli"
     }
   }
 }
