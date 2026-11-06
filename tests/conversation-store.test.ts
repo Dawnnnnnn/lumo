@@ -19,7 +19,9 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import {
   clearConversations,
   deleteConversation,
+  exportConversationData,
   getConversation,
+  importConversationData,
   listConversationMeta,
   saveConversation,
   resolveBlobUrl,
@@ -262,5 +264,63 @@ describe('deletion', () => {
     await clearConversations();
 
     expect(await listConversationMeta()).toEqual([]);
+  });
+});
+
+
+describe('backup import and export', () => {
+  it('round-trips raw records and screenshots', async () => {
+    await saveConversation(conversation());
+    const bundle = await exportConversationData();
+
+    expect(bundle.conversations).toHaveLength(1);
+    expect(bundle.blobs).toHaveLength(1);
+    // The export must be the stored shape, not the render projection: records
+    // carry blobId, while a `lumo-blob:` marker would be meaningless on import.
+    expect(bundle.conversations[0]!.messages[1]!.parts![0]).toHaveProperty(
+      'output.content.0.blobId',
+    );
+
+    await clearConversations();
+    const result = await importConversationData(bundle.conversations, bundle.blobs);
+
+    expect(result).toEqual({ imported: 1, skipped: 0 });
+    const loaded = await getConversation('conv-1');
+    expect(loaded?.title).toBe('First chat');
+    expect(await blobExists(imageEntry(loaded!).data as string)).toBe(true);
+  });
+
+  it('skips an id that already exists unless overwrite is requested', async () => {
+    await saveConversation(conversation());
+    const bundle = await exportConversationData();
+
+    expect(await importConversationData(bundle.conversations, bundle.blobs)).toEqual({
+      imported: 0,
+      skipped: 1,
+    });
+    expect(await importConversationData(bundle.conversations, bundle.blobs, { overwrite: true })).toEqual({
+      imported: 1,
+      skipped: 0,
+    });
+  });
+
+  it('replaces the old screenshots when overwriting', async () => {
+    await saveConversation(conversation());
+    const bundle = await exportConversationData();
+
+    // A different blob set for the same conversation: the old screenshot must
+    // not survive as an orphan that no record can ever reach.
+    const replacement = [
+      {
+        id: 'replacement',
+        conversationId: 'conv-1',
+        blob: new Blob([new Uint8Array([1, 2, 3])], { type: 'image/png' }),
+      },
+    ];
+    await importConversationData(bundle.conversations, replacement, { overwrite: true });
+
+    const db = await getChatDB();
+    const tx = db.transaction(BLOBS_STORE, 'readonly');
+    expect(await request(tx.objectStore(BLOBS_STORE).count())).toBe(1);
   });
 });

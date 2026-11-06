@@ -61,6 +61,9 @@ interface StoredBlob {
   blob: Blob;
 }
 
+/** A screenshot blob as it exists in the database, for export/import. */
+export type StoredConversationBlob = StoredBlob;
+
 /** An image content entry inside a `CallToolResult`. */
 interface ToolImageContent {
   type: 'image';
@@ -352,6 +355,103 @@ export async function clearConversations(): Promise<void> {
       tx.objectStore(CONVERSATIONS_STORE).clear();
       tx.objectStore(META_STORE).clear();
       tx.objectStore(BLOBS_STORE).clear();
+    },
+  );
+}
+
+/**
+ * A complete, raw copy of the conversation database.
+ *
+ * Raw means exactly what is on disk: tool screenshots carry a `blobId` rather
+ * than a render-only `lumo-blob:` marker, so a backup can write these records
+ * back without going through the save path and re-deriving every blob.
+ */
+export interface ConversationDataBundle {
+  conversations: Conversation[];
+  blobs: StoredConversationBlob[];
+}
+
+/** Read every conversation and screenshot for a backup. */
+export async function exportConversationData(): Promise<ConversationDataBundle> {
+  return withStores(
+    [CONVERSATIONS_STORE, BLOBS_STORE],
+    'readonly',
+    async (tx) => ({
+      conversations: await request<Conversation[]>(
+        tx.objectStore(CONVERSATIONS_STORE).getAll(),
+      ),
+      blobs: await request<StoredConversationBlob[]>(tx.objectStore(BLOBS_STORE).getAll()),
+    }),
+  );
+}
+
+export interface ImportConversationDataResult {
+  imported: number;
+  skipped: number;
+}
+
+/**
+ * Write a backup's conversations and screenshots back into the database.
+ *
+ * Conversations are keyed by their original id so restoring a backup onto a
+ * fresh install recreates the exact history. When `overwrite` is false an
+ * existing id is left untouched, which makes importing the same archive twice a
+ * no-op rather than a duplicate. Overwriting replaces the old screenshots too:
+ * leaving them behind would keep bytes that no record references any more.
+ *
+ * Summaries are rebuilt from the imported record instead of trusting the
+ * archive's `meta` store; the list shape is derived data and must stay in sync
+ * with whatever message shape this build understands.
+ */
+export async function importConversationData(
+  conversations: Conversation[],
+  blobs: StoredConversationBlob[],
+  { overwrite = false }: { overwrite?: boolean } = {},
+): Promise<ImportConversationDataResult> {
+  const blobsByConversation = new Map<string, StoredConversationBlob[]>();
+  for (const blob of blobs) {
+    const list = blobsByConversation.get(blob.conversationId);
+    if (list) list.push(blob);
+    else blobsByConversation.set(blob.conversationId, [blob]);
+  }
+
+  return withStores(
+    [CONVERSATIONS_STORE, META_STORE, BLOBS_STORE],
+    'readwrite',
+    async (tx) => {
+      const conversationStore = tx.objectStore(CONVERSATIONS_STORE);
+      const metaStore = tx.objectStore(META_STORE);
+      const blobStore = tx.objectStore(BLOBS_STORE);
+      let imported = 0;
+      let skipped = 0;
+
+      for (const conversation of conversations) {
+        const existing = await request<Conversation | undefined>(
+          conversationStore.get(conversation.id),
+        );
+        if (existing && !overwrite) {
+          skipped += 1;
+          continue;
+        }
+
+        if (existing) {
+          // Collect the old screenshot keys before writing the new ones, or an
+          // overwritten conversation leaves orphaned bytes behind forever.
+          const ids = await request<IDBValidKey[]>(
+            blobStore.index(BLOB_CONVERSATION_INDEX).getAllKeys(conversation.id),
+          );
+          for (const id of ids) blobStore.delete(id);
+        }
+
+        conversationStore.put(conversation);
+        metaStore.put(buildMeta(conversation));
+        for (const blob of blobsByConversation.get(conversation.id) ?? []) {
+          blobStore.put(blob);
+        }
+        imported += 1;
+      }
+
+      return { imported, skipped };
     },
   );
 }

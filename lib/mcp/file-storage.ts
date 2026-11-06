@@ -83,6 +83,29 @@ export interface DirectoryListing {
   files: FileMetadata[];
 }
 
+/** One file restored from a backup archive. */
+export interface RestoreFileEntry {
+  name: string;
+  content: Blob;
+  mimeType: string;
+  createdAt: number;
+  updatedAt: number;
+  conversationId?: string;
+}
+
+/** One explicit directory restored from a backup archive. */
+export interface RestoreDirectoryEntry {
+  path: string;
+  explicit: boolean;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface RestoreFilesResult {
+  imported: string[];
+  skipped: string[];
+}
+
 const DB_NAME = 'lumo-files';
 const DB_VERSION = 2;
 const STORE_NAME = 'files';
@@ -139,6 +162,30 @@ export function baseName(path: string): string {
   const trimmed = path.endsWith('/') ? path.slice(0, -1) : path;
   const index = trimmed.lastIndexOf('/');
   return index === -1 ? trimmed : trimmed.slice(index + 1);
+}
+
+/**
+ * A free path derived from `name`, using the `name (1).ext` convention.
+ *
+ * Kept local to the storage layer (rather than importing `uniqueFileName` from
+ * `file-import`) so a backup restore does not depend on the drag-and-drop rules,
+ * and so the whole batch can be checked against one in-memory set instead of
+ * one IndexedDB round trip per candidate.
+ */
+function uniqueFilePath(name: string, taken: Set<string>): string {
+  if (!taken.has(name)) return name;
+
+  const lastSlash = name.lastIndexOf('/');
+  const dir = lastSlash >= 0 ? name.slice(0, lastSlash + 1) : '';
+  const base = name.slice(dir.length);
+  const lastDot = base.lastIndexOf('.');
+  const stem = lastDot <= 0 ? base : base.slice(0, lastDot);
+  const ext = lastDot <= 0 ? '' : base.slice(lastDot);
+
+  for (let n = 1; ; n += 1) {
+    const candidate = `${dir}${stem} (${n})${ext}`;
+    if (!taken.has(candidate)) return candidate;
+  }
 }
 
 /** Whether a path belongs to an extension-owned area such as `skills/`. */
@@ -878,6 +925,107 @@ class FileStorage {
     await done;
     emitEvent('files:changed', { names: removable, reason: 'delete' });
     return removable.length;
+  }
+
+  /**
+   * Restore files and explicit directories from a backup archive.
+   *
+   * A restore is a bulk write, so it takes one transaction and announces one
+   * `files:changed` event instead of one per file. Without that, importing a
+   * library with a hundred files would rebuild the skills index a hundred times
+   * and leave every open file view flickering through partial states.
+   *
+   * Collision policy is deliberately non-destructive by default:
+   * - a user file that already occupies the path is renamed (`report (1).md`),
+   * - a file under a system namespace (`skills/`) is skipped, because renaming
+   *   `SKILL.md` to `SKILL (1).md` would corrupt an installed skill,
+   * - `overwrite` restores the exact paths from the archive instead.
+   *
+   * Invalid paths are skipped rather than aborting the batch: one malformed entry
+   * must not throw away the rest of a backup.
+   */
+  async restoreFiles(
+    entries: RestoreFileEntry[],
+    directories: RestoreDirectoryEntry[] = [],
+    { overwrite = false }: { overwrite?: boolean } = {},
+  ): Promise<RestoreFilesResult> {
+    const existing = await this.listFiles();
+    const taken = new Set(existing.map((file) => file.name));
+    const now = Date.now();
+    const plannedFiles: StoredFile[] = [];
+    const imported: string[] = [];
+    const skipped: string[] = [];
+
+    for (const entry of entries) {
+      const path = normalizeFilePath(entry.name);
+      if (path === null) {
+        skipped.push(entry.name);
+        continue;
+      }
+
+      let target = path;
+      if (taken.has(target) && !overwrite) {
+        if (isSystemPath(target)) {
+          skipped.push(path);
+          continue;
+        }
+        target = uniqueFilePath(target, taken);
+      }
+
+      taken.add(target);
+      const mimeType = entry.mimeType || inferMimeType(target);
+      const content =
+        entry.content.type === mimeType
+          ? entry.content
+          : entry.content.slice(0, entry.content.size, mimeType);
+      const metadata: FileMetadata = {
+        name: target,
+        mimeType,
+        size: content.size,
+        createdAt: Number.isFinite(entry.createdAt) ? entry.createdAt : now,
+        updatedAt: Number.isFinite(entry.updatedAt) ? entry.updatedAt : now,
+        conversationId: entry.conversationId,
+      };
+
+      plannedFiles.push({ name: target, content, metadata });
+      imported.push(target);
+    }
+
+    const knownDirs = await this.readDirectoryRecords();
+    const plannedDirs = new Map<string, DirectoryRecord>();
+    for (const entry of directories) {
+      const path = normalizeDirPath(entry.path);
+      if (path === null || path === '') continue;
+      const previous = knownDirs.get(path) ?? plannedDirs.get(path);
+      plannedDirs.set(path, {
+        path,
+        kind: directoryKind(path),
+        explicit: entry.explicit || previous?.explicit === true,
+        createdAt: previous?.createdAt ?? (Number.isFinite(entry.createdAt) ? entry.createdAt : now),
+        updatedAt: Number.isFinite(entry.updatedAt) ? entry.updatedAt : now,
+      });
+    }
+
+    if (plannedFiles.length === 0 && plannedDirs.size === 0) {
+      return { imported, skipped };
+    }
+
+    const db = await this.getDB();
+    const tx = db.transaction([STORE_NAME, META_STORE, DIR_STORE], 'readwrite');
+    const done = transactionDone(tx);
+    const fileStore = tx.objectStore(STORE_NAME);
+    const metaStore = tx.objectStore(META_STORE);
+    const dirStore = tx.objectStore(DIR_STORE);
+
+    for (const file of plannedFiles) {
+      fileStore.put(file);
+      metaStore.put(file.metadata);
+    }
+    for (const directory of plannedDirs.values()) dirStore.put(directory);
+
+    await done;
+    emitEvent('files:changed', { names: imported, reason: 'write' });
+    return { imported, skipped };
   }
 
   /**

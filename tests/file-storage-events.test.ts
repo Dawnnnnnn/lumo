@@ -165,3 +165,63 @@ describe('fileStorage change notifications', () => {
     expect(events).toEqual([]);
   });
 });
+
+describe('fileStorage.restoreFiles', () => {
+  const blob = (text: string) => new Blob([text], { type: 'text/plain' });
+  const entry = (name: string, text: string) => ({
+    name,
+    content: blob(text),
+    mimeType: 'text/plain',
+    createdAt: 100,
+    updatedAt: 200,
+  });
+
+  it('writes a whole batch in one transaction and announces it once', async () => {
+    await fileStorage.restoreFiles([entry('a.md', 'a'), entry('b.md', 'b')]);
+
+    expect(events).toEqual([{ names: ['a.md', 'b.md'], reason: 'write' }]);
+    expect((await fileStorage.listFiles()).map((file) => file.name).sort()).toEqual([
+      'a.md',
+      'b.md',
+    ]);
+  });
+
+  it('renames a colliding user file instead of overwriting it', async () => {
+    await fileStorage.writeFile('notes.md', 'original');
+    events = [];
+
+    const result = await fileStorage.restoreFiles([entry('notes.md', 'restored')]);
+
+    expect(result.imported).toEqual(['notes (1).md']);
+    expect(result.skipped).toEqual([]);
+    expect(await fileStorage.readFileAsText('notes.md')).toBe('original');
+    expect(await fileStorage.readFileAsText('notes (1).md')).toBe('restored');
+  });
+
+  it('skips a colliding system file rather than corrupting a skill directory', async () => {
+    await fileStorage.writeFile('skills/foo/SKILL.md', 'installed');
+    events = [];
+
+    const result = await fileStorage.restoreFiles([
+      entry('skills/foo/SKILL.md', 'restored'),
+    ]);
+
+    expect(result.imported).toEqual([]);
+    expect(result.skipped).toEqual(['skills/foo/SKILL.md']);
+    expect(await fileStorage.readFileAsText('skills/foo/SKILL.md')).toBe('installed');
+    // Nothing was written, so nothing should claim to have changed.
+    expect(events).toEqual([]);
+  });
+
+  it('restores the exact path when overwrite is requested', async () => {
+    await fileStorage.writeFile('notes.md', 'original');
+    events = [];
+
+    const result = await fileStorage.restoreFiles([entry('notes.md', 'restored')], [], {
+      overwrite: true,
+    });
+
+    expect(result.imported).toEqual(['notes.md']);
+    expect(await fileStorage.readFileAsText('notes.md')).toBe('restored');
+  });
+});

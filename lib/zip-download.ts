@@ -15,6 +15,32 @@ export interface ZipFileEntry {
 }
 
 /**
+ * Save a Blob through the browser's download machinery.
+ *
+ * UI pages get an `<a download>` rather than `chrome.downloads`: the anchor works
+ * without the `downloads` permission and keeps the blob URL in the page that
+ * created it. A service worker has no `document`, so it falls back to
+ * `chrome.downloads.download`.
+ */
+export async function downloadBlob(blob: Blob, filename: string): Promise<void> {
+  const url = URL.createObjectURL(blob);
+
+  if (typeof document !== 'undefined') {
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  } else {
+    await chrome.downloads.download({ url, filename, saveAs: false });
+  }
+
+  // Revoke after delay to allow download to start.
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
+}
+
+/**
  * Bundle multiple files from extension storage into a zip and trigger download.
  *
  * @param files - List of file entries to include
@@ -47,26 +73,7 @@ export async function downloadAsZip(
 
   // Create zip synchronously (fflate's zipSync is fast for reasonable file sizes)
   const zipped = zipSync(zipData, { level: 6 });
-  const blob = new Blob([zipped], { type: 'application/zip' });
-  const url = URL.createObjectURL(blob);
-
-  // Detect context: UI pages have `document`, service worker does not.
-  if (typeof document !== 'undefined') {
-    // UI page (options/sidepanel): <a download> works reliably with same-origin blob URL
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = zipName;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  } else {
-    // Service worker (background/MCP): use chrome.downloads which can access
-    // blob URLs created in the same context.
-    await chrome.downloads.download({ url, filename: zipName, saveAs: false });
-  }
-
-  // Revoke after delay to allow download to start
-  setTimeout(() => URL.revokeObjectURL(url), 10000);
+  await downloadBlob(new Blob([zipped], { type: 'application/zip' }), zipName);
 
   return {
     success: true,

@@ -8,6 +8,7 @@ import { SettingsGroup } from './components/SettingsGroup';
 import { SettingsHeader } from './components/SettingsHeader';
 import { AboutIdentity } from './about/AboutIdentity';
 import { AboutLinks } from './about/AboutLinks';
+import { DataTransfer } from './about/DataTransfer';
 import { StorageUsageCard } from './about/StorageUsageCard';
 import { useStorageUsage } from './about/useStorageUsage';
 
@@ -88,6 +89,10 @@ export function AboutPage() {
 
         <SettingsGroup title={t('options.about.storage.title')}>
           <StorageUsageCard {...usage} />
+        </SettingsGroup>
+
+        <SettingsGroup title={t('options.about.backup.title')}>
+          <DataTransfer report={usage.report} refresh={() => usage.refresh(true)} />
         </SettingsGroup>
 
         <SettingsGroup title={t('options.about.importExport.title')}>

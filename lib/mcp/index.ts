@@ -25,6 +25,9 @@ export type {
   DirectoryListing,
   DirectoryRecord,
   FileMetadata,
+  RestoreDirectoryEntry,
+  RestoreFileEntry,
+  RestoreFilesResult,
   StoredFile,
 } from './file-storage';
 export { inferMimeType, getPreviewCategory, getLanguageFromMime, isLikelyTextContent } from './file-storage';
