@@ -11,10 +11,11 @@
  * and decides which state transition accompanies a successful write.
  */
 
-import { appendAssistantTurn, type AssistantTurn } from '@/lib/conversation-turn';
+import { appendAssistantTurn, appendSteeredSegment, type AssistantTurn } from '@/lib/conversation-turn';
 import { hasRenderableParts } from '@/lib/message-parts';
 import { toError } from '@/lib/provider-error';
 import type {
+  ChatMessage,
   ChatMessagePart,
   ChatMessageVariant,
   Conversation,
@@ -55,7 +56,7 @@ export interface TurnPersistenceInput {
 export class TurnPersistence {
   conversation: Conversation;
   latestParts: ChatMessagePart[] = [];
-  readonly turn: AssistantTurn;
+  turn: AssistantTurn;
 
   private readonly variants?: ChatMessageVariant[];
   private readonly canCreate: boolean;
@@ -78,6 +79,35 @@ export class TurnPersistence {
 
   setParts(parts: ChatMessagePart[]): void {
     this.latestParts = parts;
+  }
+
+  /**
+   * Close the in-flight assistant segment and append the user message that
+   * superseded it.
+   *
+   * The segment settles as a complete message: it ended where the model paused
+   * for its tool results, so nothing was lost and the "interrupted" label would
+   * be a lie. The caller assigns the next segment's identity (see
+   * {@link setTurn}) — the closed one now belongs to the transcript, and the
+   * streaming bubble must not be keyed to it.
+   */
+  closeSegment(parts: ChatMessagePart[], userMessage: ChatMessage): Conversation {
+    this.conversation = appendSteeredSegment(
+      this.conversation,
+      this.turn,
+      parts,
+      userMessage,
+    );
+    this.latestParts = [];
+    // A segment boundary is a checkpoint: the closed segment and the user
+    // message are written together, so the clock starts now.
+    this.lastCheckpointAt = Date.now();
+    return this.conversation;
+  }
+
+  /** Adopt the identity of the segment that is now streaming. */
+  setTurn(turn: AssistantTurn): void {
+    this.turn = turn;
   }
 
   /**

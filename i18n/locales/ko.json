@@ -23,6 +23,7 @@
     "closePanel": "패널 닫기",
     "placeholder": "메시지를 입력하세요...",
     "send": "보내기",
+    "withdrawQueued": "대기 중인 메시지 취소",
     "thinking": "생각 중...",
     "pasteImage": "이미지 붙여넣기 또는 드롭",
     "textAttachment": "텍스트",

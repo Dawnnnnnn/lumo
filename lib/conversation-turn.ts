@@ -6,6 +6,10 @@
  * with different flags". Keeping that construction here makes the flag rules
  * testable without a hook, and keeps the streaming orchestrator focused on
  * lifecycle rather than message shape.
+ *
+ * A third shape exists once the user steers mid-turn: the assistant message is
+ * closed early (it is superseded, not interrupted) and a user message follows
+ * it, exactly as the wire prompt has it. See {@link appendSteeredSegment}.
  */
 
 import { hasRenderableParts } from '@/lib/message-parts';
@@ -69,6 +73,33 @@ export function appendAssistantTurn(
   return {
     ...conversation,
     messages: [...conversation.messages, message],
+    updatedAt: Date.now(),
+  };
+}
+
+/**
+ * Close the in-flight segment at a steering boundary and record the user message
+ * that superseded it.
+ *
+ * The closed assistant message is *not* interrupted: it ends where the model
+ * naturally paused (every tool call of the step has a result), and the
+ * conversation continues right after it. Marking it interrupted would tell the
+ * user their reply was cut off when nothing was lost.
+ *
+ * An empty segment is dropped rather than stored — a step that produced nothing
+ * renderable leaves no message behind, but the user message still lands.
+ */
+export function appendSteeredSegment(
+  conversation: Conversation,
+  turn: AssistantTurn,
+  parts: ChatMessagePart[],
+  userMessage: ChatMessage,
+): Conversation {
+  const withAssistant = appendAssistantTurn(conversation, turn, parts, { interrupted: false });
+  const base = withAssistant ?? conversation;
+  return {
+    ...base,
+    messages: [...base.messages, userMessage],
     updatedAt: Date.now(),
   };
 }

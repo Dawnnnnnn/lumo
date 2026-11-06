@@ -23,6 +23,7 @@
     "closePanel": "Panel bezárása",
     "placeholder": "Írjon üzenetet...",
     "send": "Küldés",
+    "withdrawQueued": "A sorban álló üzenet visszavonása",
     "thinking": "Gondolkodik...",
     "pasteImage": "Kép beillesztése vagy ejtése",
     "textAttachment": "Szöveg",

@@ -39,6 +39,9 @@ handleSend
                  ├─ onUpdate        → persistence.setParts + dispatch parts + throttled checkpoint
                  ├─ onUsage         → dispatch liveUsage
                  ├─ onStepComplete  → resume snapshot + forced checkpoint
+                 ├─ pullQueuedInput → the composer's queue, at a step boundary
+                 ├─ onInputInjected → persistence.closeSegment + saveDraft
+                 │                     + dispatch turn/steer (new identity, empty parts)
                  ├─ onCompactBeforeStep → durable fold, dispatch compacting, return projection
                  ├─ onCompaction    → wire-fold lifecycle (fallback)
                  ├─ onFinish        → persist (open + save) + dispatch turn/settled
@@ -50,6 +53,34 @@ handleSend
 
 The reducer is the only place streaming state changes. The runner emits
 `StreamAction`s through a port; it never calls `setState`.
+
+## Steering (messages composed mid-turn)
+
+A turn is one assistant message — until the user sends something while it is
+streaming. That message waits in the panel's queue (it is not in the conversation
+yet), and the loop delivers it at the first boundary it continues past: after a
+step's tool results are folded into the prompt, before the next request. From
+then on the turn has two segments:
+
+```
+user(1) → assistant(segment 1: complete, closed at the boundary)
+        → user(2, the queued message)
+        → assistant(segment 2, streaming under a new id)
+```
+
+- **The closed segment is not `interrupted`.** It ended where the model paused
+  for its tools, so nothing was lost; the continuation is a new message.
+- **The loop reports parts per segment.** `latestParts` stays cumulative (a
+  resume snapshot replays the whole wire prompt) but every callback — stream
+  updates, usage anchor, checkpoint, result — is relative to the open segment.
+  Otherwise the UI would render the closed segment twice.
+- **Delivery disables durable compaction for the rest of the run.** The injected
+  message is persisted by `closeSegment`, so it is both stored transcript and
+  live tail; a durable rebuild would append it twice. The in-memory fold rewrites
+  the whole prompt instead.
+- **Anything still queued when the turn ends** is sent by `useChatStream` as its
+  own turn (`TurnRunner.outcome` says whether the turn handed over: settled or
+  failed, never stopped or torn down).
 
 ## Invariants
 
@@ -67,12 +98,13 @@ The reducer is the only place streaming state changes. The runner emits
 
 3. **Compaction never mixes bases.** A durable between-step fold replaces the
    stored prefix and keeps the live wire tail. Once an in-memory fold has
-   rewritten the whole prompt, the durable path is disabled for the rest of the
-   run; otherwise a second durable rebuild would append the tail twice.
+   rewritten the whole prompt — or a steered message was persisted mid-turn —
+   the durable path is disabled for the rest of the run; otherwise a second
+   durable rebuild would append the tail twice.
 
 4. **The current turn is never summarized.** A between-step fold operates on the
-   stored conversation (which excludes the in-flight assistant turn) and hands
-   the loop a projection; the loop keeps the turn's wire messages as a tail.
+   stored conversation (which excludes the in-flight assistant segment) and hands
+   the loop a projection; the loop keeps the segment's wire messages as a tail.
 
 5. **The hook owns no turn internals.** It keeps only the active runner handle,
    the resume snapshot mirror, the turn identity mirror and the notice. All

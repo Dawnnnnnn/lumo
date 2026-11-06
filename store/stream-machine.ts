@@ -60,6 +60,12 @@ export type StreamAction =
   | { type: 'turn/resume'; resume: boolean }
   /** The loop allocated (or reused) the assistant turn identity. */
   | { type: 'turn/begin'; turn: AssistantTurn }
+  /**
+   * A user message was delivered mid-turn: the streamed segment closed and the
+   * continuation streams under a new identity, starting from empty parts.
+   * Streaming never stopped, so the composer must not flip back to Send.
+   */
+  | { type: 'turn/steer'; turn: AssistantTurn }
   /** The turn produced its final state and was persisted. */
   | { type: 'turn/settled' }
   /** The user stopped: no spinner, but the partial reply stays until persisted. */
@@ -103,6 +109,15 @@ export function streamReducer(state: StreamState, action: StreamAction): StreamS
       };
     case 'turn/begin':
       return { ...state, turn: action.turn };
+    case 'turn/steer':
+      return {
+        ...state,
+        turn: action.turn,
+        parts: [],
+        // The anchor described the closed segment's part list; the new segment
+        // starts empty and re-anchors on its first completed step.
+        liveUsage: null,
+      };
     case 'turn/settled':
       return {
         ...initialStreamState,

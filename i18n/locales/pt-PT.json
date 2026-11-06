@@ -23,6 +23,7 @@
     "closePanel": "Fechar painel",
     "placeholder": "Digite uma mensagem...",
     "send": "Enviar",
+    "withdrawQueued": "Retirar a mensagem em fila",
     "thinking": "A pensar...",
     "pasteImage": "Cole ou solte uma imagem",
     "textAttachment": "Texto",

@@ -78,6 +78,38 @@ describe('TurnPersistence', () => {
     expect(persistence.latestParts).toBe(PARTS);
   });
 
+  it('closes a steered segment as complete and appends the user message', () => {
+    const { persistence } = createPersistence();
+    const closed = persistence.closeSegment(PARTS, {
+      id: 'u2',
+      role: 'user',
+      parts: [{ type: 'text', text: 'actually, the sidebar', state: 'done' }],
+      timestamp: 3,
+    });
+
+    // The segment ended where the model paused for its tool results, so it is
+    // not "interrupted" — nothing was lost.
+    expect(closed.messages).toHaveLength(3);
+    expect(closed.messages[1]).toMatchObject({ id: 'a1', role: 'assistant', timestamp: 2 });
+    expect(closed.messages[1]!.interrupted).toBeUndefined();
+    expect(closed.messages[2]).toMatchObject({ id: 'u2', role: 'user' });
+
+    // The next segment starts empty and under a new identity, so the closed
+    // message is never rewritten by the continuation.
+    expect(persistence.latestParts).toEqual([]);
+    persistence.setTurn({ id: 'a2', timestamp: 4 });
+    expect(persistence.snapshot(PARTS, { interrupted: false })!.messages.at(-1)!.id).toBe('a2');
+
+    // A checkpoint written after the boundary keeps both sides of it.
+    const checkpoint = persistence.snapshot(PARTS, { interrupted: true })!;
+    expect(checkpoint.messages.map((m) => m.role)).toEqual([
+      'user',
+      'assistant',
+      'user',
+      'assistant',
+    ]);
+  });
+
   it('throttles stream checkpoints but writes again after the interval', async () => {
     let now = 1_000;
     vi.spyOn(Date, 'now').mockImplementation(() => now);

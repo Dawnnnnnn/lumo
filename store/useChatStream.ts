@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { generateCompactionSummary } from '@/lib/ai';
 import type { ResumeState } from '@/lib/ai';
 import { deriveConversationTitle } from '@/lib/conversation-title';
-import { serializeAttachmentForModel } from '@/lib/attachment-serialization';
+import { buildUserMessage } from '@/lib/user-message';
 import type { AssistantTurn } from '@/lib/conversation-turn';
 import type { LiveUsage } from '@/lib/context-usage';
 import { classifyError, toError, type ChatErrorInfo } from '@/lib/provider-error';
@@ -20,12 +20,12 @@ import { useCompactionNotice } from '@/store/useCompactionNotice';
 import type { ConversationMeta } from '@/lib/conversation-store';
 import type {
   ChatMessage,
-  ChatMessagePart,
   ChatMessageVariant,
   CompactionNotice,
   Conversation,
   ModelConfig,
   ProviderConfig,
+  QueuedUserInput,
   TextAttachment,
 } from '@/types';
 
@@ -61,13 +61,28 @@ export interface UseChatStreamReturn {
    * first token to the last.
    */
   liveUsage: LiveUsage | null;
+  /**
+   * Messages composed while a turn was streaming, waiting to be delivered.
+   *
+   * They are not in the conversation yet: the agent loop takes them at its next
+   * step boundary, and anything left when the turn ends is sent as its own turn.
+   */
+  queuedInputs: QueuedUserInput[];
   handleSend: (input: string, images: string[], textAttachments: TextAttachment[], getProvider: () => ProviderConfig | undefined, getModel: () => ModelConfig | undefined, selectedProviderId: string, selectedModelId: string) => Promise<void>;
   handleRetry: (getProvider: () => ProviderConfig | undefined, getModel: () => ModelConfig | undefined) => void;
   /** Manually fold older history into a checkpoint. Backs the `/compact` command. */
   handleCompact: (getProvider: () => ProviderConfig | undefined, getModel: () => ModelConfig | undefined) => void;
-  handleStop: () => void;
-  handleNewChat: () => void;
-  handleSelectConversation: (id: string) => Promise<void>;
+  /**
+   * Stops the turn and returns whatever was still queued, so the composer can
+   * put it back: the user wrote those messages.
+   */
+  handleStop: () => QueuedUserInput[];
+  /** Starts a blank chat, returning what was still queued for this one. */
+  handleNewChat: () => QueuedUserInput[];
+  /** Opens another conversation, returning what was still queued for this one. */
+  handleSelectConversation: (id: string) => Promise<QueuedUserInput[]>;
+  /** Withdraws one queued message (the composer puts it back in the draft). */
+  handleDequeue: (id: string) => QueuedUserInput | null;
   handleDeleteConversation: (id: string) => Promise<void>;
   handleDeleteMessage: (messageId: string) => Promise<void>;
   handleRegenerateMessage: (messageId: string, getProvider: () => ProviderConfig | undefined, getModel: () => ModelConfig | undefined) => void;
@@ -147,6 +162,81 @@ export function useChatStream(options?: UseChatStreamOptions): UseChatStreamRetu
   const compactionAbortRef = useRef<AbortController | null>(null);
 
   /**
+   * Messages the user composed while a turn was streaming, in order.
+   *
+   * Kept in a ref as well as state because the runner reads it from inside the
+   * agent loop (through `pullQueuedInputs`) and the send loop drains it after a
+   * turn settles — neither can wait for a render. The state copy is only for the
+   * composer's queue strip.
+   */
+  const queuedRef = useRef<QueuedUserInput[]>([]);
+  const [queuedInputs, setQueuedInputs] = useState<QueuedUserInput[]>([]);
+
+  /**
+   * Model selection a queued delivery runs with.
+   *
+   * Remembered on every send instead of captured by the drain: a delivery can
+   * happen after the turn ends, when the callback that queued it is long gone.
+   * The getters are called at delivery time, so a model switch still applies.
+   */
+  const sendContextRef = useRef<{
+    getProvider: () => ProviderConfig | undefined;
+    getModel: () => ModelConfig | undefined;
+    selectedProviderId: string;
+    selectedModelId: string;
+  } | null>(null);
+
+  // Mirrors for the decisions that happen outside a render: a send that arrives
+  // mid-stream must queue even if the callback that accepted it was built before
+  // the stream started.
+  const isStreamingRef = useRef(isStreaming);
+  isStreamingRef.current = isStreaming;
+  const isCompactingRef = useRef(isCompacting);
+  isCompactingRef.current = isCompacting;
+
+  /** Replace the queue and mirror it into state in one go. */
+  const syncQueue = useCallback((next: QueuedUserInput[]) => {
+    queuedRef.current = next;
+    setQueuedInputs(next);
+  }, []);
+
+  /**
+   * Take everything queued. Called by the turn at a step boundary; the loop
+   * delivers all of it at once, because they were composed against the same
+   * step and splitting them would make the model answer half an instruction.
+   */
+  const pullQueuedInputs = useCallback((): QueuedUserInput[] => {
+    const items = queuedRef.current;
+    if (items.length > 0) syncQueue([]);
+    return items;
+  }, [syncQueue]);
+
+  /** Take the next queued message, for delivery as its own turn. */
+  const shiftQueued = useCallback((): QueuedUserInput | null => {
+    const [head, ...rest] = queuedRef.current;
+    if (!head) return null;
+    syncQueue(rest);
+    return head;
+  }, [syncQueue]);
+
+  /** Withdraw one entry (the composer returns it to the draft). */
+  const handleDequeue = useCallback((id: string): QueuedUserInput | null => {
+    const item = queuedRef.current.find((entry) => entry.id === id) ?? null;
+    if (item) syncQueue(queuedRef.current.filter((entry) => entry.id !== id));
+    return item;
+  }, [syncQueue]);
+
+  /**
+   * Drop the queue and hand it back, so the caller can put the text back in the
+   * composer. Used when a turn is abandoned: the user wrote those messages.
+   */
+  const takeQueued = useCallback((): QueuedUserInput[] => {
+    const items = queuedRef.current;
+    if (items.length > 0) syncQueue([]);
+    return items;
+  }, [syncQueue]);
+
+  /**
    * Start one assistant turn. The runner replaces any previous one; a new turn
    * cannot begin while `isStreaming`, so this is only a safety net.
    */
@@ -167,11 +257,18 @@ export function useChatStream(options?: UseChatStreamOptions): UseChatStreamRetu
         setTurn: (turn) => {
           turnRef.current = turn;
         },
+        pullQueuedInputs,
       });
       activeRunnerRef.current = runner;
       await runner.run();
     },
-    [saveConversation, saveConversationDraft, openConversation, showCompactionNotice],
+    [
+      saveConversation,
+      saveConversationDraft,
+      openConversation,
+      showCompactionNotice,
+      pullQueuedInputs,
+    ],
   );
 
   /** Durability-only flush of the active turn (teardown paths). */
@@ -195,8 +292,11 @@ export function useChatStream(options?: UseChatStreamOptions): UseChatStreamRetu
     compactionAbortRef.current?.abort();
     compactionAbortRef.current = null;
     stopRequestedRef.current = false;
+    // The queue belonged to the turn being abandoned. Callers that want to hand
+    // it back to the composer drain it *before* getting here.
+    takeQueued();
     dispatch({ type: 'reset' });
-  }, []);
+  }, [takeQueued]);
 
   /**
    * Last-chance persistence when the panel goes away mid-stream.
@@ -231,6 +331,10 @@ export function useChatStream(options?: UseChatStreamOptions): UseChatStreamRetu
   /**
    * Leaves the current conversation: any in-flight stream is abandoned and the
    * composer is reset before `target` (or a blank chat) takes over.
+   *
+   * An abandoned queue is *not* returned from here: `abortActiveStream` owns the
+   * teardown, and a caller that wants the messages back drains the queue before
+   * getting here (see `handleNewChat` and `handleSelectConversation`).
    */
   const switchConversation = useCallback(
     async (target: Conversation | null) => {
@@ -240,20 +344,26 @@ export function useChatStream(options?: UseChatStreamOptions): UseChatStreamRetu
     [abortActiveStream, openConversation],
   );
 
-  const handleNewChat = useCallback(() => {
+  const handleNewChat = useCallback((): QueuedUserInput[] => {
+    // The queue is returned synchronously — the messages never reached the
+    // model, and dropping them with the conversation would lose the user's work.
+    const abandoned = takeQueued();
     void switchConversation(null).catch((error) => {
       console.error('[Lumo] Failed to start a new chat:', error);
     });
-  }, [switchConversation]);
+    return abandoned;
+  }, [switchConversation, takeQueued]);
 
   const handleSelectConversation = useCallback(
-    async (id: string) => {
+    async (id: string): Promise<QueuedUserInput[]> => {
       setIsHistoryOpen(false);
-      if (id === currentConversation?.id) return;
+      if (id === currentConversation?.id) return [];
+      const abandoned = takeQueued();
       abortActiveStream();
       await openConversationById(id);
+      return abandoned;
     },
-    [currentConversation?.id, abortActiveStream, openConversationById],
+    [currentConversation?.id, abortActiveStream, openConversationById, takeQueued],
   );
 
   const handleDeleteConversation = useCallback(
@@ -270,51 +380,31 @@ export function useChatStream(options?: UseChatStreamOptions): UseChatStreamRetu
     await clearAllConversations();
   }, [abortActiveStream, clearAllConversations]);
 
-  const handleSend = useCallback(
+  /**
+   * Run one user message through the turn lifecycle: append it to the
+   * conversation, persist it, and await the turn's settlement.
+   *
+   * Resolves once the turn is over (or immediately when it could not start).
+   * Whatever was queued behind it is delivered by the drain effect, not here —
+   * that path also covers a queue left over from a compaction, which this
+   * callback never sees.
+   */
+  const sendTurn = useCallback(
     async (
-      input: string,
-      images: string[],
-      textAttachments: TextAttachment[],
-      getProvider: () => ProviderConfig | undefined,
-      getModel: () => ModelConfig | undefined,
+      content: QueuedUserInput,
+      base: Conversation | null,
+      provider: ProviderConfig,
+      model: ModelConfig,
       selectedProviderId: string,
       selectedModelId: string,
-    ) => {
-      const text = input.trim();
-      if (!text && images.length === 0 && textAttachments.length === 0) return;
-      if (isStreaming || isCompacting) return;
+    ): Promise<void> => {
+      const userMessage = buildUserMessage(content);
 
-      const provider = getProvider();
-      const model = getModel();
-      if (!provider || !model) return;
-
-      const userParts: ChatMessagePart[] = [
-        ...images.map((image) => ({
-          type: 'file' as const,
-          mediaType: /^data:([^;,]+)[;,]/.exec(image)?.[1] ?? 'image/png',
-          url: image,
-        })),
-        ...textAttachments.map((attachment) => ({
-          type: 'text' as const,
-          text: serializeAttachmentForModel(attachment),
-          state: 'done' as const,
-        })),
-        ...(text ? [{ type: 'text' as const, text, state: 'done' as const }] : []),
-      ];
-
-      const userMessage: ChatMessage = {
-        id: uuidv4(),
-        role: 'user',
-        parts: userParts,
-        textAttachments: textAttachments.length > 0 ? textAttachments : undefined,
-        timestamp: Date.now(),
-      };
-
-      let conv = currentConversation;
+      let conv = base;
       if (!conv) {
         conv = {
           id: uuidv4(),
-          title: deriveConversationTitle(text),
+          title: deriveConversationTitle(content.text),
           messages: [],
           modelId: selectedModelId,
           providerId: selectedProviderId,
@@ -379,16 +469,94 @@ export function useChatStream(options?: UseChatStreamOptions): UseChatStreamRetu
         });
       }
     },
-    [
-      isStreaming,
-      isCompacting,
-      currentConversation,
-      openConversation,
-      saveConversation,
-      startTurn,
-      clearCompactionNotice,
-    ],
+    [openConversation, saveConversation, startTurn, clearCompactionNotice],
   );
+
+  const handleSend = useCallback(
+    async (
+      input: string,
+      images: string[],
+      textAttachments: TextAttachment[],
+      getProvider: () => ProviderConfig | undefined,
+      getModel: () => ModelConfig | undefined,
+      selectedProviderId: string,
+      selectedModelId: string,
+    ) => {
+      const text = input.trim();
+      if (!text && images.length === 0 && textAttachments.length === 0) return;
+
+      const content: QueuedUserInput = {
+        id: uuidv4(),
+        text,
+        images,
+        textAttachments,
+        timestamp: Date.now(),
+      };
+
+      // A queued message is delivered later, outside this call, so the selection
+      // it should use is remembered here rather than captured by the drain.
+      sendContextRef.current = {
+        getProvider,
+        getModel,
+        selectedProviderId,
+        selectedModelId,
+      };
+
+      // Mid-turn: the message waits for the next step boundary instead of being
+      // refused. The runner takes it from the queue at the end of a step's tool
+      // calls, so it lands exactly where the user meant it to.
+      if (isStreamingRef.current || isCompactingRef.current) {
+        syncQueue([...queuedRef.current, content]);
+        return;
+      }
+
+      const provider = getProvider();
+      const model = getModel();
+      if (!provider || !model) return;
+
+      await sendTurn(
+        content,
+        currentConversation,
+        provider,
+        model,
+        selectedProviderId,
+        selectedModelId,
+      );
+    },
+    [currentConversation, sendTurn, syncQueue],
+  );
+
+  /**
+   * Deliver the head of the queue as its own turn.
+   *
+   * Used when a turn ends with messages still queued — they were composed against
+   * a step that then turned out to be the last one, or against a compaction that
+   * has just finished. Nothing is delivered while a turn is still live: the loop
+   * takes the queue itself at its next boundary.
+   */
+  const deliverQueued = useCallback(() => {
+    const context = sendContextRef.current;
+    if (!context) return;
+    const provider = context.getProvider();
+    const model = context.getModel();
+    if (!provider || !model) return;
+    const next = shiftQueued();
+    if (!next) return;
+    void sendTurn(
+      next,
+      currentConversation,
+      provider,
+      model,
+      context.selectedProviderId,
+      context.selectedModelId,
+    );
+  }, [currentConversation, sendTurn, shiftQueued]);
+
+  useEffect(() => {
+    if (isStreaming || isCompacting) return;
+    if (queuedRef.current.length === 0) return;
+    deliverQueued();
+  }, [isStreaming, isCompacting, deliverQueued]);
 
   const handleRetry = useCallback(
     (getProvider: () => ProviderConfig | undefined, getModel: () => ModelConfig | undefined) => {
@@ -505,7 +673,7 @@ export function useChatStream(options?: UseChatStreamOptions): UseChatStreamRetu
     ],
   );
 
-  const handleStop = useCallback(() => {
+  const handleStop = useCallback((): QueuedUserInput[] => {
     // Remember the intent for the window between the first dispatch and the
     // runner's creation, where there is no runner to abort yet.
     stopRequestedRef.current = true;
@@ -517,7 +685,10 @@ export function useChatStream(options?: UseChatStreamOptions): UseChatStreamRetu
     activeRunnerRef.current?.stop();
     // Stopping is an explicit abandon: nothing should resume into the turn.
     resumeStateRef.current = null;
-  }, []);
+    // Hand back what never reached the model. Whatever the loop already took was
+    // written to the transcript, so it is not lost either way.
+    return takeQueued();
+  }, [takeQueued]);
 
   /**
    * The in-flight turn as a `ChatMessage`. Memoised on the turn identity + parts
@@ -686,10 +857,12 @@ export function useChatStream(options?: UseChatStreamOptions): UseChatStreamRetu
     isRetrying,
     retryAttempt,
     liveUsage,
+    queuedInputs,
     handleSend,
     handleRetry,
     handleCompact,
     handleStop,
+    handleDequeue,
     handleNewChat,
     handleSelectConversation,
     handleDeleteConversation,

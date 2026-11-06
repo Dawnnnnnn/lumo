@@ -23,6 +23,7 @@
     "closePanel": "Close Panel",
     "placeholder": "Type a message...",
     "send": "Send",
+    "withdrawQueued": "Withdraw queued message",
     "thinking": "Thinking...",
     "pasteImage": "Paste or drop an image",
     "textAttachment": "Text",

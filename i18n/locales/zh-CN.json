@@ -23,6 +23,7 @@
     "closePanel": "关闭面板",
     "placeholder": "输入消息...",
     "send": "发送",
+    "withdrawQueued": "撤回排队消息",
     "thinking": "思考中...",
     "pasteImage": "粘贴或拖放图片",
     "textAttachment": "文本",

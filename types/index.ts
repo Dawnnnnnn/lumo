@@ -422,6 +422,29 @@ export interface ChatMessage {
 }
 
 /**
+ * A user message composed while a turn was still streaming.
+ *
+ * It is not part of the conversation yet: it waits in the panel's queue until
+ * the agent loop reaches a step boundary (the end of a step's tool calls), at
+ * which point it is delivered as an ordinary user message — the transcript
+ * records the current assistant segment, then this message, then the
+ * continuation. If the turn finishes before a boundary arrives, it is sent as
+ * its own turn instead.
+ *
+ * Kept out of `Conversation` on purpose: a queue belongs to one live turn in
+ * one panel, not to the stored history.
+ */
+export interface QueuedUserInput {
+  id: string;
+  text: string;
+  /** Data URLs, same shape the composer collects. */
+  images: string[];
+  textAttachments: TextAttachment[];
+  /** When the user composed it — the delivered message keeps this timestamp. */
+  timestamp: number;
+}
+
+/**
  * A single archived generation variant — a snapshot of what an assistant turn
  * produced before the user chose to regenerate.
  */

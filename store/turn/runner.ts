@@ -32,6 +32,7 @@ import type { AssistantTurn } from '@/lib/conversation-turn';
 import type { LiveUsage } from '@/lib/context-usage';
 import { isOcrAvailable } from '@/lib/image-projection';
 import { toUIMessages } from '@/lib/message-parts';
+import { buildUserMessage } from '@/lib/user-message';
 import { classifyError, toError } from '@/lib/provider-error';
 import { MAX_RETRIES, retryDelay } from '@/lib/retry-policy';
 import { decideStreamFailure } from '@/lib/stream-failure';
@@ -51,6 +52,7 @@ import type {
   Conversation,
   ModelConfig,
   ProviderConfig,
+  QueuedUserInput,
   TokenUsageStats,
   TurnNotificationMode,
 } from '@/types';
@@ -81,6 +83,14 @@ export interface TurnRunnerPorts {
   setResume: (resume: ResumeState | null) => void;
   /** Mirror the turn identity for the next manual retry. */
   setTurn: (turn: AssistantTurn | null) => void;
+  /**
+   * Take the messages the user composed while this turn was streaming.
+   *
+   * The queue itself lives with the composer (it is per-panel UI state, and the
+   * user can withdraw an entry). The runner only ever consumes from it, at a
+   * step boundary, through this port.
+   */
+  pullQueuedInputs: () => QueuedUserInput[];
 }
 
 export class TurnRunner {
@@ -241,6 +251,12 @@ export class TurnRunner {
           this.ports.dispatch({ type: 'usage', liveUsage });
         },
         onCompaction: (event) => this.handleCompactionEvent(event),
+        // Mid-turn delivery: the user's message is folded into the prompt at the
+        // step boundary the loop is about to continue past, and the segment it
+        // supersedes is written to the transcript before the next request.
+        pullQueuedInput: () =>
+          this.session.hasPendingRequest() ? this.ports.pullQueuedInputs() : [],
+        onInputInjected: (input) => this.steerSegment(input),
         onStepComplete: (checkpoint) => {
           if (!this.session.isCurrent()) return;
           this.resume = { ...checkpoint, fingerprint: this.fingerprint };
@@ -265,6 +281,41 @@ export class TurnRunner {
       // means something outside the stream broke (settings, system prompt).
       this.failFatally(error);
     }
+  }
+
+  /**
+   * Deliver one queued user message: close the streamed segment, record the
+   * message, and continue the turn under a new identity.
+   *
+   * Called from inside the agent loop, so it must not throw: failing to store
+   * the boundary costs a checkpoint, not the answer.
+   */
+  private async steerSegment(input: QueuedUserInput): Promise<void> {
+    const userMessage = buildUserMessage(input);
+    const closed = this.persistence.closeSegment(this.persistence.latestParts, userMessage);
+    try {
+      // The closed segment and the user message land in one write: a teardown
+      // between them would otherwise restore a transcript where the message
+      // appears out of nowhere.
+      await this.ports.saveDraft(closed);
+    } catch (error) {
+      console.error('[Lumo] Failed to store the steered segment:', error);
+    }
+    if (!this.session.isCurrent()) return;
+
+    // The conversation just grew, so a checkpoint taken before the delivery can
+    // no longer replay it — its prompt has no user message in it.
+    this.fingerprint = this.fingerprintOf(closed);
+    this.resume = null;
+    this.ports.setResume(null);
+
+    const next: AssistantTurn = { id: uuidv4(), timestamp: Date.now() };
+    this.persistence.setTurn(next);
+    this.ports.setTurn(next);
+    this.ports.dispatch({ type: 'turn/steer', turn: next });
+    void this.ports.open(closed).catch(() => {
+      // Pointer persistence is best-effort; the id is unchanged anyway.
+    });
   }
 
   private async compactBeforeSend(): Promise<void> {
@@ -360,7 +411,6 @@ export class TurnRunner {
     // From here on the turn is settling: a teardown must not overwrite the
     // final/interrupted record with a duplicate draft.
     this.settled = true;
-    const stale = !this.session.isCurrent();
     const hitStepLimit = stoppedReason === 'step-limit';
     const updated = this.persistence.snapshot(parts, {
       interrupted: this.session.signal.aborted || hitStepLimit,
@@ -368,30 +418,46 @@ export class TurnRunner {
       ...(usage ? { usage } : {}),
     });
 
-    if (!stale) {
-      if (!hitStepLimit) {
-        this.resume = null;
-        this.ports.setResume(null);
+    if (!updated) {
+      if (this.session.isCurrent()) {
+        this.ports.setTurn(null);
+        this.ports.dispatch({ type: 'turn/settled' });
       }
-      this.ports.setTurn(null);
-      if (updated) {
-        void this.ports.open(updated).catch(() => {
-          // Pointer persistence is best-effort; the id is unchanged anyway.
-        });
-      }
-      this.ports.dispatch({ type: 'turn/settled' });
+      this.session.invalidate();
+      return;
     }
 
-    if (!updated) return;
+    // Write before leaving the streaming phase. A message queued behind this
+    // turn is delivered as soon as the UI reports idle, and it saves the
+    // conversation this turn produces — a write still in flight at that point
+    // would land last and drop the new message.
+    await this.persistence.saveSettled(updated);
+    // Adopt the settled record so callers reading `conversation` see the
+    // message that was just written.
+    this.persistence.adopt(updated);
 
-    if (!stale && !this.session.signal.aborted) {
+    if (!this.session.isCurrent()) {
+      this.session.invalidate();
+      return;
+    }
+
+    if (!hitStepLimit) {
+      this.resume = null;
+      this.ports.setResume(null);
+    }
+    this.ports.setTurn(null);
+    void this.ports.open(updated).catch(() => {
+      // Pointer persistence is best-effort; the id is unchanged anyway.
+    });
+    this.ports.dispatch({ type: 'turn/settled' });
+
+    if (!this.session.signal.aborted) {
       void notifyTurnComplete(this.turnNotification, {
         title: this.persistence.conversation.title,
         elapsedMs: Date.now() - this.persistence.turn.timestamp,
       });
     }
 
-    await this.persistence.saveSettled(updated);
     this.session.invalidate();
   }
 

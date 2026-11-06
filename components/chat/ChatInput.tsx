@@ -1,6 +1,6 @@
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Send, Square, ImagePlus, X, FileText, Globe } from 'lucide-react';
+import { Send, Square, ImagePlus, X, FileText, Globe, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -30,7 +30,7 @@ import { useEnabledCommands, useCommandSettings } from '@/store/useCommands';
 import { useSkills } from '@/store/useSkills';
 import { useMentionSettings } from '@/store/useMentions';
 import { useStorageWatch } from '@/store/useStorageWatch';
-import type { SendKey, TextAttachment, UISettings } from '@/types';
+import type { SendKey, TextAttachment, UISettings, QueuedUserInput } from '@/types';
 
 /** Slash commands open only at the very start of the draft. */
 const SLASH_TRIGGER = { char: COMMAND_PREFIX, placement: 'input-start' as const };
@@ -87,6 +87,17 @@ interface ChatInputProps {
   onSend: (input: string, images: string[], textAttachments: TextAttachment[]) => void;
   onStop: () => void;
   /**
+   * Messages waiting to be delivered to the running turn. They stick above the
+   * composer — the place the next message would leave from — until the loop
+   * takes them.
+   */
+  queuedInputs?: QueuedUserInput[];
+  /**
+   * Withdraws one queued message. The panel puts it back in the draft, so the
+   * click is undoable rather than destructive.
+   */
+  onDequeue?: (id: string) => void;
+  /**
    * Built-in slash command the composer recognised at send time.
    * The panel owns the actual behaviour (new chat, close panel) because both
    * targets live outside the input box.
@@ -101,7 +112,7 @@ interface ChatInputProps {
 }
 
 export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(function ChatInput(
-  { isStreaming, canAcceptImages, contextUsage, onSend, onStop, onCommand, isInternalDrag, onInternalFileDrop, onInternalTextDrop, onInternalAttachmentDrop },
+  { isStreaming, canAcceptImages, contextUsage, onSend, onStop, queuedInputs = [], onDequeue, onCommand, isInternalDrag, onInternalFileDrop, onInternalTextDrop, onInternalAttachmentDrop },
   ref,
 ) {
   const { t } = useTranslation();
@@ -310,8 +321,6 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(function Ch
    *   that is already running.
    */
   const handleSend = () => {
-    if (isStreaming) return;
-
     // Commands are recognised only when the draft *starts* with the trigger —
     // the same rule the picker uses, so send-time and the popup can never
     // disagree about whether a `/` means something. Leading whitespace turns
@@ -547,6 +556,23 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(function Ch
   };
 
   const hasAttachments = images.length > 0 || textAttachments.length > 0;
+  /**
+   * Anything the send button would hand over. Also the button's dual state: an
+   * empty draft during a turn means the only useful action is Stop, so that slot
+   * becomes Stop; with a draft there is something to queue, so it stays Send.
+   */
+  const hasDraft = hasAttachments || input.trim().length > 0;
+
+  const queueScrollRef = useRef<HTMLDivElement>(null);
+  /**
+   * The newest row lands at the bottom of the strip, which may be scrolled out of
+   * view once the queue exceeds its cap. Follow it, so the message the user just
+   * wrote is always the one they can see.
+   */
+  useEffect(() => {
+    const el = queueScrollRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [queuedInputs.length]);
 
   // ─── Drag sources (attachment chips → another panel's input) ─────────────
   // A chip picked up here can land in any visible panel's input box (or the
@@ -683,6 +709,76 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(function Ch
       onDrop={handleInputDrop}
     >
       {/*
+        Queued messages rest on the composer the way a tab rests on a folder:
+        flush against the box (no gap), a few pixels narrower than it, and open
+        at the bottom so the composer's own border closes the shape.
+
+        Rows read oldest → newest top → bottom, which is also the order they are
+        delivered in, so the list never has to explain itself. The strip is
+        capped and scrolls instead of growing: a long queue must not eat the
+        transcript, and the newest entries are the ones the user just wrote.
+      */}
+      <AnimatePresence initial={false}>
+        {queuedInputs.length > 0 && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+            className="relative z-0 overflow-hidden"
+          >
+            <div className="mx-2 overflow-hidden rounded-t-lg border border-b-0 border-border bg-muted">
+              <div ref={queueScrollRef} className="max-h-[5.5rem] overflow-y-auto scrollbar-lumo">
+                <AnimatePresence initial={false}>
+                  {queuedInputs.map((item, index) => {
+                    // Attachments-only messages have no text to show; the label
+                    // names what will be sent so the row is never blank.
+                    const label =
+                      item.text ||
+                      (item.images.length > 0
+                        ? t('sidebar.imageAttachment')
+                        : t('sidebar.textAttachment'));
+                    return (
+                      <motion.button
+                        key={item.id}
+                        type="button"
+                        layout
+                        initial={{ opacity: 0, y: 6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -6 }}
+                        transition={{ duration: 0.15, ease: [0.22, 1, 0.36, 1] }}
+                        onClick={() => onDequeue?.(item.id)}
+                        // The tooltip carries the full message, because the row
+                        // truncates; the action is announced by the visually
+                        // hidden text below so the name stays the content.
+                        title={label}
+                        className={`group flex w-full items-center gap-1.5 px-2 py-1 text-xs text-muted-foreground text-start transition-colors hover:bg-background/60 hover:text-foreground focus-visible:outline-none focus-visible:bg-background/60 focus-visible:text-foreground ${
+                          index > 0 ? 'border-t border-border/60' : ''
+                        }`}
+                      >
+                        {/* Waiting its turn — the fact the list order alone does not
+                            spell out for the row the model is not looking at yet. */}
+                        <Clock
+                          aria-hidden
+                          className="h-3 w-3 shrink-0 opacity-40 group-hover:opacity-70 transition-opacity"
+                        />
+                        <span className="truncate flex-1 min-w-0">{label}</span>
+                        <span className="sr-only">{t('sidebar.withdrawQueued')}</span>
+                        <X
+                          aria-hidden
+                          className="h-3 w-3 shrink-0 -me-0.5 opacity-0 group-hover:opacity-60 group-focus-visible:opacity-60 transition-opacity"
+                        />
+                      </motion.button>
+                    );
+                  })}
+                </AnimatePresence>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/*
         Relative wrapper so the suggestion popup can sit above the composer
         without being clipped by the composer's own `overflow-hidden` (which
         rounds the attachment strip). The popup is a sibling of the chrome,
@@ -813,7 +909,7 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(function Ch
                 })}
               />
             )}
-            {isStreaming ? (
+            {isStreaming && !hasDraft ? (
               <Button
                 variant="ghost"
                 size="icon"
@@ -828,7 +924,7 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(function Ch
                 size="icon"
                 className="h-7 w-7 rounded-lg text-muted-foreground hover:text-foreground disabled:opacity-30"
                 onClick={handleSend}
-                disabled={!input.trim() && images.length === 0 && textAttachments.length === 0}
+                disabled={!hasDraft}
               >
                 <Send className="h-4 w-4" />
               </Button>

@@ -19,7 +19,7 @@ import { createTextAttachment } from '@/lib/text-attachment';
 import { computeConversationContextUsage } from '@/lib/context-usage';
 import type { QuickActionDelivery } from '@/lib/quick-action-routing';
 import type { BuiltinCommandAction } from '@/lib/slash-commands';
-import type { TextAttachment, Conversation } from '@/types';
+import type { TextAttachment, Conversation, QueuedUserInput } from '@/types';
 import type { ContextMenuPendingData } from '@/lib/context-menu';
 
 export interface ChatPanelProps {
@@ -128,10 +128,12 @@ export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(function Ch
     isRetrying,
     retryAttempt,
     liveUsage,
+    queuedInputs,
     handleSend,
     handleRetry,
     handleCompact,
     handleStop,
+    handleDequeue,
     handleNewChat,
     handleSelectConversation,
     handleDeleteConversation,
@@ -188,8 +190,43 @@ export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(function Ch
     }
   };
 
+  /**
+   * Puts queued messages back into the draft.
+   *
+   * A queued entry is the user's own text: whenever the turn it was waiting for
+   * is abandoned — stopped, switched away from, withdrawn from the strip, or
+   * replaced by a failure the user has to act on — it returns to the composer
+   * instead of disappearing. Attachments come back with it, in order.
+   */
+  const restoreQueued = useCallback((items: QueuedUserInput[]) => {
+    if (items.length === 0) return;
+    for (const item of items) {
+      if (item.images.length > 0) chatInputRef.current?.addImages(item.images);
+      for (const attachment of item.textAttachments) {
+        chatInputRef.current?.addTextAttachment(attachment);
+      }
+      if (item.text) chatInputRef.current?.prefill(item.text);
+    }
+  }, []);
+
+  const onStop = useCallback(() => {
+    restoreQueued(handleStop());
+  }, [handleStop, restoreQueued]);
+
+  const onDequeue = useCallback(
+    (id: string) => {
+      const withdrawn = handleDequeue(id);
+      if (!withdrawn) return;
+      restoreQueued([withdrawn]);
+      chatInputRef.current?.focus();
+    },
+    [handleDequeue, restoreQueued],
+  );
+
   const onNewChat = () => {
-    handleNewChat();
+    // Queued messages come back to the composer: they were written for the
+    // conversation being left, and dropping them would lose the user's text.
+    restoreQueued(handleNewChat());
     requestAnimationFrame(() => {
       chatInputRef.current?.focus();
     });
@@ -413,9 +450,9 @@ export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(function Ch
       if (occupiedSessionIds.includes(id) && id !== currentConversation?.id) {
         return; // Cannot select a session occupied by another panel
       }
-      await handleSelectConversation(id);
+      restoreQueued(await handleSelectConversation(id));
     },
-    [occupiedSessionIds, currentConversation?.id, handleSelectConversation],
+    [occupiedSessionIds, currentConversation?.id, handleSelectConversation, restoreQueued],
   );
 
   // ─── File reference (from ConversationFiles panel, or an options-page drag) ─
@@ -681,7 +718,9 @@ export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(function Ch
         canAcceptImages={canAcceptImages()}
         contextUsage={contextUsage}
         onSend={onSend}
-        onStop={handleStop}
+        onStop={onStop}
+        queuedInputs={queuedInputs}
+        onDequeue={onDequeue}
         onCommand={onCommand}
         isInternalDrag={isInternalDrag}
         onInternalFileDrop={addFileReference}

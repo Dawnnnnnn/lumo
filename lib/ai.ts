@@ -12,7 +12,7 @@ import {
   type ToolSet,
   type UIMessage,
 } from 'ai';
-import type { ProviderConfig, ModelConfig, ChatMessage, ChatMessagePart, TokenUsageStats, TokenUsageStep } from '@/types';
+import type { ProviderConfig, ModelConfig, ChatMessage, ChatMessagePart, QueuedUserInput, TokenUsageStats, TokenUsageStep } from '@/types';
 import { createProvider } from '@/lib/provider-runtime';
 import {
   buildSummaryPrompt,
@@ -36,6 +36,7 @@ import {
 } from '@/lib/reasoning-effort';
 import { toError } from '@/lib/provider-error';
 import { repairToolCall } from '@/lib/tool-call-repair';
+import { buildUserParts } from '@/lib/user-message';
 import { mcpRegistry } from '@/lib/mcp';
 import { DEFAULT_MAX_STEPS, stepAllowed } from '@/lib/max-steps';
 import { projectImagesForNonVision, buildImageFallbackMessage, filterToolsByVision, isOcrAvailable } from '@/lib/image-projection';
@@ -488,6 +489,29 @@ export interface ChatStreamOptions {
    */
   onCompaction?: (event: CompactionEvent) => void;
   /**
+   * Take the user messages composed while this run was streaming.
+   *
+   * Called at every step boundary the loop is going to continue past — after
+   * the step's tool results are folded into the prompt, before the next model
+   * request — so a message lands exactly where the user meant it: after the
+   * tools it was reacting to. Whatever is returned is delivered immediately.
+   *
+   * Nothing is pulled once the model has stopped calling tools (the turn is
+   * over) or the step cap is reached: the turn owner sends the queue as its own
+   * turn in the first case, and keeps it for one in the second.
+   */
+  pullQueuedInput?: () => QueuedUserInput[];
+  /**
+   * Called once per delivered message, after it was appended to the prompt and
+   * before the segments are advanced.
+   *
+   * This is the durability hook: everything streamed so far belongs to an
+   * assistant message that is now closed, and the caller is the only place that
+   * can write that to the transcript. Awaiting it keeps storage ahead of the
+   * next request.
+   */
+  onInputInjected?: (input: QueuedUserInput) => Promise<void> | void;
+  /**
    * Durable between-step compaction. When provided, the store folds the stored
    * transcript and hands back the projection; the loop keeps the current turn's
    * wire messages as a tail. Resumed runs pass nothing: their prompt is a
@@ -515,6 +539,8 @@ export async function chatStream({
   compaction,
   onCompaction,
   onCompactBeforeStep,
+  pullQueuedInput,
+  onInputInjected,
 }: ChatStreamOptions) {
   // Seed with the resumed parts so an abort or a second failure still reports
   // everything streamed across attempts, not just the current one.
@@ -602,6 +628,8 @@ export async function chatStream({
       onStepComplete,
       onUsage,
       onCompaction,
+      pullQueuedInput,
+      onInputInjected,
       // A resume prompt is a one-off snapshot, not a projection that can be
       // rebuilt from the stored transcript, so durable folding is disabled and
       // the in-memory fold takes over.
@@ -640,7 +668,11 @@ export interface RunAgentLoopOptions {
   initialParts?: ChatMessagePart[];
   /** Cap on iterations. `0` (the default) means no cap. See `lib/max-steps.ts`. */
   maxSteps?: number;
-  /** Called on every stream update with the full, ordered part list. */
+  /**
+   * Called on every stream update with the ordered parts of the segment being
+   * streamed. A delivered user message closes a segment, so earlier segments
+   * are already in the transcript and are not included.
+   */
   onUpdate?: (parts: ChatMessagePart[]) => void;
   /** Called when a model stream reports an error. */
   onError?: (error: unknown) => void;
@@ -653,15 +685,23 @@ export interface RunAgentLoopOptions {
   onStepComplete?: (checkpoint: AgentLoopCheckpoint) => void;
   /**
    * Called after each step with the cumulative token usage so far and the
-   * number of parts the anchored prompt now covers. The count is what lets the
-   * caller add only the parts streamed *after* the anchor without ever
-   * double-counting the step's own output.
+   * number of parts of the *current segment* the anchored prompt now covers.
+   * The count is what lets the caller add only the parts streamed *after* the
+   * anchor without ever double-counting the step's own output.
    */
   onUsage?: (usage: TokenUsageStats, processedPartCount: number) => void;
   /** Between-step compaction configuration. Absent leaves the prompt untouched. */
   compaction?: WireCompactionConfig;
   /** Raised while a between-step compaction runs. */
   onCompaction?: (event: CompactionEvent) => void;
+  /**
+   * Take the user messages composed while this run was streaming. Called at
+   * every step boundary the loop continues past — after the step's tool results
+   * are in the prompt, before the next request. See `ChatStreamOptions`.
+   */
+  pullQueuedInput?: () => QueuedUserInput[];
+  /** Called once per delivered message, after it joined the prompt. */
+  onInputInjected?: (input: QueuedUserInput) => Promise<void> | void;
   /**
    * Durable between-step compaction. The loop asks the caller to fold the
    * stored transcript and hand back the new projection; the current turn's wire
@@ -673,6 +713,7 @@ export interface RunAgentLoopOptions {
 
 /** Outcome of a `runAgentLoop` run: what it produced, and why it stopped. */
 export interface AgentLoopResult {
+  /** Parts of the last segment only; earlier segments were delivered as messages. */
   parts: ChatMessagePart[];
   /** Never `'aborted'` — an abort unwinds as a thrown error, not a return. */
   stoppedReason: Exclude<StopReason, 'aborted'>;
@@ -684,7 +725,10 @@ export interface AgentLoopResult {
 export interface AgentLoopCheckpoint {
   /** Full model prompt as of the end of the completed step. */
   modelMessages: ModelMessage[];
-  /** Every UI part streamed up to and including the completed step. */
+  /**
+   * Parts of the segment that is still open. Segments closed by a delivered
+   * user message are already stored, so replaying them would duplicate them.
+   */
   parts: ChatMessagePart[];
 }
 
@@ -720,6 +764,8 @@ export async function runAgentLoop({
   compaction,
   onCompaction,
   onCompactBeforeStep,
+  pullQueuedInput,
+  onInputInjected,
 }: RunAgentLoopOptions): Promise<AgentLoopResult> {
   const hasTools = Object.keys(tools).length > 0;
   const trimmedSystem = system?.trim();
@@ -740,6 +786,15 @@ export async function runAgentLoop({
   // Seeding with the parts already streamed lets a resumed run keep appending
   // instead of restarting the part list, so the UI never loses earlier steps.
   let latestParts: ChatMessagePart[] = initialParts ? [...initialParts] : [];
+  // Index in `latestParts` where the *current* assistant segment begins. A
+  // delivered user message closes the segment: the parts before it are already
+  // in the transcript, so everything reported from here on (stream updates,
+  // usage anchors, checkpoints, the final result) is relative to this index.
+  // `latestParts` itself stays cumulative because the wire prompt is: a resume
+  // snapshot has to be able to replay the whole run.
+  let segmentStart = 0;
+  /** Parts of the segment still being streamed. */
+  const segmentParts = (): ChatMessagePart[] => latestParts.slice(segmentStart);
 
   // Cumulative token usage across all steps.
   const usageSteps: TokenUsageStep[] = [];
@@ -809,10 +864,10 @@ export async function runAgentLoop({
     for await (const uiMessage of uiStream) {
       const stepParts = uiMessage.parts as ChatMessagePart[];
       latestParts = [...latestParts.slice(0, stepStartIndex), ...stepParts];
-      onUpdate?.(latestParts);
+      onUpdate?.(segmentParts());
     }
 
-    if (errored) return { parts: latestParts, stoppedReason: 'error', usage: buildUsage() };
+    if (errored) return { parts: segmentParts(), stoppedReason: 'error', usage: buildUsage() };
 
     // Collect token usage for this step.
     const stepUsage = await result.usage;
@@ -838,7 +893,9 @@ export async function runAgentLoop({
       ...(stepReasoningTokens > 0 ? { reasoningTokens: stepReasoningTokens } : {}),
     });
 
-    onUsage?.(buildUsage(), latestParts.length);
+    // The anchor is expressed in the *segment's* part space, because that is
+    // what the UI holds while a message is streaming.
+    onUsage?.(buildUsage(), latestParts.length - segmentStart);
 
     const responseMeta = await result.response;
     const stepMessages = responseMeta.messages;
@@ -866,7 +923,35 @@ export async function runAgentLoop({
         Array.isArray(message.content) &&
         message.content.some((part) => part.type === 'tool-call'),
     );
-    if (!hasPendingToolCalls) return { parts: latestParts, stoppedReason: 'finished', usage: buildUsage() };
+    if (!hasPendingToolCalls) return { parts: segmentParts(), stoppedReason: 'finished', usage: buildUsage() };
+
+    // Steered delivery. A message the user composed while this step was running
+    // is handed to the model exactly here: after the step's tool results (and
+    // tool-produced images) are in the prompt, before the next request. The
+    // step that follows continues the same turn instead of starting a new one,
+    // which is what makes it feel like the user cut in rather than queued up.
+    //
+    // Only when the loop is actually going to continue: injecting on the last
+    // allowed step would record a message that nothing answers.
+    if (stepAllowed(step + 1, maxSteps)) {
+      const queued = pullQueuedInput?.() ?? [];
+      for (const input of queued) {
+        modelMessages = [
+          ...modelMessages,
+          ...(await convertQueuedInput(input, tools)),
+        ];
+        // Persist the segment that just closed *before* the next request, and
+        // before compaction rebuilds anything from the transcript.
+        await onInputInjected?.(input);
+        // The injected message is part of the stored transcript from now on, so
+        // the live tail is no longer a clean suffix of it: a durable rebuild
+        // would append the stored copy and the tail copy. Fall back to the
+        // in-memory fold, which rewrites the whole prompt and cannot duplicate
+        // — same reason a fold disables the durable path further down.
+        durableCompaction = undefined;
+        segmentStart = latestParts.length;
+      }
+    }
 
     // Between-step compaction. Checked after tool results and tool-produced
     // images are folded in, before the next assistant response — the point at
@@ -936,17 +1021,37 @@ export async function runAgentLoop({
     // Checkpoint *after* image injection and any compaction, so the snapshot is
     // byte-for-byte the prompt the next iteration is about to send. Emitted only
     // when the loop continues, which makes "a checkpoint exists" mean "work
-    // remains".
+    // remains". The parts are the live segment's: earlier segments are already
+    // stored, so replaying them would duplicate them in the transcript.
     onStepComplete?.({
       modelMessages: [...modelMessages],
-      parts: [...latestParts],
+      parts: segmentParts(),
     });
   }
 
   // Falling out of the loop means the cap ran out with tool calls still pending.
   // Every other way to leave it returns from inside, so this cannot be reached
   // by a turn the model actually finished.
-  return { parts: latestParts, stoppedReason: 'step-limit', usage: buildUsage() };
+  return { parts: segmentParts(), stoppedReason: 'step-limit', usage: buildUsage() };
+}
+
+/**
+ * Convert one queued user message into wire messages.
+ *
+ * It goes through the same `convertToModelMessages` path the first user turn
+ * took — with the same tool set — so an image attachment becomes exactly the
+ * file part it would have been had the message been sent normally.
+ */
+async function convertQueuedInput(
+  input: QueuedUserInput,
+  tools: ToolSet,
+): Promise<ModelMessage[]> {
+  const message: UIMessage = {
+    id: input.id,
+    role: 'user',
+    parts: buildUserParts(input) as UIMessage['parts'],
+  };
+  return convertToModelMessages([message], { tools, ignoreIncompleteToolCalls: true });
 }
 
 function isAbort(error: unknown): boolean {
