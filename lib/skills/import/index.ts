@@ -17,7 +17,12 @@
  * manifest in a package of five must not block the other four.
  */
 export * from './types';
-export { MAX_ARCHIVE_BYTES, MAX_FILE_BYTES, MAX_PACKAGE_FILES, isIgnoredPackagePath, unpackZipArchive } from './archive';
+export {
+  MAX_EXPANDED_BYTES,
+  MAX_PACKAGE_FILES,
+  isIgnoredPackagePath,
+  unpackZipArchive,
+} from './archive';
 export { discoverSkills } from './discover';
 export type { DiscoveredSkill } from './discover';
 export { installSkillPackage, isSkillDirectoryOccupied, planSkillPackage } from './install';

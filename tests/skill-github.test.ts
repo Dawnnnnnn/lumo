@@ -6,12 +6,11 @@
  * whether a repository imports at all.
  *
  * The download is exercised against a stubbed `fetch` so the interesting parts are
- * reachable without a network: chunk-by-chunk progress, the size ceiling that has
- * to abort mid-stream, and the 404 fallback across ref candidates.
+ * reachable without a network: chunk-by-chunk progress, the full read of a stream
+ * larger than the old 32 MB ceiling, and the 404 fallback across ref candidates.
  */
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { downloadGitHubZip, parseGitHubUrl } from '@/lib/skills/import/github';
-import { MAX_ARCHIVE_BYTES } from '@/lib/skills/import/archive';
 
 describe('parseGitHubUrl', () => {
   it.each([
@@ -147,14 +146,22 @@ describe('downloadGitHubZip', () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
-  it('stops reading a repository that exceeds the archive ceiling', async () => {
-    const chunk = bytes(Math.floor(MAX_ARCHIVE_BYTES / 2) + 1);
+  it('reads a stream past the old 32 MB ceiling instead of aborting it', async () => {
+    // The archive used to be capped while it was being read, which refused a
+    // large repository outright. Size is now the unpacking step's business, so the
+    // download simply reports every byte it receives.
+    const chunk = bytes(17 * 1024 * 1024);
+    const progress: number[] = [];
     vi.stubGlobal('fetch', vi.fn(async () => streamResponse([chunk, chunk])));
 
-    expect(await downloadGitHubZip('https://github.com/o/r')).toMatchObject({
-      ok: false,
-      reason: 'too-large',
+    const result = await downloadGitHubZip('https://github.com/o/r', {
+      onProgress: (update) => progress.push(update.receivedBytes),
     });
+
+    expect(result).toMatchObject({ ok: true });
+    if (!result.ok) throw new Error('expected success');
+    expect(result.blob.size).toBe(34 * 1024 * 1024);
+    expect(progress.at(-1)).toBe(34 * 1024 * 1024);
   });
 
   it('does not start when the caller already cancelled', async () => {

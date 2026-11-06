@@ -68,7 +68,7 @@ const { planSkillPackage } = await import('@/lib/skills/import/install');
 const { importSkillPackages, inspectSkillPackages, installSkillCandidates } =
   await import('@/lib/skills/import');
 const { packageFilesSource } = await import('@/lib/skills/import/sources');
-const { unpackZipArchive } = await import('@/lib/skills/import/archive');
+const { MAX_PACKAGE_FILES, unpackZipArchive } = await import('@/lib/skills/import/archive');
 
 function zip(entries: Record<string, string>): Uint8Array {
   const data: Record<string, Uint8Array> = {};
@@ -136,13 +136,40 @@ describe('unpackZipArchive', () => {
     });
   });
 
-  it('bounds the expansion so a bomb fails instead of freezing the tab', () => {
+  it('refuses a package with more files than an install can stage', () => {
     const entries: Record<string, string> = {};
-    for (let index = 0; index < 510; index += 1) entries[`f${index}.md`] = 'x';
+    for (let index = 0; index < MAX_PACKAGE_FILES + 1; index += 1) entries[`f${index}.md`] = 'x';
     expect(unpackZipArchive(zip(entries))).toEqual({
       ok: false,
       error: expect.stringContaining('more than'),
     });
+  });
+
+  it('admits a package larger than the old 32 MB ceiling', () => {
+    // Stored, not deflated: the point is the admitted size, and 35 MB of zeros
+    // compresses to nothing while taking real time to inflate.
+    const file = new Uint8Array(7 * 1024 * 1024);
+    const entries: Record<string, Uint8Array> = { 'SKILL.md': strToU8(MANIFEST('big')) };
+    for (let index = 0; index < 5; index += 1) entries[`assets/data-${index}.bin`] = file;
+
+    const unpacked = unpackZipArchive(zipSync(entries, { level: 0 }));
+    expect(unpacked.ok).toBe(true);
+    if (!unpacked.ok) return;
+    expect(unpacked.files).toHaveLength(6);
+    const total = unpacked.files.reduce((sum, item) => sum + item.data.length, 0);
+    expect(total).toBeGreaterThan(32 * 1024 * 1024);
+  });
+
+  it('admits a single file larger than the old per-file ceiling', () => {
+    const unpacked = unpackZipArchive(
+      zipSync(
+        { 'SKILL.md': strToU8(MANIFEST('asset')), 'assets/model.bin': new Uint8Array(9 * 1024 * 1024) },
+        { level: 0 },
+      ),
+    );
+    expect(unpacked.ok).toBe(true);
+    if (!unpacked.ok) return;
+    expect(unpacked.files.map((file) => file.path)).toEqual(['SKILL.md', 'assets/model.bin']);
   });
 });
 

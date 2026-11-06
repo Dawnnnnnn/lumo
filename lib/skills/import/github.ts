@@ -20,11 +20,13 @@
  *   only be "received so far", never a percentage. Reporting bytes is honest;
  *   inventing a denominator would not be.
  * - **`zip/<ref>` streams while it builds.** The response is not seekable and
- *   cannot be replayed, so the size limit is enforced *while* reading rather than
- *   after, and the failure has to abort the read.
+ *   cannot be replayed, so the bytes are accumulated as they arrive, reported
+ *   through `onProgress`, and cancellable through `signal`. No size ceiling is
+ *   imposed here: a repository that is large is still a repository the user asked
+ *   for, and the unpack step bounds the expansion instead.
  */
 import { strFromU8 } from 'fflate';
-import { MAX_ARCHIVE_BYTES, MAX_FILE_BYTES, MAX_PACKAGE_FILES, isIgnoredPackagePath } from './archive';
+import { MAX_EXPANDED_BYTES, MAX_PACKAGE_FILES, isIgnoredPackagePath } from './archive';
 import { discoverSkills } from './discover';
 import type { DiscoveredSkill } from './discover';
 import { inspectSkillPackages } from './inspect';
@@ -59,7 +61,7 @@ export type GitHubDownloadResult =
   | { ok: true; blob: Blob; label: string }
   | {
       ok: false;
-      reason: 'invalid-url' | 'not-found' | 'too-large' | 'network' | 'aborted';
+      reason: 'invalid-url' | 'not-found' | 'network' | 'aborted';
       /** HTTP status, when the failure came from the server. */
       status?: number;
     };
@@ -148,10 +150,10 @@ function zipUrl(ref: GitHubRepoRef, candidate: string): string {
 /**
  * Download a repository archive, reporting progress as it arrives.
  *
- * Never holds more than `MAX_ARCHIVE_BYTES`: the cap is checked on every chunk, so
- * a repository that is too large fails as a typed result instead of as a stalled
- * tab. Cancellation is cooperative through `signal`, which also aborts the
- * in-flight `fetch`.
+ * The archive is held in memory until it is unpacked, which is what a browser
+ * download is; the ceiling that matters lives in `unpackZipArchive`, where the
+ * declared expansion is known before anything is inflated. Cancellation is
+ * cooperative through `signal`, which also aborts the in-flight `fetch`.
  */
 export async function downloadGitHubZip(
   input: string,
@@ -202,9 +204,9 @@ export async function downloadGitHubZip(
 
 type ArchiveRead =
   | { ok: true; bytes: Uint8Array }
-  | { ok: false; reason: 'too-large' | 'network' | 'aborted' };
+  | { ok: false; reason: 'network' | 'aborted' };
 
-/** Read the response body with progress and a hard size ceiling. */
+/** Read the response body, reporting progress as it arrives. */
 async function readArchive(
   response: Response,
   options: GitHubDownloadOptions,
@@ -214,7 +216,6 @@ async function readArchive(
   if (!response.body) {
     try {
       const buffer = new Uint8Array(await response.arrayBuffer());
-      if (buffer.byteLength > MAX_ARCHIVE_BYTES) return { ok: false, reason: 'too-large' };
       onProgress?.({ receivedBytes: buffer.byteLength, totalBytes: null });
       return { ok: true, bytes: buffer };
     } catch {
@@ -233,10 +234,6 @@ async function readArchive(
       if (!value) continue;
 
       received += value.byteLength;
-      if (received > MAX_ARCHIVE_BYTES) {
-        await reader.cancel().catch(() => undefined);
-        return { ok: false, reason: 'too-large' };
-      }
       chunks.push(value);
       onProgress?.({ receivedBytes: received, totalBytes: null });
     }
@@ -374,9 +371,7 @@ async function fetchRepositoryFile(
     try {
       const response = await fetch(url, { signal });
       if (!response.ok) continue;
-      const bytes = new Uint8Array(await response.arrayBuffer());
-      if (bytes.byteLength > MAX_FILE_BYTES) return null;
-      return bytes;
+      return new Uint8Array(await response.arrayBuffer());
     } catch {
       if (signal?.aborted) return null;
     }
@@ -492,7 +487,7 @@ export async function scanGitHubSkills(
       size,
       installed: plan.pkg ? await isSkillDirectoryOccupied(plan.pkg.skill.dir) : false,
       loadFiles: () =>
-        loadSkillFiles(parsed, tree.sha, entry, manifestBytes, options.signal),
+        loadSkillFiles(parsed, tree.sha, entry, manifestBytes, sizes, options.signal),
     });
   }
 
@@ -509,6 +504,7 @@ async function loadSkillFiles(
   revision: string,
   entry: DiscoveredSkill,
   manifestBytes: Uint8Array | null,
+  sizes: Map<string, number>,
   signal: AbortSignal | undefined,
 ): Promise<PackageFile[]> {
   if (entry.files.length > MAX_PACKAGE_FILES) {
@@ -516,19 +512,23 @@ async function loadSkillFiles(
   }
 
   const files: PackageFile[] = [];
-  let total = 0;
+  let declared = 0;
 
   for (const file of entry.files) {
+    // The tree already states every blob's size, so the budget is decided before
+    // the bytes are downloaded: a package that cannot fit fails as a message
+    // rather than as a tab that ran out of memory mid-fetch.
+    declared += sizes.get(`${entry.root}${file.path}`) ?? 0;
+    if (declared > MAX_EXPANDED_BYTES) {
+      throw new Error(`skill expands beyond ${MAX_EXPANDED_BYTES} bytes`);
+    }
+
     const data =
       file.path === SKILL_FILE_NAME && manifestBytes
         ? manifestBytes
         : await fetchRepositoryFile(ref, revision, `${entry.root}${file.path}`, signal);
     if (data === null) throw new Error(`${entry.root}${file.path} could not be downloaded`);
 
-    total += data.byteLength;
-    if (total > MAX_ARCHIVE_BYTES) {
-      throw new Error(`skill expands beyond the ${MAX_ARCHIVE_BYTES} byte limit`);
-    }
     files.push({ path: file.path, data });
   }
 

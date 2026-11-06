@@ -33,14 +33,16 @@ const MANIFEST = (name: string) => `---\nname: ${name}\ndescription: ${name} doe
 interface TreeOptions {
   truncated?: boolean;
   skills?: string[];
+  /** Size one skill's resource declares in the tree, in bytes. */
+  resourceSize?: number;
 }
 
 /** A tree response listing one skill directory per name, plus one resource each. */
-function treeBody({ truncated = false, skills = ['a'] }: TreeOptions = {}) {
+function treeBody({ truncated = false, skills = ['a'], resourceSize = 10 }: TreeOptions = {}) {
   const tree: Array<{ path: string; type: string; size: number }> = [];
   for (const skill of skills) {
     tree.push({ path: `skills/${skill}/SKILL.md`, type: 'blob', size: 20 });
-    tree.push({ path: `skills/${skill}/references/x.md`, type: 'blob', size: 10 });
+    tree.push({ path: `skills/${skill}/references/x.md`, type: 'blob', size: resourceSize });
   }
   return { sha: 'tree-sha', tree, truncated };
 }
@@ -295,6 +297,29 @@ describe('candidate file loading', () => {
     expect(new TextDecoder().decode(files[0]!.data)).toContain('name: a');
     // Only the resource was fetched a second time.
     expect(requested.filter((url) => url.endsWith('/references/x.md'))).toHaveLength(1);
+  });
+
+  it('refuses an oversized skill before downloading its resources', async () => {
+    const requested: string[] = [];
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (url: string) => {
+        requested.push(url);
+        if (url.startsWith('https://api.github.com/')) {
+          // Two gigabytes, as the tree declares them — the blob itself never is.
+          return jsonResponse(treeBody({ resourceSize: 2 * 1024 * 1024 * 1024 }));
+        }
+        return binaryResponse(strToU8(MANIFEST('a')));
+      }),
+    );
+
+    const result = await inspectGitHubImport('https://github.com/o/r');
+    if (!result.ok) throw new Error('expected a tree result');
+
+    await expect(result.inspection.candidates[0]!.loadFiles!()).rejects.toThrow('expands beyond');
+    // The budget is spent from the tree's own sizes, so the resource is never
+    // fetched: failing fast is the whole point of reading the manifest listing.
+    expect(requested.some((url) => url.endsWith('/references/x.md'))).toBe(false);
   });
 
   it('fails loudly when a resource cannot be downloaded', async () => {
