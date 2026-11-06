@@ -2,6 +2,7 @@ import type { UIMessagePart, UIDataTypes, UITools } from 'ai';
 import type { LanguagePreference } from '@/i18n/locales';
 import type { ReasoningEffort } from '@/lib/reasoning-effort';
 import type { TurnNotificationMode } from '@/lib/turn-notification';
+import type { BusySendBehavior } from '@/lib/busy-send';
 
 /**
  * Which wire protocol to talk to the provider with.
@@ -222,6 +223,11 @@ export interface UISettings {
   /** Which key combination sends a chat message. Default is Enter. */
   sendKey: SendKey;
   /**
+   * What a send does while a turn is still streaming: interject at the next tool
+   * step, or interrupt the reply and send right away. See `lib/busy-send.ts`.
+   */
+  busySend: BusySendBehavior;
+  /**
    * Character count at which a paste into the composer becomes a text
    * attachment instead of inline text. `0` disables it, `1` attaches every
    * paste. See `lib/paste-threshold.ts`.
@@ -264,6 +270,9 @@ export type { MentionSettings } from '@/lib/mention-commands';
 
 // Turn-completion notification mode, shared by storage, options and the stream.
 export type { TurnNotificationMode } from '@/lib/turn-notification';
+
+// Busy-send behaviour, shared by storage, options and the streaming hook.
+export type { BusySendBehavior } from '@/lib/busy-send';
 
 // OCR settings re-exported so storage, options and the AI layer share one path.
 export type { OcrSettings } from '@/lib/ocr-types';

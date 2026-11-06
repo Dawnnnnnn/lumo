@@ -23,6 +23,12 @@ import {
   TURN_NOTIFICATION_MODES,
   type TurnNotificationMode,
 } from '@/lib/turn-notification';
+import {
+  BUSY_SEND_BEHAVIORS,
+  DEFAULT_BUSY_SEND,
+  normalizeBusySend,
+  type BusySendBehavior,
+} from '@/lib/busy-send';
 import { cn, isMacPlatform } from '@/lib/utils';
 import { Switch } from '@/components/ui/switch';
 import { storage } from '@/store/storage';
@@ -84,6 +90,7 @@ export function UISettingsPage() {
   const [fontSize, setFontSize] = useState<FontSize>(DEFAULT_FONT_SIZE);
   const [maxSplitPanels, setMaxSplitPanels] = useState<UISettings['maxSplitPanels']>(1);
   const [sendKey, setSendKey] = useState<UISettings['sendKey']>('enter');
+  const [busySend, setBusySend] = useState<BusySendBehavior>(DEFAULT_BUSY_SEND);
   const [pasteThreshold, setPasteThreshold] = useState(DEFAULT_PASTE_THRESHOLD);
   const [maxSteps, setMaxSteps] = useState(DEFAULT_MAX_STEPS);
   const [autoCollapseReasoning, setAutoCollapseReasoning] = useState(true);
@@ -104,6 +111,7 @@ export function UISettingsPage() {
       setFontSize(settings.fontSize ?? DEFAULT_FONT_SIZE);
       setMaxSplitPanels(settings.maxSplitPanels ?? 1);
       setSendKey(settings.sendKey ?? 'enter');
+      setBusySend(settings.busySend ?? DEFAULT_BUSY_SEND);
       setPasteThreshold(settings.pasteThreshold);
       setMaxSteps(settings.maxSteps);
       setAutoCollapseReasoning(settings.autoCollapseReasoning);
@@ -148,6 +156,13 @@ export function UISettingsPage() {
     setSendKey(key);
     const settings = await storage.getUISettings();
     await storage.setUISettings({ ...settings, sendKey: key });
+  };
+
+  const handleBusySendChange = async (val: string) => {
+    const behavior = normalizeBusySend(val);
+    setBusySend(behavior);
+    const settings = await storage.getUISettings();
+    await storage.setUISettings({ ...settings, busySend: behavior });
   };
 
   const handlePasteThresholdChange = async (threshold: number) => {
@@ -267,6 +282,24 @@ export function UISettingsPage() {
                 <SelectItem value="meta-enter">
                   <SendKeyBadge value="meta-enter" />
                 </SelectItem>
+              </SelectContent>
+            </Select>
+          </SettingRow>
+
+          <SettingRow
+            label={t('options.ui.busySend')}
+            description={t('options.ui.busySendDesc')}
+          >
+            <Select value={busySend} onValueChange={handleBusySendChange}>
+              <SelectTrigger className="w-52" aria-label={t('options.ui.busySend')}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {BUSY_SEND_BEHAVIORS.map((behavior) => (
+                  <SelectItem key={behavior} value={behavior}>
+                    {t(`options.ui.busySend_${behavior}`)}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </SettingRow>

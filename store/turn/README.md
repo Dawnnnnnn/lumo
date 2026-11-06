@@ -79,8 +79,12 @@ user(1) → assistant(segment 1: complete, closed at the boundary)
   live tail; a durable rebuild would append it twice. The in-memory fold rewrites
   the whole prompt instead.
 - **Anything still queued when the turn ends** is sent by `useChatStream` as its
-  own turn (`TurnRunner.outcome` says whether the turn handed over: settled or
-  failed, never stopped or torn down).
+  own turn.
+- **The user can opt out of steering entirely.** `uiSettings.busySend` decides
+  what a mid-turn send does: `steer` (default) delivers at the next boundary;
+  `interrupt` aborts the turn, waits for its terminal write via
+  `TurnRunner.whenSettled()` — the replacement must be ordered *after* the reply
+  it interrupted — and then sends immediately. Nothing is queued in that mode.
 
 ## Invariants
 

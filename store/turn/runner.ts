@@ -108,6 +108,16 @@ export class TurnRunner {
   private overflowAttempted = false;
   /** Set once the turn has settled or failed; teardown flushes become no-ops. */
   private settled = false;
+  /**
+   * Waiters for the turn's terminal write.
+   *
+   * A caller that interrupts a turn in order to send something else has to know
+   * when the aborted reply is *stored*, not merely aborted: appending the new
+   * message before that write lands would order it before the reply it
+   * interrupted, and the in-flight save would then drop it.
+   */
+  private settledWaiters: Array<() => void> = [];
+  private settledNotified = false;
 
   constructor(
     private readonly input: TurnRunnerInput,
@@ -160,12 +170,42 @@ export class TurnRunner {
     this.settled = true;
     // Bypass `flush()`'s settled guard: this is the one write the turn still
     // owes, and future teardown flushes must not repeat it.
-    void this.persistence.flush();
+    void this.persistence.flush().finally(() => this.notifySettled());
   }
 
   /** Hard drop for conversation switches and teardown: no settlement callbacks. */
   abort(): void {
     this.session.dispose();
+    // Nothing will be written, but a waiter must not hang on a teardown.
+    this.notifySettled();
+  }
+
+  /**
+   * Resolves once the turn is fully written down (or abandoned).
+   *
+   * Resolves immediately when the turn already ended, so a caller that
+   * interrupts can await this unconditionally.
+   */
+  whenSettled(): Promise<void> {
+    if (this.settledNotified) return Promise.resolve();
+    return new Promise((resolve) => this.settledWaiters.push(resolve));
+  }
+
+  /**
+   * The conversation including everything this turn wrote.
+   *
+   * Read after {@link whenSettled} by a caller that interrupted the turn in
+   * order to send something else: it must build on the settled version, not on
+   * the one it closed over, or the interrupted reply is never recorded.
+   */
+  get conversation(): Conversation {
+    return this.persistence.conversation;
+  }
+
+  private notifySettled(): void {
+    if (this.settledNotified) return;
+    this.settledNotified = true;
+    for (const resolve of this.settledWaiters.splice(0)) resolve();
   }
 
   /** Durability-only flush for teardown paths that cannot await. */
@@ -424,6 +464,7 @@ export class TurnRunner {
         this.ports.dispatch({ type: 'turn/settled' });
       }
       this.session.invalidate();
+      this.notifySettled();
       return;
     }
 
@@ -459,6 +500,7 @@ export class TurnRunner {
     }
 
     this.session.invalidate();
+    this.notifySettled();
   }
 
   private handleCompactionEvent(event: CompactionEvent): void {
@@ -531,6 +573,7 @@ export class TurnRunner {
       elapsedMs: Date.now() - this.persistence.turn.timestamp,
     });
     this.session.invalidate();
+    this.notifySettled();
   }
 
   /**
@@ -581,6 +624,7 @@ export class TurnRunner {
       clearParts: false,
     });
     this.session.invalidate();
+    this.notifySettled();
   }
 
   private fingerprintOf(conversation: Conversation): string {

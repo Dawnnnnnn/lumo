@@ -17,6 +17,12 @@ import {
 } from '@/store/stream-machine';
 import { TurnRunner, type TurnRunnerInput } from '@/store/turn/runner';
 import { useCompactionNotice } from '@/store/useCompactionNotice';
+import { useStorageWatch } from '@/store/useStorageWatch';
+import {
+  DEFAULT_BUSY_SEND,
+  normalizeBusySend,
+  type BusySendBehavior,
+} from '@/lib/busy-send';
 import type { ConversationMeta } from '@/lib/conversation-store';
 import type {
   ChatMessage,
@@ -193,6 +199,33 @@ export function useChatStream(options?: UseChatStreamOptions): UseChatStreamRetu
   isStreamingRef.current = isStreaming;
   const isCompactingRef = useRef(isCompacting);
   isCompactingRef.current = isCompacting;
+
+  /**
+   * What a send does while a turn is streaming. Held in a ref rather than state:
+   * the decision is taken inside `handleSend`, and a change made in the options
+   * page must apply to the very next send without re-rendering the panel.
+   */
+  const busySendRef = useRef<BusySendBehavior>(DEFAULT_BUSY_SEND);
+  useEffect(() => {
+    let cancelled = false;
+    void storage
+      .getUISettings()
+      .then((settings) => {
+        if (!cancelled) busySendRef.current = normalizeBusySend(settings.busySend);
+      })
+      .catch(() => {
+        // An unreadable settings blob leaves the shipped default in place.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+  useStorageWatch<{ busySend?: BusySendBehavior }>(
+    'uiSettings',
+    useCallback((next) => {
+      if (next) busySendRef.current = normalizeBusySend(next.busySend);
+    }, []),
+  );
 
   /** Replace the queue and mirror it into state in one go. */
   const syncQueue = useCallback((next: QueuedUserInput[]) => {
@@ -472,6 +505,40 @@ export function useChatStream(options?: UseChatStreamOptions): UseChatStreamRetu
     [openConversation, saveConversation, startTurn, clearCompactionNotice],
   );
 
+  /**
+   * Abandon the running turn and wait until it has been written down.
+   *
+   * "Written down" is the whole point: the aborted reply is persisted
+   * asynchronously, and appending its replacement before that write lands would
+   * both order the new message before the reply it interrupted and let the
+   * in-flight save drop it. Returns whatever was already queued so the caller can
+   * put it back behind the message about to be sent.
+   */
+  const interruptActiveTurn = useCallback(
+    async (): Promise<{ displaced: QueuedUserInput[]; conversation: Conversation | null }> => {
+      // Drain before going idle: the drain effect must not deliver an older
+      // queued message into the gap between the abort and the replacement.
+      const displaced = takeQueued();
+      const runner = activeRunnerRef.current;
+
+      // Leave the streaming phase now. The partial reply stays on screen until
+      // the saved message replaces it, so nothing flickers away in between.
+      dispatch({ type: 'turn/stopped' });
+      // Keep a concurrent start from slipping in before the replacement is ready.
+      stopRequestedRef.current = true;
+      runner?.stop();
+      await runner?.whenSettled();
+      stopRequestedRef.current = false;
+      resumeStateRef.current = null;
+
+      // The aborted turn's write just landed, so the replacement has to build on
+      // the runner's version: the conversation this callback closed over predates
+      // the reply it interrupted.
+      return { displaced, conversation: runner?.conversation ?? null };
+    },
+    [takeQueued],
+  );
+
   const handleSend = useCallback(
     async (
       input: string,
@@ -502,28 +569,57 @@ export function useChatStream(options?: UseChatStreamOptions): UseChatStreamRetu
         selectedModelId,
       };
 
-      // Mid-turn: the message waits for the next step boundary instead of being
-      // refused. The runner takes it from the queue at the end of a step's tool
-      // calls, so it lands exactly where the user meant it to.
+      const provider = getProvider();
+      const model = getModel();
+
+      // Mid-turn, the user's preference decides between two very different
+      // promises:
+      // - `steer` keeps the running reply and slips the message in at the next
+      //   step boundary (the runner takes it from the queue);
+      // - `interrupt` abandons the reply and sends right away.
+      // Nothing is interrupted unless it can actually be replaced, so a missing
+      // model selection queues the message instead of aborting the turn.
+      let displaced: QueuedUserInput[] = [];
+      let conversation = currentConversation;
       if (isStreamingRef.current || isCompactingRef.current) {
-        syncQueue([...queuedRef.current, content]);
+        // Only a turn that actually has a runner can be interrupted. In the
+        // window between `turn/start` and the runner's creation (the pre-flight
+        // save) there is nothing to abort yet, so the message queues instead of
+        // racing a second turn into the same conversation.
+        const canInterrupt =
+          busySendRef.current === 'interrupt' &&
+          isStreamingRef.current &&
+          activeRunnerRef.current !== null &&
+          provider &&
+          model;
+        if (!canInterrupt) {
+          syncQueue([...queuedRef.current, content]);
+          return;
+        }
+        const interrupted = await interruptActiveTurn();
+        displaced = interrupted.displaced;
+        conversation = interrupted.conversation ?? conversation;
+      }
+
+      if (!provider || !model) {
+        if (displaced.length > 0) syncQueue([...displaced, ...queuedRef.current]);
         return;
       }
 
-      const provider = getProvider();
-      const model = getModel();
-      if (!provider || !model) return;
-
       await sendTurn(
         content,
-        currentConversation,
+        conversation,
         provider,
         model,
         selectedProviderId,
         selectedModelId,
       );
+
+      // Messages already waiting keep their place behind this one rather than
+      // disappearing with the turn it interrupted.
+      if (displaced.length > 0) syncQueue([...displaced, ...queuedRef.current]);
     },
-    [currentConversation, sendTurn, syncQueue],
+    [currentConversation, sendTurn, syncQueue, interruptActiveTurn],
   );
 
   /**

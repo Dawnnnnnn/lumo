@@ -73,6 +73,7 @@ import {
   normalizeTurnNotification,
 } from '@/lib/turn-notification';
 import { normalizeLanguage } from '@/i18n/locales';
+import { DEFAULT_BUSY_SEND, normalizeBusySend } from '@/lib/busy-send';
 
 // ---------------------------------------------------------------------------
 // 1. Schema: all possible storage keys and their value types
@@ -181,6 +182,7 @@ const DEFAULT_UI_SETTINGS: UISettings = {
   fontSize: DEFAULT_FONT_SIZE,
   maxSplitPanels: 1,
   sendKey: 'enter',
+  busySend: DEFAULT_BUSY_SEND,
   pasteThreshold: DEFAULT_PASTE_THRESHOLD,
   maxSteps: DEFAULT_MAX_STEPS,
   autoCollapseReasoning: true,
@@ -226,6 +228,9 @@ export const STORAGE_FIELDS: { [K in StorageKey]: StorageFieldDef<K> } = {
       fontSize: normalizeFontSize(raw.fontSize),
       maxSplitPanels: raw.maxSplitPanels ?? 1,
       sendKey: raw.sendKey ?? 'enter',
+      // A config written before this setting existed must land on the
+      // non-destructive mode, not on one that discards a half-written reply.
+      busySend: normalizeBusySend(raw.busySend),
       // A config written before this setting existed, or one carrying a value a
       // hand-edited export made non-numeric, must land on the default rather
       // than on `0` — which would read as "never attach a paste".
