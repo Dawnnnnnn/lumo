@@ -617,7 +617,6 @@
         "files": "Filer",
         "config": "Konfiguration",
         "configDetail": "Udbydere, API-nøgler og præferencer",
-        "configWarning": "Inkluderer udbyderens API-nøgler. Gem arkivet et privat sted.",
         "overwrite": "Erstat eksisterende data",
         "conflicts": "{{count}} varer findes allerede",
         "exporting": "Eksporterer...",

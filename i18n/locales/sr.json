@@ -618,7 +618,6 @@
         "files": "Datoteke",
         "config": "Konfiguracija",
         "configDetail": "Pružaoci usluga, API ključevi i podešavanja",
-        "configWarning": "Uključuje API ključeve dobavljača. Skladištite arhivu na privatnom mestu.",
         "overwrite": "Zamenite postojeće podatke",
         "conflicts": "{{count}} ставке већ постоје",
         "exporting": "Izvoz...",

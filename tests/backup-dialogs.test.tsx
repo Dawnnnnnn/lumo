@@ -60,14 +60,6 @@ describe('ExportBackupDialog', () => {
       config: true,
     });
   });
-
-  it('shows the API-key warning only while configuration is selected', () => {
-    render(<ExportBackupDialog open onOpenChange={vi.fn()} report={report} />);
-
-    expect(screen.getByText('options.about.backup.configWarning')).toBeTruthy();
-    fireEvent.click(screen.getByLabelText('options.about.backup.config'));
-    expect(screen.queryByText('options.about.backup.configWarning')).toBeNull();
-  });
 });
 
 describe('ImportBackupDialog', () => {

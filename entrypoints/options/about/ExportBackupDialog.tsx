@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import {
   Download,
   FileText,
-  KeyRound,
   Loader2,
   MessageSquare,
   Settings2,
@@ -112,13 +111,6 @@ export function ExportBackupDialog({
             checked={selection.config}
             onToggle={() => toggle('config')}
           />
-
-          {selection.config && (
-            <p className="flex items-start gap-1.5 rounded-md bg-amber-500/10 px-2.5 py-2 text-xs text-amber-700 dark:text-amber-400">
-              <KeyRound className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-              <span className="min-w-0">{t('options.about.backup.configWarning')}</span>
-            </p>
-          )}
 
           {failed && (
             <p role="alert" className="text-xs text-destructive">

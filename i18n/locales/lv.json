@@ -618,7 +618,6 @@
         "files": "Faili",
         "config": "Konfigurācija",
         "configDetail": "Pakalpojumu sniedzēji, API atslēgas un preferences",
-        "configWarning": "Ietver pakalpojumu sniedzēja API atslēgas. Glabājiet arhīvu privātā vietā.",
         "overwrite": "Aizstāt esošos datus",
         "conflicts": "{{count}} vienumi jau pastāv",
         "exporting": "Eksportē...",

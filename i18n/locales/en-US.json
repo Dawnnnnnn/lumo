@@ -617,7 +617,6 @@
         "files": "Files",
         "config": "Configuration",
         "configDetail": "Providers, API keys and preferences",
-        "configWarning": "Includes provider API keys. Store the archive somewhere private.",
         "overwrite": "Replace existing data",
         "conflicts": "{{count}} items already exist",
         "exporting": "Exporting…",

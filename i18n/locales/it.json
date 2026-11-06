@@ -618,7 +618,6 @@
         "files": "File",
         "config": "Configurazione",
         "configDetail": "Provider, chiavi API e preferenze",
-        "configWarning": "Include le chiavi API del provider. Archivia l'archivio in un luogo privato.",
         "overwrite": "Sostituisci i dati esistenti",
         "conflicts": "Esistono già {{count}} elementi",
         "exporting": "Esportazione in corso...",

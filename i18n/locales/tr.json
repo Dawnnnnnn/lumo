@@ -617,7 +617,6 @@
         "files": "Dosyalar",
         "config": "Yapılandırma",
         "configDetail": "Sağlayıcılar, API anahtarları ve tercihler",
-        "configWarning": "Sağlayıcı API anahtarlarını içerir. Arşivi özel bir yerde saklayın.",
         "overwrite": "Mevcut verileri değiştir",
         "conflicts": "{{count}} öğe zaten mevcut",
         "exporting": "Dışa aktarılıyor...",

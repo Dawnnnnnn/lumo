@@ -617,7 +617,6 @@
         "files": "檔案",
         "config": "設定",
         "configDetail": "供應商、API金鑰和偏好設定",
-        "configWarning": "包括提供商API金鑰。將檔案儲存在私密的地方。",
         "overwrite": "替換現有",
         "conflicts": "{{count}} 項已存在",
         "exporting": "正在匯出…",

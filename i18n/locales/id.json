@@ -617,7 +617,6 @@
         "files": "File",
         "config": "Konfigurasi",
         "configDetail": "Penyedia, kunci api, dan preferensi",
-        "configWarning": "Termasuk kunci api penyedia. Simpan arsip di tempat pribadi.",
         "overwrite": "Ganti data yang ada",
         "conflicts": "{{count}} item sudah ada",
         "exporting": "Mengekspor…",

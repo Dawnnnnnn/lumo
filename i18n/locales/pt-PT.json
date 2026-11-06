@@ -618,7 +618,6 @@
         "files": "Ficheiros",
         "config": "Configuração",
         "configDetail": "Fornecedores, chaves de API e preferências",
-        "configWarning": "Inclui chaves de API do provedor. Guarde o arquivo num local privado.",
         "overwrite": "Substituir dados existentes",
         "conflicts": "{{count}} artigos já existem",
         "exporting": "A exportar…",

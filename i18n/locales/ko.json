@@ -617,7 +617,6 @@
         "files": "파일",
         "config": "설정",
         "configDetail": "공급자, API 키 및 기본 설정",
-        "configWarning": "공급자 API 키를 포함합니다. 아카이브를 비공개 장소에 보관하십시오.",
         "overwrite": "기존 데이터 대체",
         "conflicts": "{{count}}개의 항목이 이미 존재합니다.",
         "exporting": "내보내는 중...",

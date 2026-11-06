@@ -619,7 +619,6 @@
         "files": "Soubory",
         "config": "Konfigurace",
         "configDetail": "Poskytovatelé, API klíče a preference",
-        "configWarning": "Zahrnuje klíče API poskytovatele. Archiv uložte na soukromé místo.",
         "overwrite": "Nahradit stávající data",
         "conflicts": "{{count}} položky již existují",
         "exporting": "Exportuje se...",

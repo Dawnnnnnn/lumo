@@ -617,7 +617,6 @@
         "files": "Faili",
         "config": "Usanidi",
         "configDetail": "Watoa huduma, funguo za API na mapendeleo",
-        "configWarning": "Inajumuisha funguo za API za mtoa huduma. Hifadhi kumbukumbu mahali pa faragha.",
         "overwrite": "Badilisha data iliyopo",
         "conflicts": "Vipengee {{count}} tayari vipo",
         "exporting": "Inasafirisha…",

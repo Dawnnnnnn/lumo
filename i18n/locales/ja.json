@@ -617,7 +617,6 @@
         "files": "ファイル",
         "config": "設定",
         "configDetail": "プロバイダー、APIキー、および設定",
-        "configWarning": "プロバイダーAPIキーが含まれます。 アーカイブを非公開の場所に保管します。",
         "overwrite": "既存のデータを置き換える",
         "conflicts": "{{count}} アイテムはすでに存在します",
         "exporting": "エクスポートしています…",

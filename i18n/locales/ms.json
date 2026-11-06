@@ -617,7 +617,6 @@
         "files": "Fail",
         "config": "Konfigurasi",
         "configDetail": "Pembekal, kunci api dan pilihan",
-        "configWarning": "Termasuk kunci api pembekal. Simpan arkib di tempat persendirian.",
         "overwrite": "Gantikan data sedia ada",
         "conflicts": "{{count}} item sudah wujud",
         "exporting": "Mengeksport...",

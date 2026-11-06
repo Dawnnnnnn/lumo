@@ -617,7 +617,6 @@
         "files": "Tệp",
         "config": "Cấu hình",
         "configDetail": "Nhà cung cấp, khóa API và tùy chọn",
-        "configWarning": "Bao gồm các khóa API của nhà cung cấp. Lưu trữ kho lưu trữ ở nơi riêng tư.",
         "overwrite": "Thay thế dữ liệu hiện có",
         "conflicts": "{{count}} mục đã tồn tại",
         "exporting": "Đang xuất…",

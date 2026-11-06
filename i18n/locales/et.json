@@ -617,7 +617,6 @@
         "files": "Failid",
         "config": "Konfiguratsioon",
         "configDetail": "Pakkujad, API võtmed ja eelistused",
-        "configWarning": "Sisaldab pakkuja API võtmeid. Salvesta arhiiv privaatsesse kohta.",
         "overwrite": "Asenda olemasolevad andmed",
         "conflicts": "{{count}} üksust on juba olemas",
         "exporting": "Eksportimine…",

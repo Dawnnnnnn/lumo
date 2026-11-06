@@ -619,7 +619,6 @@
         "files": "Pliki",
         "config": "Konfiguracja",
         "configDetail": "Dostawcy, klucze API i preferencje",
-        "configWarning": "Zawiera klucze API dostawcy. Przechowuj archiwum w prywatnym miejscu.",
         "overwrite": "Zastąp istniejące dane",
         "conflicts": "Elementy {{count}} już istnieją",
         "exporting": "Eksportowanie…",

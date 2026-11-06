@@ -619,7 +619,6 @@
         "files": "Failai",
         "config": "Konfigūracija",
         "configDetail": "Teikėjai, API raktai ir nuostatos",
-        "configWarning": "Apima teikėjo API raktus. Saugokite archyvą kur nors privačiai.",
         "overwrite": "Pakeisti esamus duomenis",
         "conflicts": "{{count}} elementas jau yra",
         "exporting": "Eksportuojama...",

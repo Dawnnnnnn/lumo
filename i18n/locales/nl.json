@@ -617,7 +617,6 @@
         "files": "Bestanden",
         "config": "Configuratie",
         "configDetail": "Providers, API-sleutels en voorkeuren",
-        "configWarning": "Inclusief API-sleutels van de provider. Bewaar het archief ergens privé.",
         "overwrite": "Bestaande gegevens vervangen",
         "conflicts": "{{count}}-items bestaan al",
         "exporting": "Exporteren...",

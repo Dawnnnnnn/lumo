@@ -618,7 +618,6 @@
         "files": "Fișiere",
         "config": "Configurare",
         "configDetail": "Furnizori, chei API și preferințe",
-        "configWarning": "Include cheile API ale furnizorului. Păstrați arhiva într-un loc privat.",
         "overwrite": "Înlocuiți datele existente",
         "conflicts": "{{count}} articole există deja",
         "exporting": "Se exportă...",

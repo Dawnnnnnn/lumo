@@ -617,7 +617,6 @@
         "files": "Mga File",
         "config": "Configuration",
         "configDetail": "Mga Provider, API key at kagustuhan",
-        "configWarning": "Kasama ang mga provider API key. Iimbak ang archive sa isang pribadong lugar.",
         "overwrite": "Palitan ang umiiral nang data",
         "conflicts": "Umiiral na ang {{count}} item",
         "exporting": "Nag - e - export...",

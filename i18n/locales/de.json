@@ -617,7 +617,6 @@
         "files": "Dateien",
         "config": "Konfiguration",
         "configDetail": "Anbieter, API-Schlüssel und Präferenzen",
-        "configWarning": "Enthält Anbieter-API-Schlüssel. Bewahren Sie das Archiv an einem privaten Ort auf.",
         "overwrite": "Vorhandene Daten ersetzen",
         "conflicts": "{{count}}-Elemente sind bereits vorhanden",
         "exporting": "Wird exportiert...",

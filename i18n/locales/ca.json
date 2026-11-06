@@ -618,7 +618,6 @@
         "files": "Fitxers",
         "config": "Configuració",
         "configDetail": "Proveïdors, claus API i preferències",
-        "configWarning": "Inclou claus API del proveïdor. Emmagatzema l'arxiu en un lloc privat.",
         "overwrite": "Substitueix les dades existents",
         "conflicts": "Ja existeixen {{count}} elements",
         "exporting": "S'està exportant...",

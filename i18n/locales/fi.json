@@ -617,7 +617,6 @@
         "files": "Tiedostot",
         "config": "Konfigurointi",
         "configDetail": "Palveluntarjoajat, API-avaimet ja asetukset",
-        "configWarning": "Sisältää palveluntarjoajan API-avaimet. Tallenna arkisto yksityiseen paikkaan.",
         "overwrite": "Korvaa olemassa olevat tiedot",
         "conflicts": "{{count}} kohdetta on jo olemassa",
         "exporting": "Viedään…",

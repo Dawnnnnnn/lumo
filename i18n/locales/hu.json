@@ -617,7 +617,6 @@
         "files": "Fájlok",
         "config": "Konfiguráció",
         "configDetail": "Szolgáltatók, API-kulcsok és preferenciák",
-        "configWarning": "Szolgáltatói API-kulcsokat tartalmaz. Tárolja az archívumot egy privát helyen.",
         "overwrite": "Meglévő adatok cseréje",
         "conflicts": "{{count}} elem már létezik",
         "exporting": "Exportálás…",
