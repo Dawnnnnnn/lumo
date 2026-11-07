@@ -77,11 +77,6 @@ export function hasRenderableParts(parts: readonly ChatMessagePart[]): boolean {
  * can rebuild the full model prompt — including prior tool calls and results,
  * which is what lets the model reason over earlier tool output.
  */
-/**
- * Convert stored messages into AI SDK `UIMessage`s so `convertToModelMessages`
- * can rebuild the full model prompt — including prior tool calls and results,
- * which is what lets the model reason over earlier tool output.
- */
 export function toUIMessages(messages: ChatMessage[]): UIMessage[] {
   return messages.map((message) => ({
     id: message.id,

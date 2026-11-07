@@ -11,18 +11,6 @@ import {
 import { useTheme, THEME_OPTIONS } from '@/lib/theme';
 import { DEFAULT_FONT_SIZE, FONT_SIZE_OPTIONS } from '@/lib/font-size';
 import { DEFAULT_PASTE_THRESHOLD } from '@/lib/paste-threshold';
-import { DEFAULT_MAX_STEPS } from '@/lib/max-steps';
-import {
-  DEFAULT_COMPACTION_SETTINGS,
-  KEEP_RECENT_TOKEN_PRESETS,
-  MAX_COMPACTION_TOKENS,
-  MIN_KEEP_RECENT_TOKENS,
-} from '@/lib/compaction';
-import {
-  DEFAULT_TURN_NOTIFICATION,
-  TURN_NOTIFICATION_MODES,
-  type TurnNotificationMode,
-} from '@/lib/turn-notification';
 import {
   BUSY_SEND_BEHAVIORS,
   DEFAULT_BUSY_SEND,
@@ -33,14 +21,19 @@ import { cn, isMacPlatform } from '@/lib/utils';
 import { Switch } from '@/components/ui/switch';
 import { storage } from '@/store/storage';
 import { PasteThresholdField } from './components/PasteThresholdField';
-import { MaxStepsField } from './components/MaxStepsField';
-import { ReserveField } from './components/ReserveField';
-import { TokenBudgetField } from './components/TokenBudgetField';
 import { LanguagePicker } from '@/components/ui/language-picker';
 import { SettingRow } from './components/SettingRow';
 import { SettingsGroup } from './components/SettingsGroup';
 import { SettingsHeader } from './components/SettingsHeader';
-import type { SendKey, Theme, FontSize, UISettings, MessageToolbarSettings, MessageActionVisibility, MessageActionToggle, CompactionSettings } from '@/types';
+import type {
+  SendKey,
+  Theme,
+  FontSize,
+  UISettings,
+  MessageToolbarSettings,
+  MessageActionVisibility,
+  MessageActionToggle,
+} from '@/types';
 import { applyLanguage } from '@/i18n';
 
 function Kbd({ children, className }: { children: React.ReactNode; className?: string }) {
@@ -92,7 +85,6 @@ export function UISettingsPage() {
   const [sendKey, setSendKey] = useState<UISettings['sendKey']>('enter');
   const [busySend, setBusySend] = useState<BusySendBehavior>(DEFAULT_BUSY_SEND);
   const [pasteThreshold, setPasteThreshold] = useState(DEFAULT_PASTE_THRESHOLD);
-  const [maxSteps, setMaxSteps] = useState(DEFAULT_MAX_STEPS);
   const [autoCollapseReasoning, setAutoCollapseReasoning] = useState(true);
   const [messageToolbar, setMessageToolbar] = useState<MessageToolbarSettings>({
     copy: 'all',
@@ -100,10 +92,6 @@ export function UISettingsPage() {
     delete: 'all',
     usage: 'show',
   });
-  const [compaction, setCompaction] = useState<CompactionSettings>(DEFAULT_COMPACTION_SETTINGS);
-  const [turnNotification, setTurnNotification] = useState<TurnNotificationMode>(
-    DEFAULT_TURN_NOTIFICATION,
-  );
 
   useEffect(() => {
     storage.getUISettings().then((settings) => {
@@ -113,7 +101,6 @@ export function UISettingsPage() {
       setSendKey(settings.sendKey ?? 'enter');
       setBusySend(settings.busySend ?? DEFAULT_BUSY_SEND);
       setPasteThreshold(settings.pasteThreshold);
-      setMaxSteps(settings.maxSteps);
       setAutoCollapseReasoning(settings.autoCollapseReasoning);
       setMessageToolbar(settings.messageToolbar ?? {
         copy: 'all',
@@ -121,8 +108,6 @@ export function UISettingsPage() {
         delete: 'all',
         usage: 'show',
       });
-      setCompaction(settings.compaction ?? DEFAULT_COMPACTION_SETTINGS);
-      setTurnNotification(settings.turnNotification ?? DEFAULT_TURN_NOTIFICATION);
     });
   }, []);
 
@@ -171,30 +156,10 @@ export function UISettingsPage() {
     await storage.setUISettings({ ...settings, pasteThreshold: threshold });
   };
 
-  const handleMaxStepsChange = async (steps: number) => {
-    setMaxSteps(steps);
-    const settings = await storage.getUISettings();
-    await storage.setUISettings({ ...settings, maxSteps: steps });
-  };
-
   const handleAutoCollapseReasoningChange = async (checked: boolean) => {
     setAutoCollapseReasoning(checked);
     const settings = await storage.getUISettings();
     await storage.setUISettings({ ...settings, autoCollapseReasoning: checked });
-  };
-
-  const handleTurnNotificationChange = async (val: string) => {
-    const mode = val as TurnNotificationMode;
-    setTurnNotification(mode);
-    const settings = await storage.getUISettings();
-    await storage.setUISettings({ ...settings, turnNotification: mode });
-  };
-
-  const updateCompaction = async (patch: Partial<CompactionSettings>) => {
-    const next = { ...compaction, ...patch };
-    setCompaction(next);
-    const settings = await storage.getUISettings();
-    await storage.setUISettings({ ...settings, compaction: next });
   };
 
   const handleToolbarChange = async <K extends keyof MessageToolbarSettings>(
@@ -314,10 +279,6 @@ export function UISettingsPage() {
             />
           </SettingRow>
 
-          <SettingRow label={t('options.ui.maxSteps')} description={t('options.ui.maxStepsDesc')}>
-            <MaxStepsField value={maxSteps} onChange={handleMaxStepsChange} />
-          </SettingRow>
-
           <SettingRow
             label={t('options.ui.autoCollapseReasoning')}
             description={t('options.ui.autoCollapseReasoningDesc')}
@@ -328,67 +289,6 @@ export function UISettingsPage() {
               aria-label={t('options.ui.autoCollapseReasoning')}
             />
           </SettingRow>
-
-          <SettingRow
-            label={t('options.ui.turnNotification')}
-            description={t('options.ui.turnNotificationDesc')}
-          >
-            <Select value={turnNotification} onValueChange={handleTurnNotificationChange}>
-              <SelectTrigger className="w-40" aria-label={t('options.ui.turnNotification')}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {TURN_NOTIFICATION_MODES.map((mode) => (
-                  <SelectItem key={mode} value={mode}>
-                    {t(`options.ui.turnNotification_${mode}`)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </SettingRow>
-        </SettingsGroup>
-
-        {/* Context compaction: keeps long chats inside the model window. */}
-        <SettingsGroup title={t('options.ui.groupCompaction')}>
-          <SettingRow
-            label={t('options.ui.compactionEnabled')}
-            description={t('options.ui.compactionEnabledDesc')}
-          >
-            <Switch
-              checked={compaction.enabled}
-              onCheckedChange={(checked) => void updateCompaction({ enabled: checked })}
-              aria-label={t('options.ui.compactionEnabled')}
-            />
-          </SettingRow>
-
-          {/* Budgets only matter while compaction is on — hide them otherwise. */}
-          {compaction.enabled && (
-            <>
-              <SettingRow
-                label={t('options.ui.compactionReserve')}
-                description={t('options.ui.compactionReserveDesc')}
-              >
-                <ReserveField
-                  value={compaction.reserve}
-                  onChange={(value) => void updateCompaction({ reserve: value })}
-                />
-              </SettingRow>
-
-              <SettingRow
-                label={t('options.ui.compactionKeepRecent')}
-              >
-                <TokenBudgetField
-                  value={compaction.keepRecentTokens}
-                  onChange={(value) => void updateCompaction({ keepRecentTokens: value })}
-                  presets={KEEP_RECENT_TOKEN_PRESETS}
-                  min={MIN_KEEP_RECENT_TOKENS}
-                  max={MAX_COMPACTION_TOKENS}
-                  ariaLabel={t('options.ui.compactionKeepRecent')}
-                  placeholder="20000"
-                />
-              </SettingRow>
-            </>
-          )}
         </SettingsGroup>
 
         {/* Message toolbar action visibility. */}

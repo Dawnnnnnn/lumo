@@ -98,6 +98,108 @@ Read `references/formats.md` before converting a document.
   `Authorization` header field — a manual header always takes precedence over the
   automatic flow.
 
+### Programmatic Tools (experimental)
+
+Settings → Execution → Experimental → **Programmatic tools** replaces the flat MCP tool
+list with four tools:
+
+| Tool | Purpose |
+|------|---------|
+| `file_read` | Read a file; images come back as images |
+| `file_write` | Create or replace a file |
+| `file_edit` | Patch a file in place |
+| `sh` | Run a bash-like script |
+
+`sh` is one execution surface for everything the other servers expose. It
+supports pipes, redirections, variables, functions, loops and globs, plus `grep`,
+`sed`, `awk`, `jq`, `find`, `xargs`, `curl`, `node`, `tar`, `zip`/`unzip`,
+`yq` and `iconv`.
+
+```bash
+# Every MCP server — built-in, external, WebMCP and extension providers — is a
+# shell command. Discover a schema before calling it.
+mcp list
+mcp tools browser
+mcp describe page-interact.page_snapshot
+mcp call page-interact.page_snapshot '{}' --json | jq -r '.content[0].text' | head -20
+
+# `--output` writes image bytes whenever the path names an image (or the
+# result is image-only), so a screenshot tool that also returns a caption
+# still produces a real PNG. `--quiet` keeps the payload out of stdout.
+mcp call page-interact.page_screenshot '{"scope":"viewport"}' --output tmp/shot.png --quiet
+ls -l tmp/shot.png
+
+# Batched calls: one JSON request per line, run in parallel.
+printf '%s\n' '{"target":"browser.browser_tabs","params":{}}' | mcp batch
+```
+
+- **One filesystem.** The shell's `/` is the same IndexedDB store the file tools
+  and the Files view use, so `echo hi > notes.md` and `file_read notes.md` name
+  the same file. `skills/` is writable like any other directory.
+- **Locale.** `TZ` is set from the browser's time zone, so `date` and date
+  arithmetic match the user's clock instead of UTC.
+- **Full network.** `curl` and JavaScript `fetch` use the extension's host fetch
+  with no allow-list, matching what an MCP server can already reach.
+- **JavaScript.** `node -e '<script>'` runs in QuickJS/WASM with top-level
+  `await` (also in `-p` expressions and ES module syntax), Node-shaped timers,
+  `Buffer`, `AbortController`/`AbortSignal`, `Headers`/`Response`,
+  `TextEncoder`/`TextDecoder` (including `gbk`/`big5`/`shift_jis` decoding and
+  `fatal`/BOM rules), `crypto` hashes and HMACs, `zlib`, `stream`,
+  `structuredClone`, `tools.<server>.<tool>()` (images it returns are written
+  to `tmp/` and attached to the shell result, exactly like `mcp call`), `mcp.*`,
+  the asynchronous `fs`
+  and unrestricted `fetch`. `require` resolves builtins (`path`, `os`, `util`,
+  `events`, `fs`, `fs/promises`, `crypto`, `buffer`, `child_process`, `url`,
+  `timers`, `zlib`, `stream`, `readline`, `querystring`, `string_decoder`,
+  `perf_hooks`, `module`, `assert`) plus relative `.js`/`.json` files from the
+  VFS. `module`, `exports`, `__filename` and `__dirname` exist in the entry
+  script, and `import`/`export` syntax is downgraded to the CommonJS shims.
+- **Locales.** QuickJS ships without ICU, so `Intl` (and `toLocaleString`,
+  `localeCompare`) is delegated to the extension's own ICU through the bridge:
+  dates, numbers, currencies, collation and plural rules match the browser
+  instead of falling back to engine defaults.
+- **Shell from JavaScript.** `child_process.exec` runs a command in the same
+  interpreter and captures stdout/stderr/exit code:
+
+  ```js
+  const { stdout } = await exec('mcp call browser.browser_tabs');
+  exec('exit 3', (error, stdout, stderr) => console.log(error?.code));
+  ```
+
+  `execFile`/`spawn` quote their argv and call `exec`, with `stdout`/`stderr`
+  exposed as event streams. `execSync` and `fs.*Sync` cannot exist on a
+  WASM-bridged VFS; they fail with a message naming the `await` replacement.
+  Likewise there is no `node_modules` resolution, no socket-level `http`/`net`,
+  no Python and no SQLite. `Intl` is not in the engine, but the shim above
+  provides it.
+- **Bounded output.** stdout/stderr are capped at 2000 lines / 50 KB for the
+  model; anything longer is written to `tmp/` and the path is reported. That
+  path is clickable in the tool card, because the spill file is hidden from the
+  file library.
+- **Scratch files stay scratch.** `tmp/` is readable from both the shell and
+  `file_read`, but it is hidden from the Files page, the preview's file list,
+  `@` mentions and backups, and entries older than seven days are pruned at
+  startup together with their now-empty directory records.
+- **Lazy runtime.** The interpreter (just-bash + QuickJS) is a separate chunk
+  loaded on the first `sh` call, so turning the mode off costs nothing at
+  startup. Scripts run in the side panel itself: a CPU-bound loop can block the
+  UI, and an infinite loop never yields the thread back — not even to the
+  turn's abort signal. Pass `timeoutMs` for anything that might not finish.
+- **Isolated scripts.** Guest code cannot reach `chrome.*`; it only gets the
+  bridge the shell exposes. Network access is unrestricted by design, so review
+  destructive commands the same way you would review a tool call.
+
+There is no configurable structural budget: the interpreter's command/loop/
+output counters are deliberately unbounded, QuickJS has no fixed memory ceiling
+(it grows until the browser heap does), and the only bound on the script itself
+is the `timeoutMs` the model passes. Each individual MCP call has its own
+120-second gateway ceiling. There is no separate VFS quota either: the shell
+writes to the same file library as the file tools, and the browser's IndexedDB
+quota is the real limit.
+
+Turning the switch off restores the previous per-tool MCP list exactly; history
+from both modes stays readable.
+
 ### Multi-Provider Model Support
 - OpenAI-compatible API (Chat Completions)
 - OpenAI Responses API
@@ -125,6 +227,7 @@ Read `references/formats.md` before converting a document.
 | State | Zustand, Chrome Storage API |
 | Markdown | Streamdown (streaming markdown renderer) |
 | Build | Vite 7, TypeScript 5.9 |
+| Shell (experimental) | just-bash, QuickJS (WASM) |
 
 ## Getting Started
 
@@ -182,6 +285,8 @@ npm run compile
 │   └── ui/              # shadcn base components
 ├── lib/
 │   ├── mcp/             # MCP servers and registry
+│   ├── tools/           # Tool gateway and conversion catalogue (mode-agnostic)
+│   ├── shell/           # Programmatic mode: VFS, sh tool, mcp/node commands
 │   ├── ai.ts            # AI SDK integration layer
 │   ├── theme.ts         # Theme management
 │   └── system-prompt.ts # System prompt configuration

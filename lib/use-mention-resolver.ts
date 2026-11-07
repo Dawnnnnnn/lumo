@@ -75,7 +75,7 @@ export function useMentionResolver({
           ? chrome.tabs.query({}).catch(() => [] as chrome.tabs.Tab[])
           : Promise.resolve([] as chrome.tabs.Tab[]),
         settings.filesEnabled
-          ? fileStorage.listFiles().catch(() => [] as FileMetadata[])
+          ? fileStorage.listFiles({ includeTemp: false }).catch(() => [] as FileMetadata[])
           : Promise.resolve([] as FileMetadata[]),
       ]);
       // Only apply if this is still the current session.

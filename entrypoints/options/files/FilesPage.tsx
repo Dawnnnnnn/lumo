@@ -156,7 +156,7 @@ export function FilesPage() {
     if (!silent) setLoading(true);
     try {
       const [fileList, conversationList] = await Promise.all([
-        fileStorage.listFiles(),
+        fileStorage.listFiles({ includeTemp: false }),
         // Summaries only — this view needs titles, never message bodies.
         listConversationMeta(),
       ]);

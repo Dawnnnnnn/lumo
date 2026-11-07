@@ -193,6 +193,7 @@ const DEFAULT_UI_SETTINGS: UISettings = {
     usage: 'show',
   },
   compaction: DEFAULT_COMPACTION_SETTINGS,
+  programmaticTools: false,
   turnNotification: DEFAULT_TURN_NOTIFICATION,
 };
 
@@ -248,6 +249,10 @@ export const STORAGE_FIELDS: { [K in StorageKey]: StorageFieldDef<K> } = {
       // budget, land on the shipped defaults rather than on `0` — which would
       // make the checkpoint fire on every message.
       compaction: normalizeCompactionSettings(raw.compaction),
+      // Experimental shell mode. Only an explicit `true` enables it; an older
+      // config (or a hand-edited one) stays on the stable tool-per-capability
+      // behaviour.
+      programmaticTools: raw.programmaticTools === true,
       // A config that predates this setting must land on `'never'`, never on a
       // mode the user did not choose.
       turnNotification: normalizeTurnNotification(raw.turnNotification),

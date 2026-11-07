@@ -38,6 +38,8 @@ import { toError } from '@/lib/provider-error';
 import { repairToolCall } from '@/lib/tool-call-repair';
 import { buildUserParts } from '@/lib/user-message';
 import { mcpRegistry } from '@/lib/mcp';
+import { buildProgrammaticToolSet } from '@/lib/shell/tool';
+import { buildConversionToolSet } from '@/lib/tools/catalog';
 import { DEFAULT_MAX_STEPS, stepAllowed } from '@/lib/max-steps';
 import { projectImagesForNonVision, buildImageFallbackMessage, filterToolsByVision, isOcrAvailable } from '@/lib/image-projection';
 
@@ -245,6 +247,7 @@ export function resumeFingerprint({
   model,
   messageCount,
   ocrAvailable = false,
+  programmaticTools = false,
   compaction,
 }: {
   conversationId: string;
@@ -259,6 +262,12 @@ export function resumeFingerprint({
    * must not be resumed after it is turned off (and vice versa).
    */
   ocrAvailable?: boolean;
+  /**
+   * Whether the turn was started in programmatic mode. It replaces the whole
+   * advertised tool list, so a checkpoint taken under one mode must not be
+   * resumed under the other.
+   */
+  programmaticTools?: boolean;
   /**
    * Durable compaction boundary, if one exists. A checkpoint's `modelMessages`
    * were shaped by whether a summary was prepended and where the transcript was
@@ -287,6 +296,8 @@ export function resumeFingerprint({
     // OCR availability changes which tools are exposed, so a checkpoint taken
     // under one OCR state must not be replayed under another.
     ocrAvailable ? 'ocr1' : 'ocr0',
+    // Same reasoning: the mode decides the entire tool surface.
+    programmaticTools ? 'shell1' : 'shell0',
     messageCount,
     compaction ? `c:${compaction.firstKeptMessageId}:${compaction.createdAt}` : 'c:none',
   ].join('\u0000');
@@ -470,6 +481,11 @@ export interface ChatStreamOptions {
    */
   maxSteps?: number;
   /**
+   * Experimental shell mode: expose `file_read`, `file_write`, `file_edit` and
+   * `sh`, with every MCP server reachable through the `mcp` shell command.
+   */
+  programmaticTools?: boolean;
+  /**
    * Resume an interrupted run from its last completed step instead of replaying
    * the whole conversation. Ignored when the fingerprint does not match.
    */
@@ -533,6 +549,7 @@ export async function chatStream({
   isVision = true,
   conversationId,
   maxSteps = DEFAULT_MAX_STEPS,
+  programmaticTools = false,
   resume,
   onStepComplete,
   onUsage,
@@ -573,12 +590,25 @@ export async function chatStream({
     // Gather tools from all connected MCP servers (with stream-specific context).
     // A non-vision model still gets image-producing tools (e.g. page_screenshot)
     // when OCR is enabled: the loop OCRs their output before it reaches the model.
-    const tools: ToolSet = enableTools
+    const allTools: ToolSet = enableTools
       ? filterToolsByVision(
           mcpRegistry.getAllAITools({ conversationId }),
           isVision || (await isOcrAvailable()),
         )
       : {};
+
+    // Programmatic mode replaces the flat tool list with four tools.
+    const programmatic = programmaticTools && enableTools;
+    const tools: ToolSet = programmatic
+      ? buildProgrammaticToolSet(allTools, { ...(conversationId ? { conversationId } : {}) })
+      : allTools;
+
+    // History conversion is a different dependency: it needs every tool's
+    // declaration so a call written under one mode (or by a server that is now
+    // disconnected) still converts instead of collapsing to "tool no longer
+    // available". Descriptors carry no executor, so this neither loads the shell
+    // runtime nor advertises a tool to the model.
+    const conversionTools: ToolSet = buildConversionToolSet();
     const trimmedSystem = system?.trim();
 
     // Resuming replays the checkpoint verbatim: it is already a model prompt
@@ -588,7 +618,7 @@ export async function chatStream({
       ? resume.modelMessages
       : sanitizeToolResultImages(
           await convertToModelMessages(messages, {
-            tools,
+            tools: conversionTools,
             // A tool call left dangling by an aborted stream would otherwise throw.
             ignoreIncompleteToolCalls: true,
           }),
@@ -608,6 +638,7 @@ export async function chatStream({
       messages: modelMessages,
       initialParts: resume?.parts,
       maxSteps,
+      conversionTools,
       isVision,
       signal,
       compaction:
@@ -668,6 +699,13 @@ export interface RunAgentLoopOptions {
   initialParts?: ChatMessagePart[];
   /** Cap on iterations. `0` (the default) means no cap. See `lib/max-steps.ts`. */
   maxSteps?: number;
+  /**
+   * Tool declarations used only to convert stored history (never advertised to
+   * the model). Defaults to the full descriptor catalogue; programmatic mode
+   * advertises four tools but still needs every declaration to replay old
+   * results during compaction.
+   */
+  conversionTools?: ToolSet;
   /**
    * Called on every stream update with the ordered parts of the segment being
    * streamed. A delivered user message closes a segment, so earlier segments
@@ -757,6 +795,7 @@ export async function runAgentLoop({
   isVision = true,
   initialParts,
   maxSteps = DEFAULT_MAX_STEPS,
+  conversionTools = buildConversionToolSet(),
   onUpdate,
   onError,
   onStepComplete,
@@ -974,7 +1013,7 @@ export async function runAgentLoop({
             const tail = modelMessages.slice(turnTailStart);
             const converted = sanitizeToolResultImages(
               await convertToModelMessages(result.uiMessages, {
-                tools,
+                tools: conversionTools ?? tools,
                 ignoreIncompleteToolCalls: true,
               }),
             );

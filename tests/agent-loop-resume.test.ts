@@ -484,6 +484,12 @@ describe('resumeFingerprint', () => {
     expect(resumeFingerprint(base)).toBe(resumeFingerprint({ ...base }));
   });
 
+  it('changes when the tool surface changes mode', () => {
+    expect(resumeFingerprint({ ...base, programmaticTools: true })).not.toBe(
+      resumeFingerprint(base),
+    );
+  });
+
   it('changes when the model changes', () => {
     expect(resumeFingerprint({ ...base, model: { ...model, modelId: 'gpt-y' } })).not.toBe(
       resumeFingerprint(base),

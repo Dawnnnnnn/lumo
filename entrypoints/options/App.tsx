@@ -11,12 +11,14 @@ import {
   FolderOpen,
   Info,
   ScanEye,
+  Zap,
 } from 'lucide-react';
 import { ThemeInit } from '@/lib/theme';
 import { AppDirection } from '@/components/direction-provider';
 import { FontSizeInit } from '@/lib/font-size';
 import { ModelSettings } from './ModelSettings';
 import { UISettingsPage } from './UISettings';
+import { ExecutionSettingsPage } from './ExecutionSettings';
 import { McpSettings } from './McpSettings';
 import { OcrSettingsPage } from './OcrSettings';
 import { SystemPromptSettingsPage } from './SystemPromptSettings';
@@ -35,6 +37,7 @@ const NAV_ITEMS = [
   'mcp',
   'files',
   'ui',
+  'execution',
   'chatDebug',
   'about',
 ] as const;
@@ -47,7 +50,7 @@ const NAV_GROUPS: { titleKey?: string; items: NavItem[] }[] = [
   },
   {
     titleKey: 'options.navGroups.customization',
-    items: ['ui', 'systemPrompt', 'commands', 'mentions'],
+    items: ['ui', 'execution', 'systemPrompt', 'commands', 'mentions'],
   },
   {
     items: ['chatDebug', 'about'],
@@ -63,6 +66,7 @@ const NAV_ICONS: Record<NavItem, React.ReactNode> = {
   mcp: <Plug className="h-4 w-4" />,
   files: <FolderOpen className="h-4 w-4" />,
   ui: <Palette className="h-4 w-4" />,
+  execution: <Zap className="h-4 w-4" />,
   chatDebug: <Bug className="h-4 w-4" />,
   about: <Info className="h-4 w-4" />,
 };
@@ -156,6 +160,7 @@ export default function App() {
         {activeNav === 'mcp' && <McpSettings />}
         {activeNav === 'files' && <FilesPage />}
         {activeNav === 'ui' && <UISettingsPage />}
+        {activeNav === 'execution' && <ExecutionSettingsPage />}
         {activeNav === 'chatDebug' && <ChatDebugPage />}
         {activeNav === 'about' && <AboutPage />}
       </main>

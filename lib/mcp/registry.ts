@@ -221,6 +221,24 @@ class McpRegistry {
   }
 
   /**
+   * Resolve one tool by server id and tool name.
+   *
+   * This is the shell's `mcp call` entry point: it must address a tool by the
+   * server that owns it instead of by its flat name, because external servers
+   * are free to use the same tool name as a built-in.
+   */
+  getTool(
+    serverId: string,
+    toolName: string,
+    context?: McpToolExecutionContext,
+  ): AnyTool | undefined {
+    const server = this.servers.get(serverId);
+    if (!server) return undefined;
+    if (server.getStatus() !== 'connected' || !server.getInfo().enabled) return undefined;
+    return server.getAITools(context)[toolName];
+  }
+
+  /**
    * Get all AI SDK compatible tools from all connected servers.
    * Returns a merged tools object that can be passed directly to streamText/generateText.
    * All tool execute outputs are normalized to MCP CallToolResult format.

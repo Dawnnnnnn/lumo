@@ -91,23 +91,23 @@ export function MaxStepsField({
               commitDraft();
             }
           }}
-          aria-label={t('options.ui.maxStepsCustom')}
+          aria-label={t('options.execution.maxStepsCustom')}
           className="w-24 text-sm"
         />
       )}
       <Select value={isCustom ? CUSTOM : String(value)} onValueChange={handleSelect}>
-        <SelectTrigger className="w-40" aria-label={t('options.ui.maxSteps')}>
+        <SelectTrigger className="w-40" aria-label={t('options.execution.maxSteps')}>
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
           {MAX_STEPS_PRESETS.map((preset) => (
             <SelectItem key={preset} value={String(preset)}>
               {preset === STEPS_NEVER
-                ? t('options.ui.maxStepsNever')
-                : t('options.ui.maxStepsCount', { steps: preset })}
+                ? t('options.execution.maxStepsNever')
+                : t('options.execution.maxStepsCount', { steps: preset })}
             </SelectItem>
           ))}
-          <SelectItem value={CUSTOM}>{t('options.ui.maxStepsCustom')}</SelectItem>
+          <SelectItem value={CUSTOM}>{t('options.execution.maxStepsCustom')}</SelectItem>
         </SelectContent>
       </Select>
     </div>

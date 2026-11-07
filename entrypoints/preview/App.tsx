@@ -24,6 +24,7 @@ import { useEvent } from '@/lib/event-bus';
 import { splitMarkdownFrontmatter } from '@/lib/markdown-frontmatter';
 import { selectAllRootProps, useSelectAllScope } from '@/lib/use-select-all-scope';
 import { CodeEditor } from './EditorView';
+import { CsvPreview } from './CsvPreview';
 import { FrontmatterCard } from './FrontmatterCard';
 
 import {
@@ -38,9 +39,25 @@ import {
   getPreviewCategory,
   getLanguageFromMime,
   isLikelyTextContent,
+  isTempPath,
 } from '@/lib/mcp';
 
 type ViewMode = 'rendered' | 'source';
+
+/**
+ * MIME types that render as something richer than their own source.
+ *
+ * These are the only files that get the rendered/source toggle; for everything
+ * else the editor *is* the preview.
+ */
+function hasRenderedView(mimeType: string): boolean {
+  return (
+    mimeType === 'text/markdown' ||
+    mimeType === 'text/html' ||
+    mimeType === 'text/csv' ||
+    mimeType === 'text/tab-separated-values'
+  );
+}
 
 export default function App() {
   const { t } = useTranslation();
@@ -166,11 +183,34 @@ export default function App() {
     [fileName, t, setObjectUrlSafely],
   );
 
+  /**
+   * Refresh the switcher's file list.
+   *
+   * Scratch artefacts under `tmp/` are not documents, so they stay out of the
+   * list — except the tab's own file, which may be a spilled shell output opened
+   * from a tool card. Without that exception the dropdown would not name what
+   * the tab is currently showing.
+   */
+  const refreshFileList = useCallback(async () => {
+    try {
+      const list = await fileStorage.listFiles({ includeTemp: false });
+      if (fileName && isTempPath(fileName) && !list.some((file) => file.name === fileName)) {
+        const current = await fileStorage.getMetadata(fileName);
+        if (current) list.unshift(current);
+      }
+      setAllFiles(list);
+    } catch {
+      // Keep the previous list rather than blanking the switcher on a read error.
+    }
+  }, [fileName]);
+
   useEffect(() => {
     void loadFile();
-    // Load file list for switcher
-    void fileStorage.listFiles().then(setAllFiles);
   }, [loadFile]);
+
+  useEffect(() => {
+    void refreshFileList();
+  }, [refreshFileList]);
 
   // Revoke the outstanding blob URL on unmount only. Reloads revoke their own
   // predecessor via `setObjectUrlSafely`.
@@ -186,7 +226,7 @@ export default function App() {
    */
   useEvent('files:changed', ({ names }) => {
     // Refresh file list for the switcher
-    void fileStorage.listFiles().then(setAllFiles);
+    void refreshFileList();
     if (!fileName || !names.includes(fileName)) return;
     void loadFile(true);
   });
@@ -199,6 +239,10 @@ export default function App() {
     // Update the fileName-derived state and reload the file
     setDirty(false);
     editorContentRef.current = null;
+    // A different file opens the way that file type is meant to be read. The
+    // fallback below forces `source` for types without a rendered view, so a
+    // file that has one is never stuck behind a previous file's source mode.
+    setViewMode('rendered');
     setFileNameOverride(name);
   };
 
@@ -257,9 +301,7 @@ export default function App() {
   const handleZoomReset = () => setZoom(100);
 
   const category = metadata ? getPreviewCategory(metadata.mimeType) : null;
-  const showModeSwitch =
-    metadata &&
-    (metadata.mimeType === 'text/markdown' || metadata.mimeType === 'text/html');
+  const showModeSwitch = metadata ? hasRenderedView(metadata.mimeType) : false;
 
   // If the new file doesn't support mode switching, fall back:
   // - non-markdown/html files have no "rendered" view → force 'source'
@@ -543,9 +585,41 @@ function TextPreview({
     );
   }
 
+  // CSV/TSV — table view + source editor, same pattern as markdown and HTML. The
+  // table is the readable form of a data file; the source is where it is edited
+  // (and what `Ctrl/Cmd+S` saves from).
+  if (mimeType === 'text/csv' || mimeType === 'text/tab-separated-values') {
+    return (
+      <div className="relative h-full">
+        <div
+          className={cn(
+            'absolute inset-0 transition-opacity duration-75',
+            viewMode === 'rendered' ? 'opacity-100' : 'opacity-0 pointer-events-none',
+          )}
+        >
+          <CsvPreview content={content} />
+        </div>
+        <div
+          className={cn(
+            'absolute inset-0 transition-opacity duration-75',
+            viewMode === 'source' ? 'opacity-100' : 'opacity-0 pointer-events-none',
+          )}
+        >
+          <CodeEditor
+            content={content}
+            language=""
+            isDark={isDark}
+            onSave={onSave}
+            onChange={onChange}
+          />
+        </div>
+      </div>
+    );
+  }
+
   // Code files - editable (single mode, no toggle)
   const language = getLanguageFromMime(mimeType);
-  if (language && language !== 'csv') {
+  if (language) {
     return (
       <CodeEditor
         content={content}
@@ -557,7 +631,7 @@ function TextPreview({
     );
   }
 
-  // Plain text / CSV / others - editable
+  // Plain text / others - editable
   return (
     <CodeEditor
       content={content}

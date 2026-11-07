@@ -11,7 +11,9 @@ import type {
 import { fileStorage, getPreviewCategory, isLikelyTextContent, normalizeDirPath } from './file-storage';
 import { downloadAsZip } from '@/lib/zip-download';
 import { applyEdits, applyUnifiedDiff } from './file-edit';
+import { isVisionImageType } from './image-types';
 import { applyOutputLimit, DEFAULT_MAX_CHARS } from '@/lib/page/output-limit';
+import { base64FromBytes } from '@/lib/encoding';
 import { openFilePreview } from '@/lib/file-preview-tab';
 
 /**
@@ -119,10 +121,13 @@ export class FileMcpServer implements IMcpServer {
     return {
       file_read: tool({
         description:
-          'Read a text file stored in the extension. Always read a file before editing it, ' +
-          'and copy anchor text for file_edit from this output rather than from memory. ' +
-          'If the result reports truncated: true, call again with offset to continue. ' +
-          'A file path may contain directories, e.g. "skills/pdf-tools/SKILL.md".',
+          'Read a file stored in the extension. Text files return their contents ' +
+          '(with paging). Images return an image the model can see, which is how a ' +
+          'screenshot written by the shell or a page tool is inspected. Always read a ' +
+          'file before editing it, and copy anchor text for file_edit from this output ' +
+          'rather than from memory. If the result reports truncated: true, call again ' +
+          'with offset to continue. A file path may contain directories, e.g. ' +
+          '"skills/pdf-tools/SKILL.md".',
         inputSchema: z.object({
           name: z
             .string()
@@ -137,16 +142,40 @@ export class FileMcpServer implements IMcpServer {
             .describe('Character offset, for paging through a long file'),
         }),
         execute: async ({ name, maxChars, offset }) => {
+          const metadata = await fileStorage.getMetadata(name);
+          if (!metadata) {
+            return { error: `File "${name}" not found` };
+          }
+
+          // Images are returned as image content, not decoded as text. The
+          // registry preserves this shape and the agent loop re-injects it for
+          // vision models (or OCRs it for the rest). Only provider-decodable
+          // raster formats take this path; SVG keeps returning its source.
+          if (isVisionImageType(metadata.mimeType)) {
+            const blob = await fileStorage.readFileAsBlob(name);
+            if (!blob) return { error: `File "${name}" not found` };
+            const bytes = new Uint8Array(await blob.arrayBuffer());
+            return {
+              content: [
+                {
+                  type: 'image' as const,
+                  data: base64FromBytes(bytes),
+                  mimeType: metadata.mimeType,
+                },
+              ],
+              isError: false,
+            };
+          }
+
           const content = await fileStorage.readFileAsText(name);
           if (content === null) {
             return { error: `File "${name}" not found` };
           }
-          const metadata = await fileStorage.getMetadata(name);
           const limited = applyOutputLimit(content, { maxChars, offset });
           return {
             name,
-            mimeType: metadata?.mimeType,
-            size: metadata?.size,
+            mimeType: metadata.mimeType,
+            size: metadata.size,
             content: limited.text,
             limit: limited.limit,
           };

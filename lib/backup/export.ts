@@ -96,8 +96,11 @@ export async function buildBackupZip(selection: BackupSelection): Promise<Backup
   }
 
   if (selection.files) {
-    const metadata = await fileStorage.listFiles();
-    const directories = await fileStorage.listDirectories();
+    // Scratch files are regenerable shell artefacts, not user documents. The
+    // directory records follow the same rule, or a bare `tmp/` would still be
+    // written into the archive after its files were excluded.
+    const metadata = await fileStorage.listFiles({ includeTemp: false });
+    const directories = await fileStorage.listDirectories({ includeTemp: false });
     const index: BackupFileIndex = { files: [], directories: [] };
 
     for (const file of metadata) {

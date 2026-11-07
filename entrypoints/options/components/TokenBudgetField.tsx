@@ -115,7 +115,7 @@ export function TokenBudgetField({
               {formatContextTokens(preset)}
             </SelectItem>
           ))}
-          <SelectItem value={CUSTOM}>{t('options.ui.tokenBudgetCustom')}</SelectItem>
+          <SelectItem value={CUSTOM}>{t('options.execution.tokenBudgetCustom')}</SelectItem>
         </SelectContent>
       </Select>
     </div>

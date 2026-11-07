@@ -38,6 +38,7 @@ import { MAX_RETRIES, retryDelay } from '@/lib/retry-policy';
 import { decideStreamFailure } from '@/lib/stream-failure';
 import { resolveSystemPrompt } from '@/lib/system-prompt';
 import { appendSkillsIndex } from '@/lib/skills';
+import { PROGRAMMATIC_TOOLS_PROMPT } from '@/lib/shell/prompt';
 import { compactTurn, type SummarizeMessages } from '@/lib/turn-compaction';
 import { notifyTurnComplete } from '@/lib/turn-notifier';
 import { TurnPersistence } from '@/store/turn/persistence';
@@ -101,6 +102,7 @@ export class TurnRunner {
   private system: string | undefined;
   private maxSteps = 0;
   private compactionSettings!: CompactionSettings;
+  private programmaticTools = false;
   private turnNotification!: TurnNotificationMode;
   private ocrAvailable = false;
   private fingerprint = '';
@@ -237,8 +239,13 @@ export class TurnRunner {
     const settings = await storage.getUISettings();
     this.maxSteps = settings.maxSteps;
     this.compactionSettings = settings.compaction;
+    this.programmaticTools = settings.programmaticTools === true;
     this.turnNotification = settings.turnNotification;
     this.ocrAvailable = await isOcrAvailable();
+
+    if (this.programmaticTools) {
+      this.system = [this.system, PROGRAMMATIC_TOOLS_PROMPT].filter(Boolean).join('\n\n') || undefined;
+    }
   }
 
   private async execute(
@@ -269,6 +276,7 @@ export class TurnRunner {
         conversationId: conversation.id,
         isVision: this.input.model.isVision,
         maxSteps: this.maxSteps,
+        programmaticTools: this.programmaticTools,
         resume: resumeFrom ?? undefined,
         compaction: {
           enabled: this.compactionSettings.enabled,
@@ -634,6 +642,7 @@ export class TurnRunner {
       model: this.input.model,
       messageCount: conversation.messages.length,
       ocrAvailable: this.ocrAvailable,
+      programmaticTools: this.programmaticTools,
       ...(conversation.compaction
         ? {
             compaction: {

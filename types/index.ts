@@ -250,6 +250,12 @@ export interface UISettings {
   /** Automatic context compaction. See `lib/compaction.ts`. */
   compaction: CompactionSettings;
   /**
+   * Experimental: expose four tools (`file_read`, `file_write`, `file_edit`,
+   * `sh`) and route every MCP server through the shell's `mcp` command.
+   * Off keeps the historical one-tool-per-capability mode.
+   */
+  programmaticTools: boolean;
+  /**
    * Whether to show a desktop notification when a reply finishes.
    * Default is `'never'`. See `lib/turn-notification.ts`.
    */

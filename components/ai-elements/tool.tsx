@@ -2,8 +2,6 @@ import * as React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ChevronRight,
-  Wrench,
-  BookOpen,
   Loader2,
   Check,
   AlertCircle,
@@ -23,8 +21,14 @@ import {
   safeStringify,
   summarizeToolInput,
 } from '@/lib/tool-output';
-import { useBlobImageUrl } from '@/lib/use-blob-image-url';
 import type { ToolPart } from '@/lib/message-parts';
+import { toolViewFor } from './tool-views';
+import {
+  ToolBlobImage,
+  ToolCodeBlock,
+  ToolError,
+  ToolSectionLabel,
+} from './tool-primitives';
 
 /**
  * Compact tool-invocation display.
@@ -32,6 +36,10 @@ import type { ToolPart } from '@/lib/message-parts';
  * Sized down from upstream ai-elements: single-line header, 11px mono body and
  * capped output height, so a tool call costs roughly one text line of vertical
  * space in a narrow sidebar.
+ *
+ * The card knows nothing about individual tools. A tool that needs a better
+ * rendering registers a view in `tool-views.tsx`; everything else uses the
+ * generic argument/output blocks below.
  */
 
 type ToolState = ToolPart['state'];
@@ -155,17 +163,21 @@ interface ToolProps {
 export function Tool({ part, name, isStreaming = false, className }: ToolProps) {
   const { t } = useTranslation();
   const state = toolDisplayState(part.state, isStreaming);
-  const statusLabel = useToolStatusLabel(state);
+  const view = toolViewFor(name);
   // A skill read is named by the skill, not by the storage path that happens to
   // hold it. Everything else keeps the raw tool name and its argument summary.
   const described = describeToolCall(name, part.input);
+  const viewSummary = view?.summarize?.(part);
   const inputSummary = described
     ? [described.detail, described.hint].filter(Boolean).join(' / ')
-    : summarizeToolInput(part.input);
-  const HeaderIcon = described ? BookOpen : Wrench;
+    : (viewSummary ?? summarizeToolInput(part.input));
+  // A view may know that a resolved call still failed (a non-zero exit code).
+  const viewFailed = state === 'output-available' && (view?.failed?.(part) ?? false);
+  const headerState: ToolDisplayState = viewFailed ? 'output-error' : state;
+  const statusLabel = useToolStatusLabel(headerState);
   // Failures are expanded up front; successful calls stay collapsed so long
   // tool chains remain scannable in a narrow sidebar.
-  const failed = state === 'output-error';
+  const failed = state === 'output-error' || viewFailed;
 
   return (
     <Collapsible
@@ -178,7 +190,6 @@ export function Tool({ part, name, isStreaming = false, className }: ToolProps) 
     >
       <CollapsibleTrigger className="group/tool gap-1.5 px-2 py-1.5 hover:bg-muted/70 transition-colors min-w-0">
         <ChevronRight className="h-3 w-3 shrink-0 text-muted-foreground transition-transform group-data-[state=open]/tool:rotate-90 rtl:-scale-x-100" />
-        <HeaderIcon className="h-3 w-3 shrink-0 text-muted-foreground" />
         <span
           className="font-mono text-[0.6875rem] font-medium truncate shrink-0 max-w-[45%]"
           title={described ? name : undefined}
@@ -186,16 +197,19 @@ export function Tool({ part, name, isStreaming = false, className }: ToolProps) 
           {described ? t(described.labelKey) : name}
         </span>
         {inputSummary && (
-          <span className="text-[0.6875rem] text-muted-foreground/70 truncate min-w-0 flex-1">
+          <span
+            dir={view?.ltr ? 'ltr' : undefined}
+            className="text-[0.6875rem] text-muted-foreground/70 truncate min-w-0 flex-1"
+          >
             {inputSummary}
           </span>
         )}
         <span className="ms-auto flex items-center gap-1 shrink-0 ps-1">
-          <ToolStatusIcon state={state} />
+          <ToolStatusIcon state={headerState} />
           <span
             className={cn(
               'hidden @[16rem]:inline text-[0.625rem]',
-              STATUS_META[state]?.className ?? 'text-muted-foreground',
+              STATUS_META[headerState]?.className ?? 'text-muted-foreground',
             )}
           >
             {statusLabel}
@@ -204,36 +218,14 @@ export function Tool({ part, name, isStreaming = false, className }: ToolProps) 
       </CollapsibleTrigger>
 
       <CollapsibleContent className="border-t border-border/60 px-2 py-1.5 flex flex-col gap-1.5">
-        <ToolInput input={part.input} />
+        {view?.renderInput?.(part) ?? <ToolInput input={part.input} />}
         {state === 'output-error' ? (
           <ToolError message={part.errorText ?? t('sidebar.tool.unknownError')} />
         ) : state === 'output-available' ? (
-          <ToolOutput output={part.output} />
+          view?.renderOutput?.(part) ?? <ToolOutput output={part.output} />
         ) : null}
       </CollapsibleContent>
     </Collapsible>
-  );
-}
-
-function ToolSectionLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="text-[0.625rem] font-medium uppercase tracking-wide text-muted-foreground/70">
-      {children}
-    </div>
-  );
-}
-
-/**
- * Scrollable, height-capped mono block.
- *
- * The only bound on tool output now that `tool-output.ts` no longer truncates
- * characters, so it is roomier than a single-glance preview.
- */
-function ToolCodeBlock({ children }: { children: string }) {
-  return (
-    <pre className="max-h-80 overflow-auto scrollbar-lumo rounded-md bg-background/80 border border-border/60 p-1.5 text-[0.6875rem] leading-relaxed font-mono whitespace-pre-wrap break-all">
-      {children}
-    </pre>
   );
 }
 
@@ -247,59 +239,6 @@ export function ToolInput({ input }: { input: unknown }) {
     <div className="flex flex-col gap-1 min-w-0">
       <ToolSectionLabel>{t('sidebar.tool.input')}</ToolSectionLabel>
       <ToolCodeBlock>{safeStringify(input)}</ToolCodeBlock>
-    </div>
-  );
-}
-
-export function ToolError({ message }: { message: string }) {
-  const { t } = useTranslation();
-  return (
-    <div className="flex flex-col gap-1 min-w-0">
-      <ToolSectionLabel>{t('sidebar.tool.error')}</ToolSectionLabel>
-      {/* Tinting the whole block `text-destructive` makes the message itself
-          harder to read than the surrounding output; the accent stays on the
-          icon and the message keeps normal body contrast. */}
-      <div className="flex items-start gap-1.5 rounded-md border border-destructive/25 bg-destructive/5 p-1.5 text-[0.6875rem] text-foreground/80">
-        <AlertCircle className="h-3 w-3 shrink-0 mt-0.5 text-destructive" />
-        <span className="break-words min-w-0">{message}</span>
-      </div>
-    </div>
-  );
-}
-
-/**
- * A screenshot kept outside the conversation record.
- *
- * Split into its own component so the blob is fetched only once this subtree
- * mounts, which happens when the user expands the call.
- */
-function ToolBlobImage({ blobReference, caption }: { blobReference: string; caption?: string }) {
-  const { t } = useTranslation();
-  const state = useBlobImageUrl(blobReference);
-
-  return (
-    <div className="flex flex-col gap-1 min-w-0">
-      {state.status === 'ready' ? (
-        <img
-          src={state.url}
-          alt={t('sidebar.tool.screenshot')}
-          className="max-h-48 w-full rounded-md border border-border/60 object-contain bg-background/80"
-        />
-      ) : (
-        // A fixed-height placeholder keeps the transcript from jumping when the
-        // image arrives. `loading` must read differently from a real failure —
-        // treating the two alike made every expand flash an error first.
-        <div className="flex h-24 items-center justify-center rounded-md border border-dashed border-border/60 bg-background/50">
-          {state.status === 'loading' ? (
-            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground/70" />
-          ) : (
-            <span className="px-2 text-center text-[0.6875rem] text-muted-foreground">
-              {t('sidebar.tool.screenshotUnavailable')}
-            </span>
-          )}
-        </div>
-      )}
-      {caption && <ToolCodeBlock>{caption}</ToolCodeBlock>}
     </div>
   );
 }

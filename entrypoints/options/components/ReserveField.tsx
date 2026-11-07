@@ -40,7 +40,7 @@ export function ReserveField({ value, onChange }: ReserveFieldProps) {
         if (next) onChange(next);
       }}
     >
-      <SelectTrigger className="w-36" aria-label={t('options.ui.compactionReserve')}>
+      <SelectTrigger className="w-36" aria-label={t('options.execution.compactionReserve')}>
         <SelectValue />
       </SelectTrigger>
       <SelectContent>

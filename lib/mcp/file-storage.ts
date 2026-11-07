@@ -25,7 +25,7 @@
  * options file manager, the side panel's conversation file list) would otherwise
  * have to poll to stay correct.
  */
-import { emitEvent } from '@/lib/event-bus';
+import { emitEvent } from '@/lib/event-bus-core';
 
 export interface FileMetadata {
   /** File name (unique identifier) */
@@ -60,6 +60,24 @@ export interface StoredFile {
  * is an operation on the user's documents, not on the extension's capabilities.
  */
 export const SYSTEM_DIR_PREFIXES: readonly string[] = ['skills/'];
+
+/**
+ * Scratch namespace the shell and the tool bridge write into.
+ *
+ * Screenshots, spilled command output and extracted archives are working files,
+ * not documents. They stay readable (the model is told to grep/read them on a
+ * later turn) but are hidden from the file library, from `@` mentions and from
+ * backups, and are pruned after {@link TEMP_FILE_RETENTION_MS}.
+ */
+export const TEMP_DIR_PREFIX = 'tmp/';
+
+/** How long a scratch file survives before startup pruning removes it. */
+export const TEMP_FILE_RETENTION_MS = 7 * 24 * 60 * 60 * 1000;
+
+/** Whether a path lives in the scratch namespace. */
+export function isTempPath(path: string): boolean {
+  return path === 'tmp' || path.startsWith(TEMP_DIR_PREFIX);
+}
 
 /** Directory namespace a path belongs to. */
 export type DirectoryKind = 'user' | 'system';
@@ -314,6 +332,7 @@ export function inferMimeType(filename: string): string {
     htm: 'text/html',
     css: 'text/css',
     csv: 'text/csv',
+    tsv: 'text/tab-separated-values',
     xml: 'text/xml',
     // Code
     js: 'text/javascript',
@@ -456,6 +475,9 @@ export function getLanguageFromMime(mimeType: string): string | undefined {
     'text/x-vue': 'vue',
     'text/x-svelte': 'svelte',
     'text/csv': 'csv',
+    // No CodeMirror grammar exists for tab-separated data; the preview's table
+    // view is what makes a `.tsv` readable, and its source view is plain text.
+    'text/tab-separated-values': 'tsv',
     'application/json': 'json',
     'application/xml': 'xml',
   };
@@ -611,14 +633,19 @@ class FileStorage {
    * List all file metadata, newest first.
    *
    * Reads the metadata store, so listing never deserialises a blob.
+   *
+   * `includeTemp` defaults to `true` because internal callers (the VFS, the
+   * usage meter, delete/import paths) must see every record. User-facing views
+   * pass `false` so shell scratch files never read as documents.
    */
-  async listFiles(): Promise<FileMetadata[]> {
+  async listFiles({ includeTemp = true }: { includeTemp?: boolean } = {}): Promise<FileMetadata[]> {
     const db = await this.getDB();
     const tx = db.transaction(META_STORE, 'readonly');
     const rows = await requestAsPromise(
       tx.objectStore(META_STORE).getAll() as IDBRequest<FileMetadata[]>,
     );
-    return (rows || []).sort((a, b) => b.createdAt - a.createdAt);
+    const files = includeTemp ? rows || [] : (rows || []).filter((file) => !isTempPath(file.name));
+    return files.sort((a, b) => b.createdAt - a.createdAt);
   }
 
   /**
@@ -647,11 +674,17 @@ class FileStorage {
    * Subdirectories are derived from the paths that exist plus the `dirs` store,
    * so a directory created explicitly appears even while it is empty.
    */
-  async listDirectory(dirPath: string): Promise<DirectoryListing> {
+  async listDirectory(
+    dirPath: string,
+    { includeTemp = true }: { includeTemp?: boolean } = {},
+  ): Promise<DirectoryListing> {
     const dir = normalizeDirPath(dirPath);
     if (dir === null) throw new Error(`Invalid directory path: "${dirPath}"`);
 
-    const all = dir === '' ? await this.listFiles() : await this.listByPrefix(dir);
+    const all =
+      dir === ''
+        ? await this.listFiles({ includeTemp })
+        : (await this.listByPrefix(dir)).filter((file) => includeTemp || !isTempPath(file.name));
     const files: FileMetadata[] = [];
     const directories = new Set<string>();
 
@@ -667,6 +700,7 @@ class FileStorage {
 
     for (const record of await this.listDirectories()) {
       if (record.path === dir || !record.path.startsWith(dir)) continue;
+      if (!includeTemp && isTempPath(record.path)) continue;
       const rest = record.path.slice(dir.length);
       if (!rest.slice(0, -1).includes('/')) directories.add(record.path);
     }
@@ -674,10 +708,22 @@ class FileStorage {
     return { path: dir, directories: [...directories].sort(), files };
   }
 
-  /** Every recorded directory, outermost first. */
-  async listDirectories(): Promise<DirectoryRecord[]> {
+  /**
+   * Every recorded directory, outermost first.
+   *
+   * `includeTemp` defaults to `true` for the same reason as `listFiles`: the
+   * shell and the storage maintenance paths must see every record, while the
+   * user-facing views (backups) pass `false` so `tmp/` never reads as library
+   * structure.
+   */
+  async listDirectories(
+    { includeTemp = true }: { includeTemp?: boolean } = {},
+  ): Promise<DirectoryRecord[]> {
     const records = await this.readDirectoryRecords();
-    return [...records.values()].sort((a, b) => compareStrings(a.path, b.path));
+    const rows = [...records.values()].filter(
+      (record) => includeTemp || !isTempPath(record.path),
+    );
+    return rows.sort((a, b) => compareStrings(a.path, b.path));
   }
 
   private async readDirectoryRecords(): Promise<Map<string, DirectoryRecord>> {
@@ -1044,11 +1090,86 @@ class FileStorage {
   }
 
   /**
-   * Get files by conversation ID.
+   * Get the user-facing files a conversation produced.
+   *
+   * Scratch files are excluded: the shell already returns its images to the
+   * model, and a chip for `tmp/sh-1712.txt` in the conversation file bar is
+   * noise, not an artefact the user asked for.
    */
-  async getFilesByConversation(conversationId: string): Promise<FileMetadata[]> {
-    const all = await this.listFiles();
+  async getFilesByConversation(
+    conversationId: string,
+    { includeTemp = false }: { includeTemp?: boolean } = {},
+  ): Promise<FileMetadata[]> {
+    const all = await this.listFiles({ includeTemp });
     return all.filter((f) => f.conversationId === conversationId);
+  }
+
+  /**
+   * Remove the zero-byte `dev/null` that pre-`/dev` shell builds wrote.
+   *
+   * Lives here rather than in the VFS, where it used to run on every shell
+   * execution: a one-time data repair is storage's job, and a real user file
+   * that happens to be named `dev/null` must not be rewritten by a shell read.
+   */
+  async migrateLegacyShellArtifacts(): Promise<void> {
+    const metadata = await this.getMetadata('dev/null');
+    if (!metadata || metadata.size > 0) return;
+    await this.deleteFile('dev/null');
+    const remaining = await this.listByPrefix('dev/');
+    if (remaining.length === 0) await this.deleteDirectory('dev').catch(() => undefined);
+  }
+
+  /**
+   * Delete scratch files older than `retentionMs`, then drop scratch directory
+   * records that no longer hold anything.
+   *
+   * Called once when the extension starts. Returns the removed names so callers
+   * (and tests) can observe what happened without re-listing.
+   */
+  async pruneTempFiles(retentionMs = TEMP_FILE_RETENTION_MS): Promise<string[]> {
+    const cutoff = Date.now() - retentionMs;
+    const stale = (await this.listFiles({ includeTemp: true }))
+      .filter((file) => isTempPath(file.name) && file.updatedAt < cutoff)
+      .map((file) => file.name);
+
+    if (stale.length > 0) {
+      const db = await this.getDB();
+      const tx = db.transaction([STORE_NAME, META_STORE], 'readwrite');
+      const done = transactionDone(tx);
+      const fileStore = tx.objectStore(STORE_NAME);
+      const metaStore = tx.objectStore(META_STORE);
+      for (const name of stale) {
+        fileStore.delete(name);
+        metaStore.delete(name);
+      }
+      await done;
+      emitEvent('files:changed', { names: stale, reason: 'delete' });
+    }
+
+    await this.dropEmptyTempDirectories();
+    return stale;
+  }
+
+  /**
+   * Remove `tmp/` directory records once their last file is gone.
+   *
+   * A directory record is created by `mkdir` (the image spill needs one), but
+   * deleting its files does not delete it. Left alone, an empty `tmp/` keeps
+   * showing up in `file_list` and in the shell's `ls /`.
+   */
+  private async dropEmptyTempDirectories(): Promise<void> {
+    const tempDirs = (await this.listDirectories())
+      .filter((record) => isTempPath(record.path))
+      // Deepest first: a parent cannot be deleted while a child record exists.
+      .sort((a, b) => b.path.length - a.path.length);
+
+    for (const record of tempDirs) {
+      const occupants = await this.listByPrefix(record.path);
+      if (occupants.length > 0) continue;
+      // `deleteDirectory` re-checks and refuses non-empty directories; a
+      // concurrent write between the two calls is not a reason to fail startup.
+      await this.deleteDirectory(record.path).catch(() => undefined);
+    }
   }
 
   /**

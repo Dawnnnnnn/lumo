@@ -36,6 +36,10 @@ export default defineConfig({
     ],
     host_permissions: ['<all_urls>'],
     content_security_policy: {
+      // QuickJS needs WebAssembly compilation for the shell's `node` command.
+      // This permits wasm only; it does not allow `eval` or `new Function` in
+      // extension pages.
+      extension_pages: "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';",
       sandbox:
         "sandbox allow-scripts allow-forms allow-popups allow-modals; script-src 'self' 'unsafe-inline' 'unsafe-eval' https: http: blob: data:; child-src 'self' blob:;",
     },
@@ -69,6 +73,9 @@ export default defineConfig({
     resolve: {
       alias: {
         '@': path.resolve(__dirname),
+        // just-bash's browser bundle statically imports node:zlib. The shim
+        // backs gzip/gunzip with fflate, which works in the extension.
+        'node:zlib': path.resolve(__dirname, 'lib/shell/shims/zlib.ts'),
       },
     },
   }),

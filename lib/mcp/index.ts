@@ -15,10 +15,13 @@ export {
   baseName,
   directoryKind,
   isSystemPath,
+  isTempPath,
   normalizeDirPath,
   normalizeFilePath,
   parentDirPath,
   SYSTEM_DIR_PREFIXES,
+  TEMP_DIR_PREFIX,
+  TEMP_FILE_RETENTION_MS,
 } from './file-storage';
 export type {
   DirectoryKind,
@@ -50,6 +53,7 @@ import { FileMcpServer } from './file-server';
 import { ExternalMcpServer } from './external-server';
 import { WebMcpServer } from './webmcp-server';
 import { storage } from '@/store/storage';
+import { fileStorage } from './file-storage';
 import { initExtensionProviders, syncExtensionProviders } from './extension-registry';
 import { normalizeMcpSettings } from './settings';
 import { deleteCredentials, normalizeOAuthCredentials } from './oauth';
@@ -91,6 +95,13 @@ export async function initBuiltinMcpServers(): Promise<void> {
   initExtensionProviders(settings);
 
   await mcpRegistry.connectAll();
+
+  // One-time data repair plus scratch-file retention. Both are storage
+  // concerns that used to be smuggled into the shell's VFS refresh path.
+  void fileStorage
+    .migrateLegacyShellArtifacts()
+    .then(() => fileStorage.pruneTempFiles())
+    .catch((error) => console.warn('[lumo] file housekeeping failed:', error));
 
   // Start listening for cross-context storage changes to keep registry in sync
   setupMcpStorageSync();
