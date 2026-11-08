@@ -44,6 +44,23 @@ export function bytesFromLatin1(text: string): Uint8Array {
   return bytes;
 }
 
+/** Write side of `hex` decoding: `"0aff"` -> two bytes. */
+export function bytesFromHex(text: string): Uint8Array {
+  const bytes = new Uint8Array(Math.floor(text.length / 2));
+  for (let i = 0; i < bytes.length; i += 1) {
+    const byte = Number.parseInt(text.slice(i * 2, i * 2 + 2), 16);
+    bytes[i] = Number.isNaN(byte) ? 0 : byte;
+  }
+  return bytes;
+}
+
+/** ASCII write side: each code unit becomes one byte, truncated to 7 bits. */
+export function bytesFromAscii(text: string): Uint8Array {
+  const bytes = new Uint8Array(text.length);
+  for (let i = 0; i < text.length; i += 1) bytes[i] = text.charCodeAt(i) & 0x7f;
+  return bytes;
+}
+
 /** Encode text as UTF-8 bytes. */
 export function bytesFromText(text: string): Uint8Array {
   return new TextEncoder().encode(text);

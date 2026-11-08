@@ -54,6 +54,9 @@ import {
 } from '@/lib/mcp/file-storage';
 import { onEvent } from '@/lib/event-bus-core';
 import {
+  bytesFromAscii,
+  bytesFromBase64,
+  bytesFromHex,
   bytesFromLatin1,
   bytesFromText,
   latin1FromBytes,
@@ -152,8 +155,40 @@ function decodeBytes(bytes: Uint8Array, encoding?: BufferEncoding | null): strin
   return textFromBytes(bytes, encoding);
 }
 
-function encodeBytes(content: FileContent): Uint8Array {
-  return typeof content === 'string' ? bytesFromText(content) : content;
+/**
+ * The write-side counterpart of {@link decodeBytes}.
+ *
+ * just-bash hands string payloads to `writeFile`/`appendFile` in two different
+ * shapes and says which one via the encoding argument: `"utf8"` for text (an
+ * `echo` argument) and `"binary"` for a pipe payload, which is a latin1 byte
+ * string — one char per byte. Encoding both with `TextEncoder` silently
+ * double-encodes the byte string (`需要` -> `é\u009c\u0080` in the file) and
+ * destroys binary payloads, because every byte >= 0x80 becomes two bytes.
+ */
+function encodeBytes(content: FileContent, encoding?: BufferEncoding | null): Uint8Array {
+  if (typeof content !== 'string') return content;
+  switch (encoding) {
+    case 'binary':
+    case 'latin1':
+      return bytesFromLatin1(content);
+    case 'base64':
+      return bytesFromBase64(content);
+    case 'hex':
+      return bytesFromHex(content);
+    case 'ascii':
+      return bytesFromAscii(content);
+    default:
+      return bytesFromText(content);
+  }
+}
+
+/** Text written as a string keeps the store's text-content sniffing. */
+function isTextEncoding(encoding?: BufferEncoding | null): boolean {
+  return encoding === undefined || encoding === null || encoding === 'utf8' || encoding === 'utf-8';
+}
+
+function writeEncoding(options?: WriteFileOptions | BufferEncoding): BufferEncoding | undefined {
+  return typeof options === 'string' ? options : options?.encoding;
 }
 
 function byteString(bytes: Uint8Array): ByteString {
@@ -496,7 +531,7 @@ export class LumoFileSystem implements IFileSystem {
   async writeFile(
     path: string,
     content: FileContent,
-    _options?: WriteFileOptions | BufferEncoding,
+    options?: WriteFileOptions | BufferEncoding,
   ): Promise<void> {
     await this.syncIfStale();
     const device = deviceKind(path);
@@ -510,13 +545,18 @@ export class LumoFileSystem implements IFileSystem {
     // No artificial storage quota: this is the user's file library, and the
     // browser already enforces the origin's IndexedDB quota. A fixed ceiling
     // only made legitimate file and archive work fail.
-    const data =
-      typeof content === 'string'
-        ? content
-        : new Blob([content as unknown as BlobPart], { type: inferMimeType(storePath) });
+    const encoding = writeEncoding(options);
+    // A UTF-8 string stays a string so the store can still sniff extensionless
+    // writes as text; everything else is materialised to exact bytes first.
+    const asText = typeof content === 'string' && isTextEncoding(encoding);
+    const data: string | Blob = asText
+      ? (content as string)
+      : new Blob([encodeBytes(content, encoding) as unknown as BlobPart], {
+          type: inferMimeType(storePath),
+        });
     const meta = await fileStorage.writeFile(storePath, data, {
       ...(this.conversationId ? { conversationId: this.conversationId } : {}),
-      ...(typeof content === 'string' ? {} : { mimeType: inferMimeType(storePath) }),
+      ...(asText ? {} : { mimeType: inferMimeType(storePath) }),
     });
     this.files.set(storePath, meta);
     this.addFile(storePath);
@@ -537,7 +577,7 @@ export class LumoFileSystem implements IFileSystem {
     const previous = this.isFile(toStorePath(path))
       ? await this.readFileBuffer(path)
       : new Uint8Array();
-    const addition = encodeBytes(content);
+    const addition = encodeBytes(content, writeEncoding(options));
     const merged = new Uint8Array(previous.length + addition.length);
     merged.set(previous);
     merged.set(addition, previous.length);
