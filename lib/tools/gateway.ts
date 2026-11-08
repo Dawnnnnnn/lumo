@@ -9,16 +9,17 @@
  *
  * Everything that calls a tool outside the model's own tool loop goes through
  * this interface instead: name resolution with ambiguity errors, a snapshot of
- * the tool surface taken when the caller starts, a deadline, and one
- * normalization of the result.
+ * the tool surface taken when the caller starts, and one normalization of the
+ * result.
+ *
+ * There is no implicit deadline. A call runs until the tool returns or the
+ * caller's signal aborts; bounding it is the caller's decision (a script's
+ * `timeoutMs`, the turn's abort) or the tool's own business, because a built-in
+ * server never reads the signal and an external one owns its response time.
  */
 
-import { combineAbortSignals } from '@/lib/abort';
 import { mcpRegistry, normalizeToCallToolResult } from '@/lib/mcp/registry';
 import type { McpServerState } from '@/lib/mcp/types';
-
-/** Ceiling for a single tool invocation made outside the model loop. */
-export const DEFAULT_TOOL_TIMEOUT_MS = 120_000;
 
 export interface ToolServerSummary {
   id: string;
@@ -62,9 +63,8 @@ export interface NormalizedToolResult {
 
 export interface ToolInvokeOptions {
   conversationId?: string;
+  /** Caller cancellation, forwarded verbatim to the tool. Never a deadline. */
   signal?: AbortSignal;
-  /** Overrides {@link DEFAULT_TOOL_TIMEOUT_MS}. */
-  timeoutMs?: number;
 }
 
 /** The subset of an AI SDK tool the gateway needs to execute. */
@@ -208,15 +208,10 @@ export class McpToolGateway implements ToolGateway {
       throw new Error(`Tool "${serverId}.${toolName}" has no local executor.`);
     }
 
-    const timeoutMs = options.timeoutMs ?? DEFAULT_TOOL_TIMEOUT_MS;
-    const timeoutSignal =
-      timeoutMs > 0 && Number.isFinite(timeoutMs) ? AbortSignal.timeout(timeoutMs) : undefined;
-    const signal = combineAbortSignals([options.signal, timeoutSignal]);
-
     const raw = await tool.execute(params, {
       toolCallId: `gateway-${Date.now()}`,
       messages: [],
-      ...(signal ? { abortSignal: signal } : {}),
+      ...(options.signal ? { abortSignal: options.signal } : {}),
     });
     const result = normalizeToCallToolResult(raw) as NormalizedToolResult;
     // `normalizeToCallToolResult` preserves an existing CallToolResult, so the

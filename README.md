@@ -200,10 +200,12 @@ printf '%s\n' '{"target":"browser.browser_tabs","params":{}}' | mcp batch
 There is no configurable structural budget: the interpreter's command/loop/
 output counters are deliberately unbounded, QuickJS has no fixed memory ceiling
 (it grows until the browser heap does), and the only bound on the script itself
-is the `timeoutMs` the model passes. Each individual MCP call has its own
-120-second gateway ceiling. There is no separate VFS quota either: the shell
-writes to the same file library as the file tools, and the browser's IndexedDB
-quota is the real limit.
+is the `timeoutMs` the model passes. A single `mcp call` inherits exactly the
+same rule: no implicit deadline, so it runs until the tool returns or the turn
+is aborted, plus whatever ceiling the tool imposes on itself (a page wait, a tab
+load, an external server's own response time). There is no separate VFS quota
+either: the shell writes to the same file library as the file tools, and the
+browser's IndexedDB quota is the real limit.
 
 Turning the switch off restores the previous per-tool MCP list exactly; history
 from both modes stays readable.
