@@ -274,6 +274,25 @@ Production build output goes to `.output/chrome-mv3`.
 npm run zip
 ```
 
+### Releasing to the Chrome Web Store
+
+Publishing is tag-driven and does not run on ordinary pushes to `main`:
+
+1. Bump `version` in `package.json`.
+2. Commit the change.
+3. Push a matching tag, e.g. `git tag v1.0.24 && git push origin v1.0.24`.
+
+The [Publish to Chrome Web Store](../../actions/workflows/publish.yml) workflow then builds the package, verifies that the tag, `package.json`, and the zip manifest all agree, uploads it, and submits it for review. The version must also be greater than the one already published on the store.
+
+Manual runs from the Actions tab support `publish`, `upload` (no review submission), and `status` (read-only); `skip_upload` is a recovery switch for retrying only the publish step after an upload succeeded. The same checks are available locally without consuming a submission:
+
+```bash
+npm run zip
+node scripts/release/cws-publish.mjs --mode check
+node scripts/release/cws-publish.mjs --mode status   # needs the CHROME_* env vars
+node scripts/release/cws-publish.mjs --mode publish --skip-upload  # recovery only
+```
+
 ### Type Check
 
 ```bash

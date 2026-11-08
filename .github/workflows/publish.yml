@@ -1,0 +1,116 @@
+name: Publish to Chrome Web Store
+
+# 只在「打 tag」时自动发布；普通 push 仍由 build.yml 负责构建产物。
+# 手动 dispatch 用于重试或只查状态，不会因为合并 PR 反复提交审核。
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'publish = upload + submit for review; upload = upload only; status = read-only'
+        type: choice
+        options: [publish, upload, status]
+        default: publish
+      tag:
+        description: 'Tag to publish (e.g. v1.0.24). Leave empty to use the selected branch without a tag/version check.'
+        required: false
+        type: string
+      skip_upload:
+        description: 'Recovery only: publish the last package already processed by the store, without uploading again.'
+        type: boolean
+        default: false
+
+# 手动连点或 tag 连发时排队执行，避免并发上传同一个 item。
+concurrency:
+  group: cws-publish
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    # 构建 + 上传 + 轮询的兜底上限，避免网络挂起把 job 拖到默认的 6 小时。
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
+          # tag 需要可解析，同时脚本用 package.json / zip 内的版本做一致性校验。
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      # 与 build.yml 相同的构建前置检查。
+      - run: npm run i18n:check
+      - run: npm run i18n:manifest -- --check
+
+      # wxt zip 会先构建再打包，产物是 .output/lumo-<version>-chrome.zip。
+      # 不要再单独跑 build，否则会构建两次。
+      - run: npm run zip
+
+      - name: Resolve expected version
+        id: version
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
+          REF_NAME: ${{ github.ref_name }}
+          REF_TYPE: ${{ github.ref_type }}
+        run: |
+          if [ -n "$INPUT_TAG" ]; then
+            case "$INPUT_TAG" in
+              v[0-9]*) echo "value=${INPUT_TAG#v}" >> "$GITHUB_OUTPUT" ;;
+              *) echo "::error::The tag input must look like v1.2.3"; exit 1 ;;
+            esac
+          elif [ "$REF_TYPE" = "tag" ]; then
+            case "$REF_NAME" in
+              v[0-9]*) echo "value=${REF_NAME#v}" >> "$GITHUB_OUTPUT" ;;
+              *) echo "::error::Release tags must look like v1.2.3"; exit 1 ;;
+            esac
+          else
+            echo "value=" >> "$GITHUB_OUTPUT"
+          fi
+
+      # 本地校验：tag == package.json == zip 内 manifest.json。
+      # 不调用商店 API，不会消耗发布次数。
+      - name: Verify package version
+        env:
+          VALUE: ${{ steps.version.outputs.value }}
+        run: node scripts/release/cws-publish.mjs --mode check --expected-version "$VALUE"
+
+      # 换 token、上传、轮询处理状态、提交审核、回读状态都在脚本里完成。
+      # token 只存在于该进程内，不会被写到日志或 output。
+      - name: Publish to Chrome Web Store
+        env:
+          MODE: ${{ github.event_name == 'push' && 'publish' || inputs.mode }}
+          VALUE: ${{ steps.version.outputs.value }}
+          SKIP_UPLOAD: ${{ inputs.skip_upload }}
+          CHROME_CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
+          CHROME_CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
+          CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
+          CHROME_PUBLISHER_ID: ${{ secrets.CHROME_PUBLISHER_ID }}
+          CHROME_ITEM_ID: ${{ secrets.CHROME_ITEM_ID }}
+        shell: bash
+        run: |
+          args=(--mode "$MODE" --expected-version "$VALUE")
+          if [ "$SKIP_UPLOAD" = "true" ]; then
+            args+=(--skip-upload)
+          fi
+          node scripts/release/cws-publish.mjs "${args[@]}"
+
+      # 留下本次实际提交的 zip，方便回溯「这个版本到底传了什么」。
+      - name: Upload package artifact
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: lumo-chrome-webstore-${{ steps.version.outputs.value || github.run_number }}
+          path: .output/*-chrome.zip
+          if-no-files-found: warn
+          retention-days: 30
