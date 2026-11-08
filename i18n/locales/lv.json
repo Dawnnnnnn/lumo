@@ -595,14 +595,16 @@
       "title": "Par",
       "refresh": "Pārrēķināt",
       "extensionId": "Paplašinājuma ID",
-      "storeBadge": "Chrome Web Store",
+      "channels": {
+        "chrome": "Chrome Web Store",
+        "edge": "Microsoft Edge papildinājumi"
+      },
       "channelDesc": {
-        "store": "Instalēts no Chrome Web Store. Atjauninās automātiski, bet atpaliek no krātuves — katrai versijai vispirms jāiztur Google pārbaude.",
+        "store": "Instalēts no pārlūka paplašinājumu veikala. Atjauninās automātiski, bet atpaliek no krātuves — katrai versijai vispirms jāiztur veikala pārbaude.",
         "github": "Būvēts no GitHub Actions artefakta vai pirmkoda. Automātiski neatjauninās."
       },
       "groupLinks": "Saites",
       "links": {
-        "store": "Chrome Web Store",
         "repo": "GitHub krātuve"
       },
       "storage": {

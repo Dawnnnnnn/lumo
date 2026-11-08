@@ -594,14 +594,16 @@
       "title": "Over",
       "refresh": "Herberekenen",
       "extensionId": "Extensie-ID",
-      "storeBadge": "Chrome Web Store",
+      "channels": {
+        "chrome": "Chrome Web Store",
+        "edge": "Microsoft Edge-invoegtoepassingen"
+      },
       "channelDesc": {
-        "store": "Geïnstalleerd via de Chrome Web Store. Werkt zichzelf bij, maar loopt achter op de repository — elke versie moet eerst de beoordeling van Google doorstaan.",
+        "store": "Geïnstalleerd via een extensiestore van de browser. Werkt zichzelf bij, maar loopt achter op de repository — elke versie moet eerst de beoordeling van de store doorstaan.",
         "github": "Gebouwd uit een GitHub Actions-artefact of uit de broncode. Werkt zichzelf niet bij."
       },
       "groupLinks": "Links",
       "links": {
-        "store": "Chrome Web Store",
         "repo": "GitHub-repository"
       },
       "storage": {

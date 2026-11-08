@@ -596,14 +596,16 @@
       "title": "O programie",
       "refresh": "Przelicz ponownie",
       "extensionId": "ID rozszerzenia",
-      "storeBadge": "Chrome Web Store",
+      "channels": {
+        "chrome": "Chrome Web Store",
+        "edge": "Dodatki do Microsoft Edge"
+      },
       "channelDesc": {
-        "store": "Zainstalowane z Chrome Web Store. Aktualizuje się automatycznie, ale pozostaje za repozytorium — każda wersja musi najpierw przejść weryfikację Google.",
+        "store": "Zainstalowane ze sklepu z rozszerzeniami przeglądarki. Aktualizuje się automatycznie, ale pozostaje za repozytorium — każda wersja musi najpierw przejść weryfikację sklepu.",
         "github": "Zbudowane z artefaktu GitHub Actions lub ze źródeł. Nie aktualizuje się automatycznie."
       },
       "groupLinks": "Linki",
       "links": {
-        "store": "Chrome Web Store",
         "repo": "Repozytorium GitHub"
       },
       "storage": {

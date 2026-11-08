@@ -594,14 +594,16 @@
       "title": "Giới thiệu",
       "refresh": "Tính lại",
       "extensionId": "ID tiện ích",
-      "storeBadge": "Chrome Web Store",
+      "channels": {
+        "chrome": "Chrome Web Store",
+        "edge": "Tiện ích bổ sung Microsoft Edge"
+      },
       "channelDesc": {
-        "store": "Được cài từ Chrome Web Store. Tự cập nhật nhưng chậm hơn kho lưu trữ — mỗi bản phát hành phải qua xét duyệt của Google trước.",
+        "store": "Được cài từ cửa hàng tiện ích của trình duyệt. Tự cập nhật nhưng chậm hơn kho lưu trữ — mỗi bản phát hành phải qua xét duyệt của cửa hàng trước.",
         "github": "Được xây dựng từ sản phẩm GitHub Actions hoặc từ mã nguồn. Không tự cập nhật."
       },
       "groupLinks": "Liên kết",
       "links": {
-        "store": "Chrome Web Store",
         "repo": "Kho GitHub"
       },
       "storage": {

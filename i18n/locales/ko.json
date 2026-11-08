@@ -594,14 +594,16 @@
       "title": "정보",
       "refresh": "다시 계산",
       "extensionId": "확장 프로그램 ID",
-      "storeBadge": "Chrome 웹 스토어",
+      "channels": {
+        "chrome": "Chrome 웹 스토어",
+        "edge": "Microsoft Edge 추가 기능"
+      },
       "channelDesc": {
-        "store": "Chrome 웹 스토어에서 설치했습니다. 자동 업데이트되지만 출시마다 Google 검토를 통과해야 하므로 저장소보다 늦습니다.",
+        "store": "브라우저 확장 프로그램 스토어에서 설치했습니다. 자동 업데이트되지만 출시마다 스토어 검토를 통과해야 하므로 저장소보다 늦습니다.",
         "github": "GitHub Actions 결과물 또는 소스에서 빌드했습니다. 자동 업데이트되지 않습니다."
       },
       "groupLinks": "링크",
       "links": {
-        "store": "Chrome 웹 스토어",
         "repo": "GitHub 저장소"
       },
       "storage": {

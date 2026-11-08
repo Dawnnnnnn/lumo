@@ -594,14 +594,16 @@
       "title": "Tungkol",
       "refresh": "Muling kalkulahin",
       "extensionId": "ID ng extension",
-      "storeBadge": "Chrome Web Store",
+      "channels": {
+        "chrome": "Chrome Web Store",
+        "edge": "Microsoft Edge Add-ons"
+      },
       "channelDesc": {
-        "store": "Naka-install mula sa Chrome Web Store. Awtomatikong nag-a-update ngunit nahuhuli sa repository — kailangan munang pumasa sa review ng Google ang bawat release.",
+        "store": "Naka-install mula sa browser extension store. Awtomatikong nag-a-update ngunit nahuhuli sa repository — kailangan munang pumasa sa review ng store ang bawat release.",
         "github": "Binuild mula sa GitHub Actions artifact o sa source code. Hindi awtomatikong nag-a-update."
       },
       "groupLinks": "Mga link",
       "links": {
-        "store": "Chrome Web Store",
         "repo": "Repository ng GitHub"
       },
       "storage": {

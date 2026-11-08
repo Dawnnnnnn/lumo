@@ -594,14 +594,16 @@
       "title": "Tentang",
       "refresh": "Hitung ulang",
       "extensionId": "ID ekstensi",
-      "storeBadge": "Chrome Web Store",
+      "channels": {
+        "chrome": "Chrome Web Store",
+        "edge": "Add-on Microsoft Edge"
+      },
       "channelDesc": {
-        "store": "Dipasang dari Chrome Web Store. Memperbarui sendiri, tetapi tertinggal dari repositori — setiap rilis harus lolos peninjauan Google terlebih dahulu.",
+        "store": "Dipasang dari toko ekstensi peramban. Memperbarui sendiri, tetapi tertinggal dari repositori — setiap rilis harus lolos peninjauan toko terlebih dahulu.",
         "github": "Dibangun dari artefak GitHub Actions atau dari kode sumber. Tidak memperbarui sendiri."
       },
       "groupLinks": "Tautan",
       "links": {
-        "store": "Chrome Web Store",
         "repo": "Repositori GitHub"
       },
       "storage": {

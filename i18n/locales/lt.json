@@ -596,14 +596,16 @@
       "title": "Apie",
       "refresh": "Perskaičiuoti",
       "extensionId": "Plėtinio ID",
-      "storeBadge": "Chrome Web Store",
+      "channels": {
+        "chrome": "Chrome Web Store",
+        "edge": "Microsoft Edge plėtiniai"
+      },
       "channelDesc": {
-        "store": "Įdiegta iš Chrome Web Store. Atnaujinama automatiškai, bet atsilieka nuo saugyklos — kiekviena versija pirmiausia turi praeiti Google patikrą.",
+        "store": "Įdiegta iš naršyklės plėtinių parduotuvės. Atnaujinama automatiškai, bet atsilieka nuo saugyklos — kiekviena versija pirmiausia turi praeiti parduotuvės patikrą.",
         "github": "Sukurta iš GitHub Actions artefakto arba iš šaltinio kodo. Automatiškai neatnaujinama."
       },
       "groupLinks": "Nuorodos",
       "links": {
-        "store": "Chrome Web Store",
         "repo": "GitHub saugykla"
       },
       "storage": {

@@ -594,14 +594,16 @@
       "title": "Om",
       "refresh": "Beregn på nytt",
       "extensionId": "Utvidelses-ID",
-      "storeBadge": "Chrome Web Store",
+      "channels": {
+        "chrome": "Chrome Web Store",
+        "edge": "Microsoft Edge-utvidelser"
+      },
       "channelDesc": {
-        "store": "Installert fra Chrome Web Store. Den oppdaterer seg selv, men ligger bak repositoriet — hver versjon må først gjennom Googles gjennomgang.",
+        "store": "Installert fra en utvidelsesbutikk for nettleseren. Den oppdaterer seg selv, men ligger bak repositoriet — hver versjon må først gjennom butikkens gjennomgang.",
         "github": "Bygget fra en GitHub Actions-artefakt eller fra kildekoden. Den oppdaterer seg ikke selv."
       },
       "groupLinks": "Lenker",
       "links": {
-        "store": "Chrome Web Store",
         "repo": "GitHub-repositorium"
       },
       "storage": {

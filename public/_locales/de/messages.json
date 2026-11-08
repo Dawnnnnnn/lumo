@@ -5,7 +5,7 @@
   },
   "extDescription": {
     "message": "KI-gestützter Seitenleisten-Assistent für den Browser",
-    "description": "The description of the extension shown in the Chrome Web Store and extension management page."
+    "description": "The description of the extension shown in browser extension stores (Chrome Web Store, Microsoft Edge Add-ons) and the extension management page."
   },
   "actionTitle": {
     "message": "Lumo-Seitenleiste öffnen",

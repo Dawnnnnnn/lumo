@@ -594,14 +594,16 @@
       "title": "Kuhusu",
       "refresh": "Hesabu upya",
       "extensionId": "Kitambulisho cha kiendelezi",
-      "storeBadge": "Chrome Web Store",
+      "channels": {
+        "chrome": "Chrome Web Store",
+        "edge": "Viongezeo vya Microsoft Edge"
+      },
       "channelDesc": {
-        "store": "Imesakinishwa kutoka Chrome Web Store. Hujisasisha lakini huchelewa kuliko hazina — kila toleo lazima lipite ukaguzi wa Google kwanza.",
+        "store": "Imesakinishwa kutoka duka la viendelezi vya kivinjari. Hujisasisha lakini huchelewa kuliko hazina — kila toleo lazima lipite ukaguzi wa duka kwanza.",
         "github": "Imeundwa kutoka kifaa cha GitHub Actions au kutoka msimbo chanzo. Haisasishwi yenyewe."
       },
       "groupLinks": "Viungo",
       "links": {
-        "store": "Chrome Web Store",
         "repo": "Hazina ya GitHub"
       },
       "storage": {

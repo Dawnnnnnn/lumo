@@ -594,14 +594,16 @@
       "title": "Névjegy",
       "refresh": "Újraszámítás",
       "extensionId": "Bővítmény ID",
-      "storeBadge": "Chrome Web Store",
+      "channels": {
+        "chrome": "Chrome Web Store",
+        "edge": "Microsoft Edge-bővítmények"
+      },
       "channelDesc": {
-        "store": "A Chrome Web Store-ból telepítve. Automatikusan frissül, de lemarad a tárolótól — minden kiadásnak előbb át kell mennie a Google ellenőrzésén.",
+        "store": "Egy böngészőbővítmény-áruházból telepítve. Automatikusan frissül, de lemarad a tárolótól — minden kiadásnak előbb át kell mennie az áruház ellenőrzésén.",
         "github": "GitHub Actions-összetevőből vagy forráskódból buildelve. Nem frissül automatikusan."
       },
       "groupLinks": "Hivatkozások",
       "links": {
-        "store": "Chrome Web Store",
         "repo": "GitHub-tároló"
       },
       "storage": {

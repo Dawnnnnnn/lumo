@@ -595,14 +595,16 @@
       "title": "O aplikaciji",
       "refresh": "Ponovno izračunaj",
       "extensionId": "ID proširenja",
-      "storeBadge": "Chrome Web Store",
+      "channels": {
+        "chrome": "Chrome Web Store",
+        "edge": "Dodaci za Microsoft Edge"
+      },
       "channelDesc": {
-        "store": "Instalirano iz Chrome Web Storea. Ažurira se automatski, ali zaostaje za spremištem — svaka verzija prvo mora proći Googleovu provjeru.",
+        "store": "Instalirano iz trgovine proširenjima za preglednik. Ažurira se automatski, ali zaostaje za spremištem — svaka verzija prvo mora proći provjeru trgovine.",
         "github": "Izgrađeno iz artefakta GitHub Actions ili iz izvornog koda. Ne ažurira se automatski."
       },
       "groupLinks": "Poveznice",
       "links": {
-        "store": "Chrome Web Store",
         "repo": "GitHub spremište"
       },
       "storage": {

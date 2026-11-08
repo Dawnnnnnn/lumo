@@ -5,7 +5,7 @@
   },
   "extDescription": {
     "message": "AI 기반 브라우저 사이드바 어시스턴트",
-    "description": "The description of the extension shown in the Chrome Web Store and extension management page."
+    "description": "The description of the extension shown in browser extension stores (Chrome Web Store, Microsoft Edge Add-ons) and the extension management page."
   },
   "actionTitle": {
     "message": "Lumo 사이드바 열기",

@@ -1,20 +1,22 @@
 import { useTranslation } from 'react-i18next';
 import { ExternalLink, ShoppingBag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { CHROME_STORE_URL, GITHUB_REPO_URL } from '@/lib/extension-info';
+import { CHROME_STORE_URL, EDGE_STORE_URL, GITHUB_REPO_URL } from '@/lib/extension-info';
 import { GithubIcon } from './GithubIcon';
 
 /**
  * Where to get the other build, and where the code lives.
  *
- * The store listing is offered even to someone already on it: it is also the
- * place to leave a review, and the running channel is stated above anyway.
+ * Both store listings are offered even to someone already running one of them:
+ * the listing is also the place to leave a review, and the running channel is
+ * stated above anyway. A fixed order keeps the row from reshuffling per channel.
  */
 export function AboutLinks() {
   const { t } = useTranslation();
 
   const links = [
-    { href: CHROME_STORE_URL, labelKey: 'options.about.links.store', icon: ShoppingBag },
+    { href: CHROME_STORE_URL, labelKey: 'options.about.channels.chrome', icon: ShoppingBag },
+    { href: EDGE_STORE_URL, labelKey: 'options.about.channels.edge', icon: ShoppingBag },
     { href: GITHUB_REPO_URL, labelKey: 'options.about.links.repo', icon: GithubIcon },
   ] as const;
 

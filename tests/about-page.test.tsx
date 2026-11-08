@@ -2,10 +2,10 @@
 /**
  * The about page's two claims that matter if they are wrong.
  *
- * **The channel line.** It is the answer to "which build is this", and both
- * install routes can be present at once as separate extensions — a badge that
- * says "Chrome Web Store" on an unpacked build would make every version-specific
- * bug report misleading.
+ * **The channel line.** It is the answer to "which build is this", and every
+ * install route can be present at once as separate extensions — a badge that
+ * says "Chrome Web Store" on an unpacked build, or on the Edge listing, would
+ * make every version-specific bug report misleading.
  *
  * **The clear buttons.** They delete unrecoverable user data. What is exercised
  * here is the boundary: a declined confirmation must touch nothing, an accepted
@@ -15,7 +15,7 @@
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, cleanup, act } from '@testing-library/react';
-import { CHROME_STORE_ID } from '@/lib/extension-info';
+import { CHROME_STORE_ID, EDGE_STORE_ID } from '@/lib/extension-info';
 import type { StorageUsageReport } from '@/lib/storage-usage';
 
 vi.mock('react-i18next', () => ({
@@ -85,16 +85,33 @@ afterEach(() => {
 });
 
 describe('AboutIdentity', () => {
-  it('badges the store channel only for the published extension id', () => {
+  it('badges the chrome store channel with its own listing name', () => {
     vi.stubGlobal('chrome', {
       runtime: { id: CHROME_STORE_ID, getManifest: () => ({ version: '1.0.6' }) },
     });
 
     const { container } = render(<AboutIdentity />);
 
-    expect(container.textContent).toContain('options.about.storeBadge');
+    expect(container.textContent).toContain('options.about.channels.chrome');
+    expect(container.textContent).toContain('options.about.channelDesc.store');
+    expect(container.textContent).not.toContain('options.about.channels.edge');
     expect(container.textContent).toContain('v1.0.6');
     expect(container.textContent).toContain(CHROME_STORE_ID);
+  });
+
+  it('badges the edge store channel with its own listing name', () => {
+    vi.stubGlobal('chrome', {
+      runtime: { id: EDGE_STORE_ID, getManifest: () => ({ version: '1.0.6' }) },
+    });
+
+    const { container } = render(<AboutIdentity />);
+
+    // Same package, different listing: the badge must name the store the user
+    // installed from, and the id line must show the id that store assigned.
+    expect(container.textContent).toContain('options.about.channels.edge');
+    expect(container.textContent).toContain('options.about.channelDesc.store');
+    expect(container.textContent).not.toContain('options.about.channels.chrome');
+    expect(container.textContent).toContain(EDGE_STORE_ID);
   });
 
   it('leaves an unpacked build unbadged, describing it in prose instead', () => {
@@ -105,7 +122,8 @@ describe('AboutIdentity', () => {
     const { container } = render(<AboutIdentity />);
 
     // A badge would imply an official channel this build did not come from.
-    expect(container.textContent).not.toContain('options.about.storeBadge');
+    expect(container.textContent).not.toContain('options.about.channels.chrome');
+    expect(container.textContent).not.toContain('options.about.channels.edge');
     expect(container.textContent).toContain('options.about.channelDesc.github');
   });
 });

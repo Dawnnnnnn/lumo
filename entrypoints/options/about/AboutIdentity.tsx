@@ -9,11 +9,11 @@ import {
 /**
  * Which build is running: logo, version, and where it came from.
  *
- * The channel line is the point of this block. The Web Store build auto-updates
- * but trails the repository by however long review takes, while a build loaded
- * from a GitHub Actions artifact is current but never updates itself — and both
- * can be installed at once, as separate extensions. Naming the channel turns
- * "which one am I looking at" from guesswork into a glance, and the extension id
+ * The channel line is the point of this block. A store build auto-updates but
+ * trails the repository by however long review takes, while a build loaded from
+ * a GitHub Actions artifact is current but never updates itself — and both can
+ * be installed at once, as separate extensions. Naming the channel turns "which
+ * one am I looking at" from guesswork into a glance, and the extension id
  * underneath is what makes a bug report unambiguous.
  */
 export function AboutIdentity() {
@@ -21,6 +21,9 @@ export function AboutIdentity() {
   const channel = getReleaseChannel();
   const version = getExtensionVersion();
   const extensionId = getExtensionId();
+  // Both store listings behave identically — each review queue delays the same
+  // release — so only the badge names the store; the sentence stays generic.
+  const store = channel === 'github' ? null : channel;
 
   return (
     <section className="flex flex-col gap-4 rounded-lg border border-border bg-card p-4 sm:flex-row sm:items-start sm:gap-5">
@@ -45,15 +48,15 @@ export function AboutIdentity() {
               v{version}
             </Badge>
           )}
-          {/* Only the store build gets a badge. It is the one claim worth
-              asserting — the badge means "this came from Google's listing".
-              Everything else is some flavour of local build, and the line below
-              already says so without a pill implying an official channel. */}
-          {channel === 'store' && <Badge variant="accent">{t('options.about.storeBadge')}</Badge>}
+          {/* Only a store build gets a badge, and it names the store it came
+              from: that is the one claim worth asserting. Everything else is
+              some flavour of local build, and the line below already says so
+              without a pill implying an official channel. */}
+          {store && <Badge variant="accent">{t(`options.about.channels.${store}`)}</Badge>}
         </div>
 
         <p className="text-xs leading-relaxed text-muted-foreground">
-          {t(`options.about.channelDesc.${channel}`)}
+          {t(`options.about.channelDesc.${store ? 'store' : 'github'}`)}
         </p>
 
         {extensionId && (

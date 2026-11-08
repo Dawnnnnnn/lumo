@@ -595,14 +595,16 @@
       "title": "Sobre",
       "refresh": "Recalcular",
       "extensionId": "ID da extensão",
-      "storeBadge": "Chrome Web Store",
+      "channels": {
+        "chrome": "Chrome Web Store",
+        "edge": "Extensões do Microsoft Edge"
+      },
       "channelDesc": {
-        "store": "Instalada pela Chrome Web Store. Ela se atualiza sozinha, mas fica atrás do repositório — cada versão precisa passar antes pela revisão do Google.",
+        "store": "Instalada por uma loja de extensões do navegador. Ela se atualiza sozinha, mas fica atrás do repositório — cada versão precisa passar antes pela revisão da loja.",
         "github": "Compilada a partir de um artefato do GitHub Actions ou do código-fonte. Não se atualiza sozinha."
       },
       "groupLinks": "Links",
       "links": {
-        "store": "Chrome Web Store",
         "repo": "Repositório no GitHub"
       },
       "storage": {

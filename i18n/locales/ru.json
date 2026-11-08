@@ -596,14 +596,16 @@
       "title": "О программе",
       "refresh": "Пересчитать",
       "extensionId": "ID расширения",
-      "storeBadge": "Chrome Web Store",
+      "channels": {
+        "chrome": "Chrome Web Store",
+        "edge": "Надстройки Microsoft Edge"
+      },
       "channelDesc": {
-        "store": "Установлено из Chrome Web Store. Обновляется автоматически, но отстаёт от репозитория: каждая версия сначала проходит проверку Google.",
+        "store": "Установлено из магазина расширений браузера. Обновляется автоматически, но отстаёт от репозитория: каждая версия сначала проходит проверку магазина.",
         "github": "Собрано из артефакта GitHub Actions или из исходного кода. Автоматически не обновляется."
       },
       "groupLinks": "Ссылки",
       "links": {
-        "store": "Chrome Web Store",
         "repo": "Репозиторий GitHub"
       },
       "storage": {

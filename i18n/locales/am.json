@@ -594,14 +594,16 @@
       "title": "ስለ",
       "refresh": "እንደገና አስላ",
       "extensionId": "የኤክስቴንሽን ID",
-      "storeBadge": "Chrome Web Store",
+      "channels": {
+        "chrome": "Chrome Web Store",
+        "edge": "Microsoft Edge ተጨማሪዎች"
+      },
       "channelDesc": {
-        "store": "ከChrome Web Store ተጭኗል። በራሱ ይዘምናል ግን ከማከማቻው ወደኋላ ይቀራል — እያንዳንዱ ስሪት መጀመሪያ የGoogle ግምገማ ማለፍ አለበት።",
+        "store": "ከአሳሽ ቅጥያ መደብር ተጭኗል። በራሱ ይዘምናል ግን ከማከማቻው ወደኋላ ይቀራል — እያንዳንዱ ስሪት መጀመሪያ የመደብሩን ግምገማ ማለፍ አለበት።",
         "github": "ከGitHub Actions ግንባታ ወይም ከምንጭ ኮድ የተሰራ። በራሱ አይዘምንም።"
       },
       "groupLinks": "አገናኞች",
       "links": {
-        "store": "Chrome Web Store",
         "repo": "GitHub ማከማቻ"
       },
       "storage": {

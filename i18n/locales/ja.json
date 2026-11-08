@@ -594,14 +594,16 @@
       "title": "このアプリについて",
       "refresh": "再計算",
       "extensionId": "拡張機能 ID",
-      "storeBadge": "Chrome ウェブストア",
+      "channels": {
+        "chrome": "Chrome ウェブストア",
+        "edge": "Microsoft Edge アドオン"
+      },
       "channelDesc": {
-        "store": "Chrome ウェブストアからインストールされています。自動更新されますが、リリースごとに Google の審査が必要なため、リポジトリより遅れます。",
+        "store": "ブラウザの拡張機能ストアからインストールされています。自動更新されますが、リリースごとにストアの審査が必要なため、リポジトリより遅れます。",
         "github": "GitHub Actions の成果物またはソースからビルドされています。自動更新はされません。"
       },
       "groupLinks": "リンク",
       "links": {
-        "store": "Chrome ウェブストア",
         "repo": "GitHub リポジトリ"
       },
       "storage": {

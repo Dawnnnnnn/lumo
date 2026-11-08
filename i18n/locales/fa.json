@@ -594,14 +594,16 @@
       "title": "درباره",
       "refresh": "محاسبه دوباره",
       "extensionId": "شناسه افزونه",
-      "storeBadge": "Chrome Web Store",
+      "channels": {
+        "chrome": "Chrome Web Store",
+        "edge": "افزونه‌های Microsoft Edge"
+      },
       "channelDesc": {
-        "store": "از Chrome Web Store نصب شده است. خودکار به‌روزرسانی می‌شود اما از مخزن عقب‌تر است — هر نسخه ابتدا باید بازبینی Google را بگذراند.",
+        "store": "از فروشگاه افزونه‌های مرورگر نصب شده است. خودکار به‌روزرسانی می‌شود اما از مخزن عقب‌تر است — هر نسخه ابتدا باید بازبینی فروشگاه را بگذراند.",
         "github": "از یک خروجی GitHub Actions یا از کد منبع ساخته شده است. خودکار به‌روزرسانی نمی‌شود."
       },
       "groupLinks": "پیوندها",
       "links": {
-        "store": "Chrome Web Store",
         "repo": "مخزن GitHub"
       },
       "storage": {

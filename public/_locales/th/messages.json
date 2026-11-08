@@ -5,7 +5,7 @@
   },
   "extDescription": {
     "message": "ผู้ช่วยแถบด้านข้างของเบราว์เซอร์ที่ขับเคลื่อนด้วย AI",
-    "description": "The description of the extension shown in the Chrome Web Store and extension management page."
+    "description": "The description of the extension shown in browser extension stores (Chrome Web Store, Microsoft Edge Add-ons) and the extension management page."
   },
   "actionTitle": {
     "message": "เปิดแถบด้านข้าง Lumo",

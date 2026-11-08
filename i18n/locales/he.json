@@ -595,14 +595,16 @@
       "title": "אודות",
       "refresh": "חישוב מחדש",
       "extensionId": "מזהה הרחבה",
-      "storeBadge": "Chrome Web Store",
+      "channels": {
+        "chrome": "Chrome Web Store",
+        "edge": "תוספים של Microsoft Edge"
+      },
       "channelDesc": {
-        "store": "מותקנת מ-Chrome Web Store. מתעדכנת מעצמה אך מפגרת אחרי המאגר — כל גרסה חייבת לעבור קודם את בדיקת Google.",
+        "store": "מותקנת מחנות תוספים של הדפדפן. מתעדכנת מעצמה אך מפגרת אחרי המאגר — כל גרסה חייבת לעבור קודם את בדיקת החנות.",
         "github": "נבנתה מפריט GitHub Actions או מהקוד המקור. אינה מתעדכנת מעצמה."
       },
       "groupLinks": "קישורים",
       "links": {
-        "store": "Chrome Web Store",
         "repo": "מאגר GitHub"
       },
       "storage": {

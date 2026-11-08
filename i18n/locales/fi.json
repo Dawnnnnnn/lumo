@@ -594,14 +594,16 @@
       "title": "Tietoja",
       "refresh": "Laske uudelleen",
       "extensionId": "Laajennuksen tunnus",
-      "storeBadge": "Chrome Web Store",
+      "channels": {
+        "chrome": "Chrome Web Store",
+        "edge": "Microsoft Edge -laajennukset"
+      },
       "channelDesc": {
-        "store": "Asennettu Chrome Web Storesta. Päivittyy itsestään, mutta on jäljessä tietovarastosta — jokainen versio on ensin hyväksyttävä Googlen tarkistuksessa.",
+        "store": "Asennettu selaimen laajennuskaupasta. Päivittyy itsestään, mutta on jäljessä tietovarastosta — jokainen versio on ensin hyväksyttävä kaupan tarkistuksessa.",
         "github": "Koottu GitHub Actions -artefaktista tai lähdekoodista. Ei päivity itsestään."
       },
       "groupLinks": "Linkit",
       "links": {
-        "store": "Chrome Web Store",
         "repo": "GitHub-tietovarasto"
       },
       "storage": {

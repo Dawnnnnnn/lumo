@@ -594,14 +594,16 @@
       "title": "Om",
       "refresh": "Genberegn",
       "extensionId": "Udvidelses-ID",
-      "storeBadge": "Chrome Web Store",
+      "channels": {
+        "chrome": "Chrome Web Store",
+        "edge": "Microsoft Edge-udvidelser"
+      },
       "channelDesc": {
-        "store": "Installeret fra Chrome Web Store. Den opdaterer sig selv, men haler bagefter repositoryet — hver version skal først gennem Googles gennemgang.",
+        "store": "Installeret fra en udvidelsesbutik til browseren. Den opdaterer sig selv, men haler bagefter repositoryet — hver version skal først gennem butikkens gennemgang.",
         "github": "Bygget fra et GitHub Actions-artefakt eller fra kildekoden. Den opdaterer ikke sig selv."
       },
       "groupLinks": "Links",
       "links": {
-        "store": "Chrome Web Store",
         "repo": "GitHub-repository"
       },
       "storage": {

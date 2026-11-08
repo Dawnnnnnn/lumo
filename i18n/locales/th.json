@@ -594,14 +594,16 @@
       "title": "เกี่ยวกับ",
       "refresh": "คำนวณใหม่",
       "extensionId": "ID ส่วนขยาย",
-      "storeBadge": "Chrome Web Store",
+      "channels": {
+        "chrome": "Chrome Web Store",
+        "edge": "ส่วนเสริม Microsoft Edge"
+      },
       "channelDesc": {
-        "store": "ติดตั้งจาก Chrome Web Store อัปเดตตัวเองได้ แต่ล่าช้ากว่าคลังเก็บ — ทุกเวอร์ชันต้องผ่านการตรวจสอบของ Google ก่อน",
+        "store": "ติดตั้งจากร้านส่วนเสริมของเบราว์เซอร์ อัปเดตตัวเองได้ แต่ล่าช้ากว่าคลังเก็บ — ทุกเวอร์ชันต้องผ่านการตรวจสอบของร้านก่อน",
         "github": "สร้างจากอาร์ติแฟกต์ GitHub Actions หรือจากซอร์สโค้ด ไม่อัปเดตตัวเอง"
       },
       "groupLinks": "ลิงก์",
       "links": {
-        "store": "Chrome Web Store",
         "repo": "คลัง GitHub"
       },
       "storage": {

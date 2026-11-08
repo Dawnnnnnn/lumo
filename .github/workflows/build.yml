@@ -28,6 +28,9 @@ jobs:
 
       - uses: actions/upload-artifact@v6
         with:
+          # One MV3 build feeds both store listings (Chrome Web Store and
+          # Microsoft Edge Add-ons); the artifact name keeps the original
+          # browser label the README links to.
           name: lumo-chrome-mv3
           path: .output/chrome-mv3/
           if-no-files-found: error

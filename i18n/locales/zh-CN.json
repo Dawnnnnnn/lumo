@@ -594,14 +594,16 @@
       "title": "关于",
       "refresh": "重新统计",
       "extensionId": "扩展 ID",
-      "storeBadge": "Chrome 应用商店版",
+      "channels": {
+        "chrome": "Chrome 应用商店",
+        "edge": "Microsoft Edge 加载项"
+      },
       "channelDesc": {
-        "store": "安装自 Chrome 应用商店，会自动更新，但版本落后于仓库代码——每次发布都要先通过 Google 审核。",
+        "store": "安装自浏览器扩展商店，会自动更新，但版本落后于仓库代码——每次发布都要先通过商店审核。",
         "github": "来自 GitHub Actions 产物或源码构建，不会自动更新。"
       },
       "groupLinks": "相关链接",
       "links": {
-        "store": "Chrome 应用商店",
         "repo": "GitHub 仓库"
       },
       "storage": {

@@ -1,6 +1,6 @@
 # Lumo
 
-AI-powered browser sidebar assistant — a Chrome extension that brings a full-featured AI agent directly into your browser.
+AI-powered browser sidebar assistant — a browser extension that brings a full-featured AI agent directly into your browser.
 
 Lumo connects to third-party LLM APIs and provides deep browser integration through the Model Context Protocol (MCP), enabling the AI to interact with tabs, pages, network, DevTools, and more.
 
@@ -10,7 +10,15 @@ Lumo connects to third-party LLM APIs and provides deep browser integration thro
 
 **[Install Lumo from the Chrome Web Store](https://chromewebstore.google.com/detail/lumo/cgfnadidpooocnkalljpdmelmaponefa)**
 
-This is the easiest way to install and it auto-updates. Note that **the Chrome Web Store version lags behind the code in this repository** — each release has to pass Google's review, so recently merged features and fixes are usually not in it yet.
+### Microsoft Edge Add-ons (stable)
+
+**[Install Lumo from Microsoft Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/lumo/ngbkkjamclloepccimlbfffkcablpahh)**
+
+The two listings are the same codebase published twice, so either is the easiest
+way to install and both auto-update. Note that **store versions lag behind the
+code in this repository** — each release has to pass that store's review, so
+recently merged features and fixes are usually not in them yet. Each listing is
+also a separate extension from the other, with its own settings and data.
 
 ### Latest build from GitHub Actions (up to date)
 
@@ -19,9 +27,9 @@ Every push to `main` is built by the [Build & Upload Extension](../../actions/wo
 1. Open the [latest successful workflow run](../../actions/workflows/build.yml?query=is%3Asuccess).
 2. Download the `lumo-chrome-mv3` artifact from the run's **Artifacts** section (requires being signed in to GitHub).
 3. Unzip it — GitHub wraps artifacts in a zip, and inside you get the unpacked extension directory.
-4. Go to `chrome://extensions`, enable **Developer mode**, click **Load unpacked**, and select the unzipped directory.
+4. Go to `chrome://extensions` (or `edge://extensions`), enable **Developer mode**, click **Load unpacked**, and select the unzipped directory.
 
-Caveats of this route: it does **not** auto-update (repeat the steps to upgrade), Chrome will show a "disable developer mode extensions" warning on startup, artifacts expire after GitHub's retention period, and it installs as a separate extension from the Web Store version. Builds from `main` are unreleased code and may be unstable.
+Caveats of this route: it does **not** auto-update (repeat the steps to upgrade), the browser will show a "disable developer mode extensions" warning on startup, artifacts expire after GitHub's retention period, and it installs as a separate extension from either store version. Builds from `main` are unreleased code and may be unstable.
 
 You can also [build from source](#getting-started) yourself.
 
@@ -219,7 +227,7 @@ from both modes stays readable.
 
 | Category | Technologies |
 |----------|-------------|
-| Framework | [WXT](https://wxt.dev) (Chrome Extension MV3) |
+| Framework | [WXT](https://wxt.dev) (Chromium Extension MV3) |
 | UI | React 19, Tailwind CSS 4, shadcn/ui, Radix UI |
 | AI | [Vercel AI SDK](https://ai-sdk.dev) (`ai`, `@ai-sdk/openai`, `@ai-sdk/anthropic`, `@ai-sdk/mcp`) |
 | Animation | Motion (Framer Motion) |
@@ -248,7 +256,7 @@ npm install
 npm run dev
 ```
 
-This starts WXT in development mode with hot reload. Load the extension from `.output/chrome-mv3` in Chrome (`chrome://extensions` → Developer mode → Load unpacked).
+This starts WXT in development mode with hot reload. Load the extension from `.output/chrome-mv3` in Chrome or Edge (`chrome://extensions` / `edge://extensions` → Developer mode → Load unpacked).
 
 ### Build
 
@@ -298,7 +306,8 @@ npm run compile
 
 ## Browser Support
 
-- Chrome / Chromium-based browsers (MV3)
+- Chrome and other Chromium-based browsers (MV3) — available on the [Chrome Web Store](https://chromewebstore.google.com/detail/lumo/cgfnadidpooocnkalljpdmelmaponefa)
+- Microsoft Edge (MV3) — available on [Microsoft Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/lumo/ngbkkjamclloepccimlbfffkcablpahh)
 - Firefox support available via `npm run dev:firefox` / `npm run build:firefox`
 
 ## License

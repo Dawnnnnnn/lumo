@@ -594,14 +594,16 @@
       "title": "關於",
       "refresh": "重新統計",
       "extensionId": "擴充功能 ID",
-      "storeBadge": "Chrome 線上應用程式商店版",
+      "channels": {
+        "chrome": "Chrome 線上應用程式商店",
+        "edge": "Microsoft Edge 擴充套件"
+      },
       "channelDesc": {
-        "store": "安裝自 Chrome 線上應用程式商店，會自動更新，但版本落後於儲存庫——每次發行都要先通過 Google 審查。",
+        "store": "安裝自瀏覽器擴充功能商店，會自動更新，但版本落後於儲存庫——每次發行都要先通過商店審查。",
         "github": "來自 GitHub Actions 成品或原始碼建置，不會自動更新。"
       },
       "groupLinks": "相關連結",
       "links": {
-        "store": "Chrome 線上應用程式商店",
         "repo": "GitHub 儲存庫"
       },
       "storage": {

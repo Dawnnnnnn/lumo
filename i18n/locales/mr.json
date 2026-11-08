@@ -594,14 +594,16 @@
       "title": "विषयी",
       "refresh": "पुन्हा गणना करा",
       "extensionId": "एक्स्टेंशन ID",
-      "storeBadge": "Chrome Web Store",
+      "channels": {
+        "chrome": "Chrome Web Store",
+        "edge": "Microsoft Edge ॲड-ऑन"
+      },
       "channelDesc": {
-        "store": "Chrome Web Store वरून स्थापित. ते स्वतः अद्यतनित होते, पण रिपॉझिटरीच्या मागे राहते — प्रत्येक रिलीजला प्रथम Google ची पुनरावलोकन प्रक्रिया पार करावी लागते.",
+        "store": "ब्राउझर एक्स्टेंशन स्टोअरवरून स्थापित. ते स्वतः अद्यतनित होते, पण रिपॉझिटरीच्या मागे राहते — प्रत्येक रिलीजला प्रथम स्टोअरची पुनरावलोकन प्रक्रिया पार करावी लागते.",
         "github": "GitHub Actions आर्टिफॅक्ट किंवा स्रोत कोडमधून तयार केलेले. ते स्वतः अद्यतनित होत नाही."
       },
       "groupLinks": "दुवे",
       "links": {
-        "store": "Chrome Web Store",
         "repo": "GitHub रिपॉझिटरी"
       },
       "storage": {

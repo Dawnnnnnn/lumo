@@ -596,14 +596,16 @@
       "title": "O aplikaci",
       "refresh": "Přepočítat",
       "extensionId": "ID rozšíření",
-      "storeBadge": "Chrome Web Store",
+      "channels": {
+        "chrome": "Chrome Web Store",
+        "edge": "Doplňky Microsoft Edge"
+      },
       "channelDesc": {
-        "store": "Nainstalováno z Chrome Web Store. Aktualizuje se automaticky, ale zaostává za repozitářem — každá verze musí nejprve projít kontrolou Google.",
+        "store": "Nainstalováno z obchodu s rozšířeními prohlížeče. Aktualizuje se automaticky, ale zaostává za repozitářem — každá verze musí nejprve projít kontrolou obchodu.",
         "github": "Sestaveno z artefaktu GitHub Actions nebo ze zdrojového kódu. Neaktualizuje se automaticky."
       },
       "groupLinks": "Odkazy",
       "links": {
-        "store": "Chrome Web Store",
         "repo": "Repozitář GitHub"
       },
       "storage": {

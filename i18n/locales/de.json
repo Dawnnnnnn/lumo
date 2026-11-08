@@ -594,14 +594,16 @@
       "title": "Info",
       "refresh": "Neu berechnen",
       "extensionId": "Erweiterungs-ID",
-      "storeBadge": "Chrome Web Store",
+      "channels": {
+        "chrome": "Chrome Web Store",
+        "edge": "Microsoft Edge-Add-Ons"
+      },
       "channelDesc": {
-        "store": "Aus dem Chrome Web Store installiert. Updates kommen automatisch, hinken aber dem Repository hinterher – jede Version muss erst Googles Prüfung bestehen.",
+        "store": "Aus einem Browser-Erweiterungsstore installiert. Updates kommen automatisch, hinken aber dem Repository hinterher – jede Version muss erst die Prüfung des Stores bestehen.",
         "github": "Aus einem GitHub-Actions-Artefakt oder aus dem Quellcode gebaut. Keine automatischen Updates."
       },
       "groupLinks": "Links",
       "links": {
-        "store": "Chrome Web Store",
         "repo": "GitHub-Repository"
       },
       "storage": {

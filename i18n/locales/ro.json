@@ -595,14 +595,16 @@
       "title": "Despre",
       "refresh": "Recalculează",
       "extensionId": "ID-ul extensiei",
-      "storeBadge": "Chrome Web Store",
+      "channels": {
+        "chrome": "Chrome Web Store",
+        "edge": "Suplimente Microsoft Edge"
+      },
       "channelDesc": {
-        "store": "Instalată din Chrome Web Store. Se actualizează automat, dar rămâne în urma depozitului — fiecare versiune trebuie mai întâi să treacă de verificarea Google.",
+        "store": "Instalată dintr-un magazin de extensii pentru browser. Se actualizează automat, dar rămâne în urma depozitului — fiecare versiune trebuie mai întâi să treacă de verificarea magazinului.",
         "github": "Construită dintr-un artefact GitHub Actions sau din codul sursă. Nu se actualizează automat."
       },
       "groupLinks": "Linkuri",
       "links": {
-        "store": "Chrome Web Store",
         "repo": "Depozit GitHub"
       },
       "storage": {

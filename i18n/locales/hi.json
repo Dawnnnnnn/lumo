@@ -594,14 +594,16 @@
       "title": "परिचय",
       "refresh": "फिर से गणना करें",
       "extensionId": "एक्सटेंशन ID",
-      "storeBadge": "Chrome Web Store",
+      "channels": {
+        "chrome": "Chrome Web Store",
+        "edge": "Microsoft Edge ऐड-ऑन"
+      },
       "channelDesc": {
-        "store": "Chrome Web Store से इंस्टॉल किया गया। यह स्वयं अपडेट होता है, लेकिन रिपॉज़िटरी से पीछे रहता है — हर रिलीज़ को पहले Google की समीक्षा पास करनी होती है।",
+        "store": "किसी ब्राउज़र एक्सटेंशन स्टोर से इंस्टॉल किया गया। यह स्वयं अपडेट होता है, लेकिन रिपॉज़िटरी से पीछे रहता है — हर रिलीज़ को पहले स्टोर की समीक्षा पास करनी होती है।",
         "github": "GitHub Actions आर्टिफ़ैक्ट या स्रोत कोड से बनाया गया। यह स्वयं अपडेट नहीं होता।"
       },
       "groupLinks": "लिंक",
       "links": {
-        "store": "Chrome Web Store",
         "repo": "GitHub रिपॉज़िटरी"
       },
       "storage": {

@@ -596,14 +596,16 @@
       "title": "O aplikaciji",
       "refresh": "Preračunaj",
       "extensionId": "ID razširitve",
-      "storeBadge": "Chrome Web Store",
+      "channels": {
+        "chrome": "Chrome Web Store",
+        "edge": "Razširitve za Microsoft Edge"
+      },
       "channelDesc": {
-        "store": "Nameščeno iz Chrome Web Store. Samodejno se posodablja, a zaostaja za repozitorijem — vsaka različica mora najprej prestati Googlov pregled.",
+        "store": "Nameščeno iz trgovine z razširitvami za brskalnik. Samodejno se posodablja, a zaostaja za repozitorem — vsaka različica mora najprej prestati pregled trgovine.",
         "github": "Zgrajeno iz artefakta GitHub Actions ali iz izvorne kode. Ne posodablja se samodejno."
       },
       "groupLinks": "Povezave",
       "links": {
-        "store": "Chrome Web Store",
         "repo": "Repozitorij GitHub"
       },
       "storage": {

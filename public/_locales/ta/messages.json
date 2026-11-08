@@ -5,7 +5,7 @@
   },
   "extDescription": {
     "message": "AI இயக்கும் உலாவி பக்கப்பட்டி உதவியாளர்",
-    "description": "The description of the extension shown in the Chrome Web Store and extension management page."
+    "description": "The description of the extension shown in browser extension stores (Chrome Web Store, Microsoft Edge Add-ons) and the extension management page."
   },
   "actionTitle": {
     "message": "Lumo பக்கப்பட்டியைத் திற",

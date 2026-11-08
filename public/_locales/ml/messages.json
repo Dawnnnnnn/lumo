@@ -5,7 +5,7 @@
   },
   "extDescription": {
     "message": "AI അടിസ്ഥാനമാക്കിയ ബ്രൗസർ സൈഡ്ബാർ അസിസ്റ്റന്റ്",
-    "description": "The description of the extension shown in the Chrome Web Store and extension management page."
+    "description": "The description of the extension shown in browser extension stores (Chrome Web Store, Microsoft Edge Add-ons) and the extension management page."
   },
   "actionTitle": {
     "message": "Lumo സൈഡ്ബാർ തുറക്കുക",

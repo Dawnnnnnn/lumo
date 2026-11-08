@@ -594,14 +594,16 @@
       "title": "Perihal",
       "refresh": "Kira semula",
       "extensionId": "ID sambungan",
-      "storeBadge": "Chrome Web Store",
+      "channels": {
+        "chrome": "Chrome Web Store",
+        "edge": "Tambahan Microsoft Edge"
+      },
       "channelDesc": {
-        "store": "Dipasang daripada Chrome Web Store. Ia mengemas kini sendiri tetapi ketinggalan daripada repositori — setiap keluaran mesti lulus semakan Google dahulu.",
+        "store": "Dipasang daripada kedai sambungan pelayar. Ia mengemas kini sendiri tetapi ketinggalan daripada repositori — setiap keluaran mesti lulus semakan kedai dahulu.",
         "github": "Dibina daripada artifak GitHub Actions atau daripada kod sumber. Ia tidak mengemas kini sendiri."
       },
       "groupLinks": "Pautan",
       "links": {
-        "store": "Chrome Web Store",
         "repo": "Repositori GitHub"
       },
       "storage": {

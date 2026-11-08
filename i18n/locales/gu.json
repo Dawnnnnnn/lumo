@@ -594,14 +594,16 @@
       "title": "વિશે",
       "refresh": "ફરી ગણતરી કરો",
       "extensionId": "એક્સ્ટેન્શન ID",
-      "storeBadge": "Chrome Web Store",
+      "channels": {
+        "chrome": "Chrome Web Store",
+        "edge": "Microsoft Edge ઍડ-ઑન"
+      },
       "channelDesc": {
-        "store": "Chrome Web Store પરથી સ્થાપિત. તે જાતે અપડેટ થાય છે, પણ રિપોઝિટરીથી પાછળ રહે છે — દરેક રિલીઝ પહેલા Googleની સમીક્ષા પાસ કરવી પડે છે.",
+        "store": "બ્રાઉઝર એક્સ્ટેન્શન સ્ટોર પરથી સ્થાપિત. તે જાતે અપડેટ થાય છે, પણ રિપોઝિટરીથી પાછળ રહે છે — દરેક રિલીઝ પહેલા સ્ટોરની સમીક્ષા પાસ કરવી પડે છે.",
         "github": "GitHub Actions આર્ટિફૅક્ટ કે સ્રોત કોડમાંથી બનાવેલું. તે જાતે અપડેટ થતું નથી."
       },
       "groupLinks": "લિંક",
       "links": {
-        "store": "Chrome Web Store",
         "repo": "GitHub રિપોઝિટરી"
       },
       "storage": {

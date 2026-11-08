@@ -594,14 +594,16 @@
       "title": "Hakkında",
       "refresh": "Yeniden hesapla",
       "extensionId": "Uzantı kimliği",
-      "storeBadge": "Chrome Web Store",
+      "channels": {
+        "chrome": "Chrome Web Store",
+        "edge": "Microsoft Edge uzantıları"
+      },
       "channelDesc": {
-        "store": "Chrome Web Store'dan yüklendi. Kendini günceller ancak deponun gerisinde kalır — her sürüm önce Google incelemesinden geçmelidir.",
+        "store": "Bir tarayıcı uzantı mağazasından yüklendi. Kendini günceller ancak deponun gerisinde kalır — her sürüm önce mağazanın incelemesinden geçmelidir.",
         "github": "Bir GitHub Actions çıktısından veya kaynak koddan derlendi. Kendini güncellemez."
       },
       "groupLinks": "Bağlantılar",
       "links": {
-        "store": "Chrome Web Store",
         "repo": "GitHub deposu"
       },
       "storage": {

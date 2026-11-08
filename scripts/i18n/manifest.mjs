@@ -24,11 +24,11 @@ const outDir = join(root, 'public/_locales');
 
 const check = process.argv.includes('--check');
 
-/** `description` is a translator hint; Chrome never renders it. */
+/** `description` is a translator hint; no browser renders it. */
 const KEY_DESCRIPTIONS = {
   extName: 'The display name of the extension.',
   extDescription:
-    'The description of the extension shown in the Chrome Web Store and extension management page.',
+    'The description of the extension shown in browser extension stores (Chrome Web Store, Microsoft Edge Add-ons) and the extension management page.',
   actionTitle: "Tooltip shown when hovering the extension's toolbar icon.",
 };
 

@@ -598,14 +598,16 @@
       "title": "حول",
       "refresh": "إعادة الحساب",
       "extensionId": "معرّف الإضافة",
-      "storeBadge": "Chrome Web Store",
+      "channels": {
+        "chrome": "Chrome Web Store",
+        "edge": "وظائف Microsoft Edge الإضافية"
+      },
       "channelDesc": {
-        "store": "مثبّتة من Chrome Web Store. تُحدّث نفسها تلقائيًا لكنها تتأخر عن المستودع — يجب أن يجتاز كل إصدار مراجعة Google أولًا.",
+        "store": "مثبّتة من متجر إضافات للمتصفح. تُحدّث نفسها تلقائيًا لكنها تتأخر عن المستودع — يجب أن يجتاز كل إصدار مراجعة المتجر أولًا.",
         "github": "مبنية من مخرجات GitHub Actions أو من الشيفرة المصدرية. لا تُحدّث نفسها تلقائيًا."
       },
       "groupLinks": "الروابط",
       "links": {
-        "store": "Chrome Web Store",
         "repo": "مستودع GitHub"
       },
       "storage": {

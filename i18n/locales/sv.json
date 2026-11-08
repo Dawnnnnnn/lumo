@@ -594,14 +594,16 @@
       "title": "Om",
       "refresh": "Beräkna om",
       "extensionId": "Tilläggs-ID",
-      "storeBadge": "Chrome Web Store",
+      "channels": {
+        "chrome": "Chrome Web Store",
+        "edge": "Microsoft Edge-tillägg"
+      },
       "channelDesc": {
-        "store": "Installerat från Chrome Web Store. Det uppdaterar sig självt men ligger efter förrådet — varje version måste först granskas av Google.",
+        "store": "Installerat från en tilläggsbutik för webbläsare. Det uppdaterar sig självt men ligger efter förrådet — varje version måste först granskas av butiken.",
         "github": "Byggt från en GitHub Actions-artefakt eller från källkoden. Det uppdaterar inte sig självt."
       },
       "groupLinks": "Länkar",
       "links": {
-        "store": "Chrome Web Store",
         "repo": "GitHub-förråd"
       },
       "storage": {

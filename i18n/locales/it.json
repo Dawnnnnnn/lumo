@@ -595,14 +595,16 @@
       "title": "Informazioni",
       "refresh": "Ricalcola",
       "extensionId": "ID estensione",
-      "storeBadge": "Chrome Web Store",
+      "channels": {
+        "chrome": "Chrome Web Store",
+        "edge": "Componenti aggiuntivi di Microsoft Edge"
+      },
       "channelDesc": {
-        "store": "Installata dal Chrome Web Store. Si aggiorna da sola, ma è indietro rispetto al repository: ogni versione deve prima superare la revisione di Google.",
+        "store": "Installata da uno store di estensioni del browser. Si aggiorna da sola, ma è indietro rispetto al repository: ogni versione deve prima superare la revisione dello store.",
         "github": "Compilata da un artefatto di GitHub Actions o dal codice sorgente. Non si aggiorna da sola."
       },
       "groupLinks": "Link",
       "links": {
-        "store": "Chrome Web Store",
         "repo": "Repository GitHub"
       },
       "storage": {

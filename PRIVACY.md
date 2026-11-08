@@ -4,7 +4,7 @@
 
 ## Overview
 
-Lumo is an open-source Chrome extension that provides an AI-powered sidebar assistant within your browser. This privacy policy describes how Lumo handles (or does not handle) user data.
+Lumo is an open-source browser extension that provides an AI-powered sidebar assistant within your browser. This privacy policy describes how Lumo handles (or does not handle) user data.
 
 ## Data Collection
 
@@ -61,4 +61,4 @@ If you have any questions or concerns regarding this privacy policy, please open
 
 ---
 
-*This privacy policy applies to the Lumo browser extension distributed via the Chrome Web Store and/or built from source.*
+*This privacy policy applies to the Lumo browser extension distributed via the Chrome Web Store, Microsoft Edge Add-ons, and/or built from source.*

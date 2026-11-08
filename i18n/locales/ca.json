@@ -595,14 +595,16 @@
       "title": "Quant a",
       "refresh": "Recalcula",
       "extensionId": "ID de l'extensió",
-      "storeBadge": "Chrome Web Store",
+      "channels": {
+        "chrome": "Chrome Web Store",
+        "edge": "Complements del Microsoft Edge"
+      },
       "channelDesc": {
-        "store": "Instal·lada des de Chrome Web Store. S'actualitza sola però va per darrere del repositori — cada versió ha de passar primer la revisió de Google.",
+        "store": "Instal·lada des d'una botiga d'extensions del navegador. S'actualitza sola però va per darrere del repositori — cada versió ha de passar primer la revisió de la botiga.",
         "github": "Compilada a partir d'un artefacte de GitHub Actions o del codi font. No s'actualitza sola."
       },
       "groupLinks": "Enllaços",
       "links": {
-        "store": "Chrome Web Store",
         "repo": "Repositori de GitHub"
       },
       "storage": {

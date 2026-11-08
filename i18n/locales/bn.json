@@ -594,14 +594,16 @@
       "title": "সম্পর্কে",
       "refresh": "পুনরায় গণনা",
       "extensionId": "এক্সটেনশন ID",
-      "storeBadge": "Chrome Web Store",
+      "channels": {
+        "chrome": "Chrome Web Store",
+        "edge": "Microsoft Edge অ্যাড-অন"
+      },
       "channelDesc": {
-        "store": "Chrome Web Store থেকে ইনস্টল করা। এটি নিজে আপডেট হয়, তবে রিপোজিটরির চেয়ে পিছিয়ে থাকে — প্রতিটি রিলিজকে আগে Google-এর পর্যালোচনা পাস করতে হয়।",
+        "store": "একটি ব্রাউজার এক্সটেনশন স্টোর থেকে ইনস্টল করা। এটি নিজে আপডেট হয়, তবে রিপোজিটরির চেয়ে পিছিয়ে থাকে — প্রতিটি রিলিজকে আগে স্টোরের পর্যালোচনা পাস করতে হয়।",
         "github": "GitHub Actions আর্টিফ্যাক্ট বা সোর্স কোড থেকে তৈরি। এটি নিজে আপডেট হয় না।"
       },
       "groupLinks": "লিংক",
       "links": {
-        "store": "Chrome Web Store",
         "repo": "GitHub রিপোজিটরি"
       },
       "storage": {

@@ -594,14 +594,16 @@
       "title": "Teave",
       "refresh": "Arvuta uuesti",
       "extensionId": "Laajendi ID",
-      "storeBadge": "Chrome Web Store",
+      "channels": {
+        "chrome": "Chrome Web Store",
+        "edge": "Microsoft Edge'i laiendused"
+      },
       "channelDesc": {
-        "store": "Paigaldatud Chrome Web Store'ist. Uuendab end automaatselt, kuid jääb hoidlast maha — iga versioon peab esmalt läbima Google'i ülevaatuse.",
+        "store": "Paigaldatud brauseri laienduste poest. Uuendab end automaatselt, kuid jääb hoidlast maha — iga versioon peab esmalt läbima poe ülevaatuse.",
         "github": "Ehitatud GitHub Actionsi artefaktist või lähtekoodist. Ei uuenda end automaatselt."
       },
       "groupLinks": "Lingid",
       "links": {
-        "store": "Chrome Web Store",
         "repo": "GitHubi hoidla"
       },
       "storage": {
