@@ -126,7 +126,7 @@ description: Chrome 扩展间 MCP 服务（extension provider）的完整实现�
 - **模型可见面只有工具名、`description` 与 `inputSchema`**：工具描述是唯一的语义通道，必须自解释。
 - **`annotations` 未消费**：`readOnlyHint` 等只是元数据；宿主不做权限判断，门禁在提供方。
 - **`structuredContent` 会随 JSON 文本一起回传**，但宿主模型侧走 `normalizeToCallToolResult` + `mcpToModelOutput`。
-- **上限**：单提供方最多 `MAX_TOOLS = 64` 个工具；namespace ≤16 字符；tool ≤40 字符；
+- **上限**：单提供方最多 `MAX_TOOLS = 1024` 个工具；namespace ≤16 字符；tool ≤40 字符；
   合计 ≤57 字符（低于 OpenAI function name 的 64 字符上限，**不要放宽**）。
 - **保留命名空间**：`browser` `page` `file` `network` `devtools` `webmcp` `ext`；命中则回退为 `ext_<id 前 8 位>`。
 - **不支持的 MCP 特性必须优雅降级**：提供方只注册 tools，客户端只调用 tools。

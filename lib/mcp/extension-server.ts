@@ -11,7 +11,7 @@ import type {
 import { probeExtension } from './extension-probe';
 import { ChromePortTransport } from './transports/chrome-port';
 
-const MAX_TOOLS = 64;
+const MAX_TOOLS = 1024;
 const RESERVED_NAMESPACES = new Set([
   'browser',
   'page',
