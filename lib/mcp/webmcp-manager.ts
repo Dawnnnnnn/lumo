@@ -345,47 +345,6 @@ export function initWebMcpManager(): void {
 }
 
 /**
- * Execute a WebMCP tool on a specific tab.
- */
-export async function executeWebMcpTool(
-  tabId: number,
-  toolName: string,
-  args: Record<string, unknown>,
-): Promise<{ success: boolean; result?: string; error?: string }> {
-  const executionId = `exec-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-
-  return new Promise((resolve) => {
-    // Set a timeout in case the content script doesn't respond
-    const timeout = setTimeout(() => {
-      resolve({ success: false, error: 'Tool execution timed out' });
-    }, 30000);
-
-    chrome.tabs
-      .sendMessage(tabId, {
-        type: 'webmcp:execute-tool',
-        executionId,
-        toolName,
-        args: JSON.stringify(args),
-      })
-      .then((response) => {
-        clearTimeout(timeout);
-        if (response && typeof response === 'object') {
-          resolve(response);
-        } else {
-          resolve({ success: false, error: 'No response from content script' });
-        }
-      })
-      .catch((err) => {
-        clearTimeout(timeout);
-        resolve({
-          success: false,
-          error: err instanceof Error ? err.message : String(err),
-        });
-      });
-  });
-}
-
-/**
  * Request a specific tab to re-report its tools.
  */
 export async function requestToolsFromTab(tabId: number): Promise<void> {

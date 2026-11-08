@@ -81,12 +81,17 @@ export interface WebMcpRequestToolsMessage {
 
 /**
  * Request the content script to execute a specific tool.
+ *
+ * `timeoutMs` is the budget the extension computed for this call (see
+ * `webmcp-timeout.ts`); the bridge uses it instead of a fixed timeout so a
+ * long-running page tool can be granted the time its caller asked for.
  */
 export interface WebMcpExecuteToolMessage {
   type: 'webmcp:execute-tool';
   toolName: string;
   args: string; // JSON stringified arguments
   executionId: string;
+  timeoutMs?: number;
 }
 
 export type WebMcpBackgroundMessage =

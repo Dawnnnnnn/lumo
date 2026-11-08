@@ -32,6 +32,10 @@
  * detected rather than subscribed to — see `isOrphaned`.
  */
 import { isWebMcpContentMessage } from '@/lib/mcp/webmcp-messages';
+import {
+  WEBMCP_DEFAULT_TIMEOUT_MS,
+  clampWebMcpTimeoutMs,
+} from '@/lib/mcp/webmcp-timeout';
 
 export default defineUnlistedScript(() => {
   // `enableWebMcp` both registers the script *and* injects it into open tabs,
@@ -122,15 +126,21 @@ export default defineUnlistedScript(() => {
     }
 
     if (type === 'webmcp:execute-tool') {
-      const { executionId, toolName, args } = message as {
+      const { executionId, toolName, args, timeoutMs } = message as {
         executionId: string;
         toolName: string;
         args: string;
+        timeoutMs?: number;
       };
 
       // The MAIN world may never answer — the page can navigate, or the tool
-      // can hang. Without a timeout the listener leaks and the background's
-      // port stays open until its own 30s timeout fires with no diagnosis.
+      // can hang. The budget comes from the caller (defaulted and clamped in
+      // `webmcp-timeout.ts`), so a long-running page tool is not cut at a
+      // number the page itself never asked for.
+      const budgetMs =
+        typeof timeoutMs === 'number' && Number.isFinite(timeoutMs)
+          ? clampWebMcpTimeoutMs(timeoutMs)
+          : WEBMCP_DEFAULT_TIMEOUT_MS;
       let settled = false;
       const finish = (response: unknown) => {
         if (settled) return;
@@ -160,9 +170,9 @@ export default defineUnlistedScript(() => {
       const timer = setTimeout(() => {
         finish({
           success: false,
-          error: 'WebMCP page script did not respond',
+          error: `WebMCP page script did not respond within ${budgetMs}ms`,
         });
-      }, 25_000);
+      }, budgetMs);
 
       window.addEventListener('message', handler);
 

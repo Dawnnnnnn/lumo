@@ -19,6 +19,40 @@ import type {
   WebMcpTabState,
 } from './types';
 import { WEBMCP_SESSION_KEY } from './webmcp-messages';
+import {
+  WEBMCP_TIMEOUT_FIELD,
+  resolveWebMcpTimeoutMs,
+} from './webmcp-timeout';
+
+/**
+ * Add our budget field to a page tool's schema.
+ *
+ * Only used when the page declares no `timeout` / `timeoutMs` of its own: the
+ * value is consumed by the bridge and stripped from the forwarded arguments, so
+ * the page tool never receives a parameter its schema does not define.
+ */
+function withTimeoutField(schema: Record<string, unknown>): Record<string, unknown> {
+  const properties = (schema.properties as Record<string, unknown> | undefined) ?? {};
+  return {
+    ...schema,
+    type: schema.type ?? 'object',
+    properties: {
+      ...properties,
+      [WEBMCP_TIMEOUT_FIELD]: {
+        type: 'number',
+        description:
+          'Execution budget in milliseconds (default 25000, max 600000). ' +
+          'Give a long-running tool more time; this argument is not passed to the page tool.',
+      },
+    },
+  };
+}
+
+/** Whether the page tool already declares a budget of its own. */
+function declaresTimeout(schema: Record<string, unknown>): boolean {
+  const properties = (schema.properties as Record<string, unknown> | undefined) ?? {};
+  return WEBMCP_TIMEOUT_FIELD in properties || 'timeout' in properties;
+}
 
 export class WebMcpServer implements IMcpServer {
   private status: McpServerStatus = 'disconnected';
@@ -111,16 +145,22 @@ export class WebMcpServer implements IMcpServer {
         const toolName = t.name;
 
         // Pass the original JSON Schema from the page's tool registration
-        // so the AI model knows exactly what parameters are expected.
-        const inputSchemaObj = (typeof t.inputSchema === 'string'
+        // so the AI model knows exactly what parameters are expected. When the
+        // page declares no timeout of its own, ours is added so the model can
+        // grant a long task more time; it is stripped before forwarding.
+        const pageSchema = (typeof t.inputSchema === 'string'
           ? (() => { try { return JSON.parse(t.inputSchema as unknown as string); } catch { return { type: 'object', properties: {} }; } })()
           : t.inputSchema) || { type: 'object', properties: {} };
+        const pageDeclaresTimeout = declaresTimeout(pageSchema);
+        const inputSchemaObj = pageDeclaresTimeout ? pageSchema : withTimeoutField(pageSchema);
 
         const aiTool: AnyTool = {
           description: `[WebMCP - Tab "${tabState.title}"] ${t.description}`,
           inputSchema: jsonSchema(inputSchemaObj),
           execute: async (args: any) => {
-            return this.executeTool(tabId, toolName, args as Record<string, unknown>);
+            return this.executeTool(tabId, toolName, args as Record<string, unknown>, {
+              stripTimeout: !pageDeclaresTimeout,
+            });
           },
         };
         aiTools[toolId] = aiTool;
@@ -168,15 +208,26 @@ export class WebMcpServer implements IMcpServer {
     tabId: number,
     toolName: string,
     args: Record<string, unknown>,
+    { stripTimeout }: { stripTimeout: boolean },
   ): Promise<unknown> {
     const executionId = `exec-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const timeoutMs = resolveWebMcpTimeoutMs(args);
+    // Our injected field is not part of the page tool's schema; forwarding it
+    // would either fail validation or arrive as an unknown extra argument.
+    const forwarded =
+      stripTimeout && args && typeof args === 'object'
+        ? Object.fromEntries(
+            Object.entries(args).filter(([key]) => key !== WEBMCP_TIMEOUT_FIELD),
+          )
+        : args;
 
     try {
       const response = await chrome.tabs.sendMessage(tabId, {
         type: 'webmcp:execute-tool',
         executionId,
         toolName,
-        args: JSON.stringify(args),
+        args: JSON.stringify(forwarded),
+        timeoutMs,
       });
 
       if (response && response.success) {
