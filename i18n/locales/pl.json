@@ -456,6 +456,7 @@
       "authReasonBusy": "W tej przeglądarce jest już otwarte inne logowanie. Najpierw je dokończ lub zamknij.",
       "authReasonServerFailed": "Nie udało się dokończyć logowania. Spróbuj ponownie; jeśli nadal się nie udaje, sprawdź konfigurację OAuth serwera lub dodaj nagłówek Authorization.",
       "authReasonTemporary": "Serwer autoryzacji ogranicza żądania z tej przeglądarki. Poczekaj chwilę i spróbuj ponownie.",
+      "authReasonExtensionApproval": "Zatwierdź Lumo w ustawieniach tego rozszerzenia, aby korzystać z jego narzędzi.",
       "builtin": "Wbudowany",
       "external": "Zewnętrzny",
       "enabled": "Włączony",
@@ -523,9 +524,16 @@
         "idPlaceholder": "32-znakowe ID rozszerzenia",
         "invalidId": "Wpisz 32-znakowe ID rozszerzenia Chromium.",
         "duplicate": "To rozszerzenie zostało już dodane",
+        "discovery": {
+          "label": "Gotowe do połączenia",
+          "add": "Dodaj {{name}}"
+        },
         "empty": "Nie dodano jeszcze dostawców rozszerzeń.",
         "badge": "Rozszerzenie",
         "refresh": "Połącz ponownie",
+        "authorize": "Autoryzuj",
+        "authorizing": "Oczekiwanie na zatwierdzenie…",
+        "unauthorized": "Wymagane zatwierdzenie",
         "remove": "Usuń dostawcę",
         "removeConfirm": "Przestać używać narzędzi tego rozszerzenia?"
       },

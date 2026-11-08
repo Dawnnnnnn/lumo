@@ -454,6 +454,7 @@
       "authReasonBusy": "In diesem Browser ist bereits eine andere Anmeldung geöffnet. Schließe sie zuerst ab.",
       "authReasonServerFailed": "Die Anmeldung konnte nicht abgeschlossen werden. Versuche es erneut; wenn es weiter fehlschlägt, prüfe die OAuth-Konfiguration des Servers oder füge stattdessen einen Authorization-Header hinzu.",
       "authReasonTemporary": "Der Autorisierungsserver begrenzt die Anfragen dieses Browsers. Warte einen Moment und versuche es erneut.",
+      "authReasonExtensionApproval": "Bestätige Lumo in den Einstellungen dieser Erweiterung, um ihre Werkzeuge zu nutzen.",
       "builtin": "Integriert",
       "external": "Extern",
       "enabled": "Aktiviert",
@@ -521,9 +522,16 @@
         "idPlaceholder": "32-stellige Erweiterungs-ID",
         "invalidId": "Gib eine 32-stellige Chromium-Erweiterungs-ID ein.",
         "duplicate": "Diese Erweiterung ist bereits hinzugefügt",
+        "discovery": {
+          "label": "Bereit zum Verbinden",
+          "add": "{{name}} hinzufügen"
+        },
         "empty": "Noch keine Erweiterungsanbieter hinzugefügt.",
         "badge": "Erweiterung",
         "refresh": "Neu verbinden",
+        "authorize": "Autorisieren",
+        "authorizing": "Warten auf Bestätigung…",
+        "unauthorized": "Bestätigung erforderlich",
         "remove": "Anbieter entfernen",
         "removeConfirm": "Die Tools dieser Erweiterung nicht mehr verwenden?"
       },

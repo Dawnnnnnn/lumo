@@ -455,6 +455,7 @@
       "authReasonBusy": "Ja hi ha un altre inici de sessió obert en aquest navegador. Acaba’l o tanca’l primer.",
       "authReasonServerFailed": "No s’ha pogut completar l’inici de sessió. Torna-ho a provar; si continua fallant, revisa la configuració OAuth del servidor o afegeix una capçalera Authorization.",
       "authReasonTemporary": "El servidor d’autorització està limitant les sol·licituds d’aquest navegador. Espera un moment i torna-ho a provar.",
+      "authReasonExtensionApproval": "Aprova el Lumo a la configuració d'aquesta extensió per fer servir les seves eines.",
       "builtin": "Integrat",
       "external": "Extern",
       "enabled": "Activat",
@@ -522,9 +523,16 @@
         "idPlaceholder": "ID d'extensió de 32 caràcters",
         "invalidId": "Introdueix un ID d'extensió de Chromium de 32 caràcters.",
         "duplicate": "Aquesta extensió ja està afegida",
+        "discovery": {
+          "label": "A punt per connectar",
+          "add": "Afegeix {{name}}"
+        },
         "empty": "Encara no s'ha afegit cap proveïdor d'extensió.",
         "badge": "Extensió",
         "refresh": "Torna a connectar",
+        "authorize": "Autoritza",
+        "authorizing": "S'està esperant l'aprovació…",
+        "unauthorized": "Cal aprovació",
         "remove": "Elimina el proveïdor",
         "removeConfirm": "Vols deixar d'utilitzar les eines d'aquesta extensió?"
       },

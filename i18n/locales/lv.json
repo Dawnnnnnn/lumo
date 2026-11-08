@@ -455,6 +455,7 @@
       "authReasonBusy": "Šajā pārlūkā jau ir atvērta cita pieteikšanās. Vispirms to pabeidziet vai aizveriet.",
       "authReasonServerFailed": "Pieteikšanos neizdevās pabeigt. Mēģiniet vēlreiz; ja tas joprojām neizdodas, pārbaudiet servera OAuth konfigurāciju vai pievienojiet Authorization galveni.",
       "authReasonTemporary": "Autorizācijas serveris ierobežo šīs pārlūkprogrammas pieprasījumus. Uzgaidiet mirkli un mēģiniet vēlreiz.",
+      "authReasonExtensionApproval": "Lai izmantotu šī paplašinājuma rīkus, apstipriniet Lumo tā iestatījumos.",
       "builtin": "Iebūvēts",
       "external": "Ārējs",
       "enabled": "Iespējots",
@@ -522,9 +523,16 @@
         "idPlaceholder": "32 rakstzīmju paplašinājuma ID",
         "invalidId": "Ievadiet 32 rakstzīmju Chromium paplašinājuma ID.",
         "duplicate": "Šis paplašinājums jau ir pievienots",
+        "discovery": {
+          "label": "Gatavs savienojumam",
+          "add": "Pievienot {{name}}"
+        },
         "empty": "Paplašinājumu piegādātāji vēl nav pievienoti.",
         "badge": "Paplašinājums",
         "refresh": "Savienot no jauna",
+        "authorize": "Atļaut",
+        "authorizing": "Gaida apstiprinājumu…",
+        "unauthorized": "Nepieciešams apstiprinājums",
         "remove": "Noņemt piegādātāju",
         "removeConfirm": "Pārtraukt šī paplašinājuma rīku lietošanu?"
       },

@@ -454,6 +454,7 @@
       "authReasonBusy": "此浏览器中已有一个登录流程正在进行，请先完成或关闭它。",
       "authReasonServerFailed": "登录未能完成。请重试；若持续失败，请检查该服务器的 OAuth 配置，或改为填写 Authorization 头。",
       "authReasonTemporary": "授权服务器正在限制此浏览器的请求频率，请稍后重试。",
+      "authReasonExtensionApproval": "在此扩展的设置中授权 Lumo，才能使用它的工具。",
       "builtin": "内置",
       "external": "外部",
       "enabled": "已启用",
@@ -521,9 +522,16 @@
         "idPlaceholder": "32 位扩展 ID",
         "invalidId": "请输入 32 位 Chromium 扩展 ID。",
         "duplicate": "该扩展已添加",
+        "discovery": {
+          "label": "待连接",
+          "add": "添加 {{name}}"
+        },
         "empty": "尚未添加扩展服务。",
         "badge": "扩展",
         "refresh": "重新连接",
+        "authorize": "授权",
+        "authorizing": "等待授权…",
+        "unauthorized": "需要授权",
         "remove": "移除服务",
         "removeConfirm": "停止使用此扩展提供的工具？"
       },

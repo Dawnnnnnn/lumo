@@ -455,6 +455,7 @@
       "authReasonBusy": "Ya hay otro inicio de sesión abierto en este navegador. Termínalo o ciérralo primero.",
       "authReasonServerFailed": "No se pudo completar el inicio de sesión. Inténtalo de nuevo; si sigue fallando, revisa la configuración OAuth del servidor o añade una cabecera Authorization.",
       "authReasonTemporary": "El servidor de autorización está limitando las solicitudes de este navegador. Espera un momento y vuelve a intentarlo.",
+      "authReasonExtensionApproval": "Aprueba Lumo en los ajustes de esta extensión para usar sus herramientas.",
       "builtin": "Integrado",
       "external": "Externo",
       "enabled": "Activado",
@@ -522,9 +523,16 @@
         "idPlaceholder": "ID de extensión de 32 caracteres",
         "invalidId": "Introduce un ID de extensión de Chromium de 32 caracteres.",
         "duplicate": "Esta extensión ya está añadida",
+        "discovery": {
+          "label": "Listo para conectar",
+          "add": "Añadir {{name}}"
+        },
         "empty": "Aún no se han añadido proveedores de extensión.",
         "badge": "Extensión",
         "refresh": "Reconectar",
+        "authorize": "Autorizar",
+        "authorizing": "Esperando aprobación…",
+        "unauthorized": "Se necesita aprobación",
         "remove": "Quitar proveedor",
         "removeConfirm": "¿Dejar de usar las herramientas de esta extensión?"
       },

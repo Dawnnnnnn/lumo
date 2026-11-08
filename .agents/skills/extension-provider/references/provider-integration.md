@@ -58,33 +58,51 @@ export default defineBackground(() => {
 - **在授权检查完成前不要构造 `McpServer`**，也不要读脚本库；
 - 授权检查是异步的（storage），所以 transport 必须先建好以接收并缓冲入站消息。
 
-## 3. L0 处理（`lib/agent/probe.ts`）
+## 3. L0 处理（`lib/agent/probe.ts` + `lib/agent/authorize.ts`）
 
-判定顺序见 `references/protocol.md` §2.4。实现要点：
+两条消息、两个函数，判定顺序见 `references/protocol.md` §2.4。
+
+`probe.ts` —— **只读**，一个副作用都不能有：
 
 ```ts
 if (request.version !== PROBE_VERSION) {
   return { ok: false, service, error: { code: 'UNSUPPORTED_PROTOCOL', message: ... } };
 }
 const settings = await storage.getAgentSettings();
+// 总闸：`promptOnRequest` 决定本扩展是否参与宿主集成（可被发现 + 可被授权）。
+if (!settings.promptOnRequest) {
+  return { ok: false, service, error: { code: 'REQUESTS_DISABLED', message: '...' } };
+}
 const authorized = Boolean(sender.id && settings.allowedExtensionIds.includes(sender.id));
 const availability = await checkUserScriptsAvailable();   // ready
-const pending = authorized ? undefined : await recordPendingRequest(sender.id, request.client);
-if (pending && !pending.dismissedAt) void promptForRequest(pending);
 return {
   ok: true, service,
   status: {
     enabled: settings.enabled,
     authorized,
     ready: availability.ok,
-    ...(pending && !pending.dismissedAt ? { pendingApproval: true } : {}),
     ...(availability.ok ? {} : { reason: { code: 'USER_SCRIPTS_UNAVAILABLE', message: availability.error } }),
   },
 };
 ```
 
-`pendingApproval` 的语义是「有一条未被 dismiss 的待审批请求」，
-**不是**「刚刚创建了请求」——否则用户每次探测都会看到「等待审批」。
+`authorize.ts` —— 唯一的副作用入口：
+
+```ts
+const settings = await storage.getAgentSettings();
+const authorized = Boolean(sender.id && settings.allowedExtensionIds.includes(sender.id));
+if (!authorized) {
+  // 不 await：写存储 + 开标签页，宿主正在等这条回复。
+  void recordPendingRequest(sender.id, request.client).then((pending) => promptForRequest(pending));
+}
+return { ok: true, service, status: { enabled: settings.enabled, authorized, ready: availability.ok } };
+```
+
+**不要**再往 probe 里塞 `recordPendingRequest`。那会让回答依赖历史（"探测过一次了"），
+并把回复挂在一条串行化的写队列上——一旦提示链路卡住，probe 就永远不回，
+宿主侧表现为「装了但探测不到」。
+
+## 4. 策略（`lib/agent/policy.ts`）
 
 ## 4. 策略（`lib/agent/policy.ts`）
 
@@ -105,7 +123,7 @@ export async function resolveAgentAccess(senderId?: string): Promise<AgentAccess
 | `allowedExtensionIds` | `[]` | allowlist，≤16 条，逐条校验 `/^[a-p]{32}$/` |
 | `allowWrites` | `true` | 是否注册写工具 / 是否允许写调用 |
 | `reviewWrites` | `false` | 新建脚本落盘即禁用 + `pendingReview` |
-| `promptOnRequest` | `true` | 未知扩展探测时自动打开设置页 |
+| `promptOnRequest` | `true` | **是否参与宿主集成**：关闭后不被发现、不弹窗（probe/authorize 都回 `REQUESTS_DISABLED`） |
 
 `enabled` 与 `authorized` 必须**分开**：宿主要渲染「去开启」与「去授权」两个不同动作。
 
@@ -258,19 +276,18 @@ export const WRITE_LIMIT = 30;
 ## 9. 审批体验（`lib/agent/pending.ts`）
 
 ```
-未授权探测
+lumo:authorize 且未授权
   → recordPendingRequest(senderId, client)
        · 无 senderId 或非法 ID → 忽略
        · 已授权 → 忽略
        · 复用同 ID 记录，更新 lastSeen / name / version
        · 队列上限 5，最新在前
-       · 已 dismiss 且超过 24h → 清除 dismissedAt（可再次提示）
+       · 已 dismiss → 直接清除 dismissedAt（显式请求重新可批准）
   → promptForRequest(pending)
-       · promptOnRequest=false 或 dismissed → 直接返回
-       · 同一请求 24h 内只提示一次（promptedAt）
-       · 全局 10s 内最多打开一次设置页（多宿主同时探测时防抢焦点）
-       · 先写 promptedAt 再开页：开页失败不得导致每次探测都重试
-       · 打开 options.html#/settings/agent
+       · promptOnRequest=false → 直接返回（且 probe 已经拒绝过，正常走不到这里）
+       · **没有冷却**：显式授权一次就弹一次；重复请求复用同一行并清掉 dismissedAt
+       · 写 promptedAt 供页面内审批弹窗判断"刚刚被请求"（PROMPT_FRESH_MS = 60s）
+       · 打开 options.html#/settings/agent（单例：已开则聚焦/导航）
 ```
 
 `approvePendingRequest(id)`：**同时**置 `enabled:true` 并加入 allowlist，然后从队列移除
@@ -284,7 +301,7 @@ export const WRITE_LIMIT = 30;
 
 - 每个 Port 一个 `McpServer`，不共享 session；
 - 限流桶、审计写入、pending 队列是模块级/存储级共享状态，必须幂等；
-- `pending.ts` 用 `chain` promise 串行化「读-改-写」，避免两个宿主同时探测时丢记录；
+- `pending.ts` 用 `chain` promise 串行化「读-改-写」，避免两个宿主同时授权时丢记录；
 - 不要在 `transport.onclose` 里清理全局状态（另一个会话仍在用）。
 
 ## 11. 最小骨架

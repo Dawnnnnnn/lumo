@@ -456,6 +456,7 @@
       "authReasonBusy": "Šioje naršyklėje jau atidarytas kitas prisijungimas. Pirmiausia jį užbaikite arba uždarykite.",
       "authReasonServerFailed": "Nepavyko užbaigti prisijungimo. Bandykite dar kartą; jei nepavyksta ir toliau, patikrinkite serverio OAuth konfigūraciją arba pridėkite Authorization antraštę.",
       "authReasonTemporary": "Autorizacijos serveris riboja šios naršyklės užklausas. Šiek tiek palaukite ir bandykite dar kartą.",
+      "authReasonExtensionApproval": "Kad galėtumėte naudoti šio plėtinio įrankius, patvirtinkite Lumo jo nustatymuose.",
       "builtin": "Įtaisytas",
       "external": "Išorinis",
       "enabled": "Įjungta",
@@ -523,9 +524,16 @@
         "idPlaceholder": "32 simbolių plėtinio ID",
         "invalidId": "Įveskite 32 simbolių Chromium plėtinio ID.",
         "duplicate": "Šis plėtinys jau pridėtas",
+        "discovery": {
+          "label": "Pasiruošę prisijungti",
+          "add": "Pridėti {{name}}"
+        },
         "empty": "Plėtinių tiekėjų dar nepridėta.",
         "badge": "Plėtinys",
         "refresh": "Prisijungti iš naujo",
+        "authorize": "Leisti",
+        "authorizing": "Laukiama patvirtinimo…",
+        "unauthorized": "Reikia patvirtinimo",
         "remove": "Pašalinti tiekėją",
         "removeConfirm": "Nustoti naudoti šio plėtinio įrankius?"
       },

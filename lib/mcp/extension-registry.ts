@@ -73,7 +73,9 @@ export function retryExtensionProviders(): void {
   for (const server of servers.values()) {
     if (!server.getInfo().enabled) continue;
     const status = server.getStatus();
-    if (status === 'connected' || status === 'connecting') continue;
+    // `authorizing` is an explicit request already in flight from the card's
+    // button; racing it with a retry would double-probe the provider.
+    if (status === 'connected' || status === 'connecting' || status === 'authorizing') continue;
     void server.connect();
   }
 }

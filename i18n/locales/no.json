@@ -454,6 +454,7 @@
       "authReasonBusy": "Det er allerede en annen innlogging åpen i denne nettleseren. Fullfør eller lukk den først.",
       "authReasonServerFailed": "Innloggingen kunne ikke fullføres. Prøv igjen; hvis det fortsatt mislykkes, sjekk serverens OAuth-konfigurasjon eller legg til en Authorization-header.",
       "authReasonTemporary": "Autorisasjonsserveren begrenser forespørsler fra denne nettleseren. Vent litt og prøv igjen.",
+      "authReasonExtensionApproval": "Godkjenn Lumo i innstillingene til denne utvidelsen for å bruke verktøyene.",
       "builtin": "Innebygd",
       "external": "Ekstern",
       "enabled": "Aktivert",
@@ -521,9 +522,16 @@
         "idPlaceholder": "32-tegns utvidelses-ID",
         "invalidId": "Skriv inn en 32-tegns Chromium-utvidelses-ID.",
         "duplicate": "Denne utvidelsen er allerede lagt til",
+        "discovery": {
+          "label": "Klar til tilkobling",
+          "add": "Legg til {{name}}"
+        },
         "empty": "Ingen utvidelsesleverandører lagt til ennå.",
         "badge": "Utvidelse",
         "refresh": "Koble til på nytt",
+        "authorize": "Autoriser",
+        "authorizing": "Venter på godkjenning…",
+        "unauthorized": "Godkjenning kreves",
         "remove": "Fjern leverandør",
         "removeConfirm": "Slutte å bruke verktøyene til denne utvidelsen?"
       },

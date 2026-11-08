@@ -14,7 +14,8 @@ description: Chrome 扩展间 MCP 服务（extension provider）的完整实现�
 一个已安装的 Chrome 扩展，只要满足三件事，就成为 Lumo 的「扩展服务」：
 
 1. manifest 声明 `externally_connectable`；
-2. 用 **一条自定义消息**（L0 probe）回答「我是谁 / 是否开启 / 是否授权 / 是否就绪」；
+2. 用 **两条自定义消息**（L0）回答「我是谁 / 是否开启 / 是否授权 / 是否就绪」（`lumo:probe`，只读）
+   并接受「请让我进」（`lumo:authorize`，唯一有副作用、唯一会弹窗）；
 3. 用 **标准 MCP**（L1）在名为 `lumo:mcp` 的 `chrome.runtime.Port` 上提供 `tools/list` 与 `tools/call`。
 
 宿主不需要为每个新提供方写代码：把提供方的 32 位扩展 ID 填进设置，即可发现并挂载其工具。
@@ -26,7 +27,8 @@ description: Chrome 扩展间 MCP 服务（extension provider）的完整实现�
 │   McpRegistry → ExtensionMcpServer(id=ext:<extId>)            │
 │              → @ai-sdk/mcp createMCPClient                    │
 └──────────┬───────────────────────────────────────────────────┘
-   L0 probe│ chrome.runtime.sendMessage(extId, {channel:'lumo:probe'})
+   L0 probe│ chrome.runtime.sendMessage(extId, {channel:'lumo:probe'})     只读
+   L0 auth │ chrome.runtime.sendMessage(extId, {channel:'lumo:authorize'}) 登记 + 弹窗
    L1 MCP  │ chrome.runtime.connect(extId, {name:'lumo:mcp'})
 ┌──────────▼──────────────── Provider（任一扩展） ──────────────┐
 │ background SW                                                │
@@ -43,7 +45,8 @@ description: Chrome 扩展间 MCP 服务（extension provider）的完整实现�
 
 因此：
 
-- **L0 是唯一自定义消息**，无状态、可随时呼叫、只回元数据（`service` + `status`）；
+- **L0 只有两条消息**：`probe` 只读（可随时重复，回元数据 `service` + `status`）、`authorize` 有副作用
+  （登记待审批 + 打开自己的审批界面）。读和做分开，是这套协议唯一的不变式；
 - **L1 完全标准**，JSON-RPC 由 SDK 负责，本仓库 `lib/mcp/extension-protocol.ts`
   里没有任何 JSON-RPC 或工具定义。
 
@@ -56,7 +59,11 @@ description: Chrome 扩展间 MCP 服务（extension provider）的完整实现�
 | 文件 | 职责 |
 | --- | --- |
 | `lib/mcp/extension-protocol.ts` | L0 常量、`ProbeRequest/ProbeResponse`、`isProbeResponse()`、`isExtensionId()` |
-| `lib/mcp/extension-probe.ts` | 发送 probe、1500ms 超时、区分「不可达」与「业务失败」 |
+| `lib/mcp/extension-probe.ts` | 发送 probe / authorize、2000ms 超时、区分「不可达」与「业务失败」 |
+| `lib/mcp/extension-catalog.ts` | 内置目录：已知 provider 的品牌名 + 各商店的扩展 ID |
+| `lib/mcp/extension-retry.ts` | 焦点 / 可见性恢复时节流重连（侧边栏与 options 共用） |
+| `entrypoints/options/mcp/useProviderDiscovery.ts` | 「已安装但未添加」：打开弹窗即并发探测每个 listing，取首个应答的 ID |
+| `entrypoints/options/mcp/ProviderDiscovery.tsx` | 命中行（整行即添加）；无命中或目录耗尽时整块不渲染 |
 | `lib/mcp/transports/chrome-port.ts` | 宿主侧 `MCPTransport` 实现（预启动缓冲、`isClosed`、`onDisconnect`） |
 | `lib/mcp/extension-server.ts` | `ExtensionMcpServer`：状态机、错误文案、工具命名空间、懒重连 |
 | `lib/mcp/extension-registry.ts` | 注册 / 按设置同步 / 焦点重试 / 手动 refresh |
@@ -75,9 +82,10 @@ description: Chrome 扩展间 MCP 服务（extension provider）的完整实现�
 | 文件 | 职责 |
 | --- | --- |
 | `lib/agent/protocol.ts` | 同一份 L0 契约的镜像 + `isProbeRequest()` 入参守卫 |
-| `lib/agent/probe.ts` | probe 处理：版本、策略、可用性、审批记录 |
+| `lib/agent/probe.ts` | `lumo:probe`：版本、策略、可用性（**只读，无副作用**） |
+| `lib/agent/authorize.ts` | `lumo:authorize`：登记待审批 + 打开自己的审批界面 |
 | `lib/agent/policy.ts` | `resolveAgentAccess(senderId)`，enabled 与 authorized 分离 |
-| `lib/agent/pending.ts` | 审批队列、冷却、自动打开设置页、approve/dismiss |
+| `lib/agent/pending.ts` | 审批队列、自动打开设置页（无冷却）、approve/dismiss |
 | `lib/agent/transport.ts` | 提供方侧 `Transport`（SDK 接口），授权检查期间的入站缓冲 |
 | `lib/agent/mcp-server.ts` | 每个 Port 建一个 `McpServer`，注册工具面 |
 | `lib/agent/tools.ts` | 工具面、读写门禁、按策略注册 |
@@ -87,10 +95,11 @@ description: Chrome 扩展间 MCP 服务（extension provider）的完整实现�
 | `store/storage-schema.ts` | `agentSettings`、`agentPendingRequests`（均不导出） |
 | `entrypoints/options/SettingsPage.tsx` | `#/settings/agent`：开关、允许列表、审批卡片、活动日志 |
 | `tests/agent.test.ts` | probe 矩阵、Port 往返、写门禁、审计 |
+| `tests/agent-authorize.test.ts` | probe 无副作用、authorize 才登记/弹窗、重复不叠窗 |
 
 ## 4. 不可违反的不变量
 
-1. **端口名固定为 `lumo:mcp`**，probe 频道固定为 `lumo:probe`，probe 版本为 `1`。
+1. **端口名固定为 `lumo:mcp`**，L0 频道固定为 `lumo:probe` 与 `lumo:authorize`，版本为 `1`。
 2. **`isExtensionId()` 是唯一 ID 判据**：`/^[a-p]{32}$/`。任何来源（UI、storage、导入）都必须过这一关。
 3. **probe 必须在未授权时也回 `ok:true`**，把拒绝写进 `status`；只有协议本身失败（版本、内部异常）才 `ok:false`。
    否则宿主无法区分「没装」「关了」「没授权」。
@@ -101,10 +110,22 @@ description: Chrome 扩展间 MCP 服务（extension provider）的完整实现�
 8. **重连必须重新 `initialize`**：提供方为每个 Port 新建 `McpServer`，不要使用 `initialInitializeResult`。
 9. **工具名必须带命名空间**，宿主侧形如 `<namespace>_<tool>`；冲突 first-wins，不静默覆盖。
 10. **L0 只回元数据**，工具与业务数据只在授权后的 L1 交换；日志与审计里不得出现脚本源码。
+11. **`lumo:probe` 必须无副作用**：不登记待审批、不写审计、不 `tabs.create()`、不 `promptForRequest()`。
+    它会被宿主反复调用（启动、每次设置写入、每次焦点重试、目录扫描用户还没添加的扩展），
+    任何副作用都会让回答依赖历史，或把回复挂到写队列上而"探测不到"。
+12. **`lumo:authorize` 是唯一允许有副作用的 L0**，也是唯一会抢用户焦点的：登记待审批 + 打开审批卡片。
+    回复**不要 await** 这条链路（宿主在等），审批结果由宿主下次 probe 观察。
+    **这条路径没有冷却**：用户点一次授权就必须看到一次弹窗；重复请求复用同一行并清掉 `dismissedAt`。
+13. **`promptOnRequest`（「扩展请求访问时打开设置」）是「是否参与宿主集成」的总闸**：关闭时
+    probe 与 authorize 都回 `ok:false` + `REQUESTS_DISABLED`，宿主因此连发现都不展示它。
+    默认开启。注意它**不是**提示偏好，而是可见性开关。
+14. **`status.enabled` 为 false 仍必须 `ok:true` 可被探测**：批准动作（`approvePendingRequest`）
+    会同时打开总开关并 allowlist 宿主，所以「关着」正是第一次接入的常见起点。
 
 ## 5. 状态矩阵（probe → 宿主行为）
 
-宿主 `ExtensionMcpServer.doConnect()` 按此顺序判定，文案即用户可见错误：
+宿主 `ExtensionMcpServer.connect()`（发 `lumo:probe`，只读）按此顺序判定。
+`authorize()`（发 `lumo:authorize`，用户点了「授权」）复用同一张表，只是会触发提供方弹窗：
 
 | probe 返回 | 宿主状态 | 用户看到 |
 | --- | --- | --- |
@@ -112,13 +133,14 @@ description: Chrome 扩展间 MCP 服务（extension provider）的完整实现�
 | 超时 1500ms / 其他异常 | `error` | 原始错误信息 |
 | `ok:false`（如 `UNSUPPORTED_PROTOCOL`） | `error` | `error.message` |
 | 缺 `service` 或 `status` | `error` | Probe response is missing service or status. |
-| `status.enabled === false` | `error` | Agent access is turned off in `<name>`. |
-| `!authorized && pendingApproval` | `error` | `<name>` is waiting for you to approve this extension. Open its settings, allow `<lumoId>`, then reconnect. |
-| `!authorized` | `error` | `<name>` does not allow this extension. Add `<lumoId>` to its allowed extension IDs. |
+| `status.enabled === false` | `unauthorized`（非错误） | 与「未授权」同一个卡片动作：批准动作会同时打开总开关并加入 allowlist |
+| `!authorized` | `unauthorized`（非错误） | 琥珀色「Approval needed」+「Authorize」按钮；详情面板一句「Approve Lumo in this extension’s settings…」 |
 | `!ready` | `error` | `status.reason.message` ?? `<name>` is not ready. |
 | 全部通过 | `connecting → connected` | 工具列表出现（卡片上显示数量） |
 
-`McpServerStatus` 只有四态：`connected | connecting | disconnected | error`。
+`McpServerStatus` 六态：`connected | connecting | disconnected | error | unauthorized | authorizing`。
+后两态与 HTTP/OAuth 卡片共用（`StatusBadge` 允许覆写文案），差别只在语义：扩展服务是「去提供方设置里批准」，
+HTTP 服务是「登录」。
 
 ## 6. 能力边界（当前实现）
 

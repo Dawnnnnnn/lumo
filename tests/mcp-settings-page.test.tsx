@@ -27,6 +27,8 @@ const registerExternalServer = vi.fn((config: { id: string }) => ({
 }));
 const states: McpServerState[] = [];
 const listeners = new Set<() => void>();
+/** Server the page asks the registry for when a card's action is pressed. */
+const getServer = vi.fn((_id: string) => undefined as undefined | { authorize: () => void });
 
 vi.mock('@/store/storage', () => ({
   storage: {
@@ -44,7 +46,7 @@ vi.mock('@/lib/mcp', () => ({
       return () => listeners.delete(listener);
     },
     notifyChange: () => listeners.forEach((listener) => listener()),
-    getServer: () => undefined,
+    getServer: (id: string) => getServer(id),
   },
   initBuiltinMcpServers: async () => {},
   registerExternalServer: (config: { id: string }) => registerExternalServer(config),
@@ -77,6 +79,23 @@ afterEach(cleanup);
 
 const ADD_SERVER = 'options.mcp.addServer';
 const ADD_EXTENSION = 'options.mcp.extensions.add';
+
+/** A provider that answered and is waiting for its own approval. */
+function unauthorizedProvider(id: string): McpServerState {
+  return {
+    info: {
+      id: `ext:${id}`,
+      name: 'Lumo Userscripts',
+      description: 'Lumo Userscripts 1.0.2 · extension provider',
+      transport: 'extension',
+      builtin: false,
+      enabled: true,
+    },
+    status: 'unauthorized',
+    tools: [],
+    authError: { reason: 'extension-approval' },
+  };
+}
 
 describe('McpSettings composition', () => {
   it('keeps the list in place and opens a dialog for the new server', async () => {
@@ -124,6 +143,30 @@ describe('McpSettings composition', () => {
 
     const dialog = await screen.findByRole('dialog');
     expect(within(dialog).getByLabelText('options.mcp.extensions.idLabel', { exact: false })).toBeTruthy();
+  });
+
+  it('offers authorization on the card and asks the provider only when pressed', async () => {
+    const id = 'c'.repeat(32);
+    const authorize = vi.fn();
+    getServer.mockReturnValue({ authorize });
+    settings.extensionProviders = [{ id, enabled: true }];
+    states.push(unauthorizedProvider(id));
+
+    try {
+      render(<McpSettings />);
+
+      // Adding never prompted the provider — this is the button that does.
+      const button = await screen.findByRole('button', { name: 'options.mcp.extensions.authorize' });
+      expect(authorize).not.toHaveBeenCalled();
+      expect(screen.getByText('options.mcp.extensions.unauthorized')).toBeTruthy();
+
+      fireEvent.click(button);
+      expect(getServer).toHaveBeenCalledWith(`ext:${id}`);
+      expect(authorize).toHaveBeenCalledTimes(1);
+    } finally {
+      states.length = 0;
+      getServer.mockReset();
+    }
   });
 
   it('persists a valid extension id', async () => {

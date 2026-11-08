@@ -455,6 +455,7 @@
       "authReasonBusy": "U ovom je pregledniku već otvorena druga prijava. Prvo je dovršite ili zatvorite.",
       "authReasonServerFailed": "Prijava nije dovršena. Pokušajte ponovno; ako i dalje ne uspijeva, provjerite OAuth konfiguraciju poslužitelja ili dodajte zaglavlje Authorization.",
       "authReasonTemporary": "Poslužitelj za autorizaciju ograničava zahtjeve ovog preglednika. Pričekajte trenutak i pokušajte ponovno.",
+      "authReasonExtensionApproval": "Odobrite Lumo u postavkama ovog proširenja da biste koristili njegove alate.",
       "builtin": "Ugrađeno",
       "external": "Vanjsko",
       "enabled": "Omogućeno",
@@ -522,9 +523,16 @@
         "idPlaceholder": "32-znakovni ID proširenja",
         "invalidId": "Unesite 32-znakovni ID Chromium proširenja.",
         "duplicate": "Ovo proširenje je već dodano",
+        "discovery": {
+          "label": "Spremno za povezivanje",
+          "add": "Dodaj {{name}}"
+        },
         "empty": "Još nema dodanih pružatelja proširenja.",
         "badge": "Proširenje",
         "refresh": "Ponovno poveži",
+        "authorize": "Odobri",
+        "authorizing": "Čeka se odobrenje…",
+        "unauthorized": "Potrebno odobrenje",
         "remove": "Ukloni pružatelja",
         "removeConfirm": "Prestati koristiti alate ovog proširenja?"
       },

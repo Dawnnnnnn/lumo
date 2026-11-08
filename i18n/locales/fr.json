@@ -455,6 +455,7 @@
       "authReasonBusy": "Une autre connexion est déjà ouverte dans ce navigateur. Terminez-la ou fermez-la d’abord.",
       "authReasonServerFailed": "La connexion n’a pas pu aboutir. Réessayez ; si l’échec persiste, vérifiez la configuration OAuth du serveur ou ajoutez plutôt un en-tête Authorization.",
       "authReasonTemporary": "Le serveur d’autorisation limite les requêtes de ce navigateur. Patientez un instant, puis réessayez.",
+      "authReasonExtensionApproval": "Approuvez Lumo dans les réglages de cette extension pour utiliser ses outils.",
       "builtin": "Intégré",
       "external": "Externe",
       "enabled": "Activé",
@@ -522,9 +523,16 @@
         "idPlaceholder": "ID d'extension à 32 caractères",
         "invalidId": "Saisissez un ID d'extension Chromium à 32 caractères.",
         "duplicate": "Cette extension est déjà ajoutée",
+        "discovery": {
+          "label": "Prêt à connecter",
+          "add": "Ajouter {{name}}"
+        },
         "empty": "Aucun fournisseur d'extension ajouté pour l'instant.",
         "badge": "Extension",
         "refresh": "Reconnecter",
+        "authorize": "Autoriser",
+        "authorizing": "En attente d’approbation…",
+        "unauthorized": "Approbation requise",
         "remove": "Retirer le fournisseur",
         "removeConfirm": "Arrêter d'utiliser les outils de cette extension ?"
       },

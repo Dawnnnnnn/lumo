@@ -22,6 +22,7 @@ export default defineConfig({
 ```ts
 // lib/agent/protocol.ts
 export const PROBE_CHANNEL = 'lumo:probe' as const;
+export const AUTHORIZE_CHANNEL = 'lumo:authorize' as const;
 export const PROBE_VERSION = 1;
 export const MCP_PORT_NAME = 'lumo:mcp';
 export const AGENT_NAMESPACE = 'myservice';   // → 工具名前缀 myservice_
@@ -41,16 +42,26 @@ export interface ProbeResponse {
     enabled: boolean;
     authorized: boolean;
     ready: boolean;
-    pendingApproval?: boolean;
     reason?: { code: string; message: string };
   };
   error?: { code: string; message: string };
+}
+
+// 两条 L0 消息形状相同，只有 channel 不同：一个只读，一个登记并弹窗。
+export interface AuthorizeRequest extends Omit<ProbeRequest, 'channel'> {
+  channel: typeof AUTHORIZE_CHANNEL;
 }
 
 export function isProbeRequest(value: unknown): value is ProbeRequest {
   if (!value || typeof value !== 'object') return false;
   const data = value as Record<string, unknown>;
   return data.channel === PROBE_CHANNEL && typeof data.version === 'number';
+}
+
+export function isAuthorizeRequest(value: unknown): value is AuthorizeRequest {
+  if (!value || typeof value !== 'object') return false;
+  const data = value as Record<string, unknown>;
+  return data.channel === AUTHORIZE_CHANNEL && typeof data.version === 'number';
 }
 
 export function isExtensionId(value: unknown): value is string {
@@ -124,7 +135,7 @@ export class ChromePortTransport implements Transport {
 }
 ```
 
-## 4. Probe
+## 4. Probe（只读）与 Authorize（唯一有副作用）
 
 ```ts
 // lib/agent/probe.ts
@@ -157,10 +168,10 @@ export async function handleProbe(
   // 3. 就绪：这里换成你自己的能力检查。
   const ready = true;
 
-  // 4. 未授权 → 记录待审批（真实实现还应打开设置页 + 冷却）。
-  // const pending = authorized ? undefined : await recordPendingRequest(sender.id, request.client);
-
-  // 5. 业务拒绝也是 ok:true。
+  // 4. 业务拒绝也是 ok:true。
+  //    这里**不要**登记待审批、不要开页面：probe 会被宿主反复调用（启动 /
+  //    设置写入 / 焦点重试 / 目录扫描），一旦有副作用就会变成「探测过一次
+  //    就再也不回」。
   return {
     ok: true,
     service,
@@ -174,6 +185,29 @@ export async function handleProbe(
 }
 ```
 
+```ts
+// lib/agent/authorize.ts —— 用户点了宿主的「授权」，这里才是该弹窗的地方
+export async function handleAuthorize(
+  request: AuthorizeRequest,
+  sender: chrome.runtime.MessageSender,
+): Promise<ProbeResponse> {
+  const service = { namespace: AGENT_NAMESPACE, name: AGENT_SERVICE_NAME, version: chrome.runtime.getManifest().version };
+  if (request.version !== PROBE_VERSION) {
+    return { ok: false, service, error: { code: 'UNSUPPORTED_PROTOCOL', message: '...' } };
+  }
+
+  const settings = await storage.getAgentSettings();
+  const authorized = Boolean(sender.id && settings.allowedExtensionIds.includes(sender.id));
+
+  if (!authorized) {
+    // 不 await：写存储 + 开标签页，宿主正在等这条回复。
+    void recordPendingRequest(sender.id, request.client).then((pending) => promptForRequest(pending));
+  }
+
+  return { ok: true, service, status: { enabled: settings.enabled, authorized, ready: true } };
+}
+```
+
 ## 5. 后台接线
 
 ```ts
@@ -181,7 +215,8 @@ export async function handleProbe(
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { handleProbe } from '@/lib/agent/probe';
-import { isProbeRequest, MCP_PORT_NAME } from '@/lib/agent/protocol';
+import { handleAuthorize } from '@/lib/agent/authorize';
+import { isAuthorizeRequest, isProbeRequest, MCP_PORT_NAME } from '@/lib/agent/protocol';
 import { ChromePortTransport } from '@/lib/agent/transport';
 import { storage } from '@/store/storage';
 
@@ -207,10 +242,16 @@ function createServer(senderId: string | undefined): McpServer {
 }
 
 export default defineBackground(() => {
-  // 必须同步注册。
+  // 必须同步注册；两条 L0 消息共用一个监听器。
   chrome.runtime.onMessageExternal.addListener((message, sender, sendResponse) => {
-    if (!isProbeRequest(message)) return false;
-    void handleProbe(message, sender).then(sendResponse, (error) =>
+    const handler = isProbeRequest(message)
+      ? handleProbe(message, sender)
+      : isAuthorizeRequest(message)
+        ? handleAuthorize(message, sender)
+        : null;
+    if (!handler) return false;
+
+    void handler.then(sendResponse, (error) =>
       sendResponse({ ok: false, error: { code: 'INTERNAL', message: String(error) } }),
     );
     return true;
@@ -238,9 +279,9 @@ export default defineBackground(() => {
 ## 6. 接上宿主
 
 1. 构建 → Load unpacked → 复制扩展 ID；
-2. Lumo → 设置 → MCP → Extensions → Add extension → 粘贴；
-3. 去提供方设置页把 Lumo 的 ID 加进 allowlist 并打开总开关；
-4. 回侧栏，卡片应变 `connected`，工具出现 `myservice_ping`；
+2. Lumo → 设置 → MCP → Extensions → Add extension（内置目录命中时直接点那一行）；
+3. 卡片显示「需要授权」→ 点「授权」→ 提供方弹出审批卡片 →「允许并启用」；
+4. 回侧栏（焦点重试自动连上），卡片应变 `connected`，工具出现 `myservice_ping`；
 5. 在对话里调用，验证返回。
 
 ## 7. 之后必须补的

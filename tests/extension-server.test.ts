@@ -10,13 +10,17 @@ interface FakeTransport {
 
 const mocks = vi.hoisted(() => ({
   probe: vi.fn(),
+  authorize: vi.fn(),
   listTools: vi.fn(),
   callTool: vi.fn(),
   createClient: vi.fn(),
   transports: [] as FakeTransport[],
 }));
 
-vi.mock('@/lib/mcp/extension-probe', () => ({ probeExtension: mocks.probe }));
+vi.mock('@/lib/mcp/extension-probe', () => ({
+  probeExtension: mocks.probe,
+  authorizeExtension: mocks.authorize,
+}));
 vi.mock('@ai-sdk/mcp', () => ({
   createMCPClient: async ({ transport }: { transport: FakeTransport }) => {
     mocks.createClient();
@@ -76,6 +80,7 @@ beforeEach(() => {
     },
   });
   mocks.probe.mockResolvedValue(probeOk());
+  mocks.authorize.mockResolvedValue(probeOk());
   mocks.listTools.mockResolvedValue({
     tools: [
       {
@@ -144,18 +149,49 @@ describe('ExtensionMcpServer', () => {
     expect(result).toEqual({ content: [{ type: 'text', text: 'ok' }] });
   });
 
-  it('fails closed when the provider does not allow this extension', async () => {
+  it('connects with the read-only probe, and never with the authorize message', async () => {
+    const server = new ExtensionMcpServer(config);
+    await server.connect();
+
+    // `lumo:probe` is what keeps startup / settings writes / focus retries from
+    // opening the provider's own settings tab.
+    expect(mocks.probe).toHaveBeenCalledWith(EXT_A);
+    expect(mocks.authorize).not.toHaveBeenCalled();
+  });
+
+  it('waits for approval instead of failing when the provider says no', async () => {
     mocks.probe.mockResolvedValue(
       probeOk({ status: { enabled: true, authorized: false, ready: true } }),
     );
     const server = new ExtensionMcpServer(config);
     await server.connect();
 
-    expect(server.getStatus()).toBe('error');
-    expect(server.getError()).toContain('does not allow this extension');
+    // Not `error`: nothing is broken, a person has to decide.
+    expect(server.getStatus()).toBe('unauthorized');
+    expect(server.getAuthError()).toEqual({ reason: 'extension-approval' });
+    expect(server.getError()).toBeUndefined();
+    expect(server.getInfo().name).toBe('Lumo Userscripts');
+    expect(mocks.createClient).not.toHaveBeenCalled();
   });
 
-  it('explains a pending approval instead of a generic refusal', async () => {
+  it('drops the cached tool surface when the grant is gone', async () => {
+    const server = new ExtensionMcpServer(config);
+    await server.connect();
+    expect(server.getTools()).toHaveLength(2);
+
+    // The provider revokes access while the cached session is still alive.
+    mocks.probe.mockResolvedValue(
+      probeOk({ status: { enabled: true, authorized: false, ready: true } }),
+    );
+    mocks.transports[0]!.isClosed = true;
+    await server.connect();
+
+    expect(server.getStatus()).toBe('unauthorized');
+    expect(server.getTools()).toEqual([]);
+    expect(server.getAITools()).toEqual({});
+  });
+
+  it('distinguishes a pending request from a refusal in the reason it carries', async () => {
     mocks.probe.mockResolvedValue(
       probeOk({
         status: { enabled: true, authorized: false, ready: true, pendingApproval: true },
@@ -164,19 +200,68 @@ describe('ExtensionMcpServer', () => {
     const server = new ExtensionMcpServer(config);
     await server.connect();
 
-    expect(server.getStatus()).toBe('error');
-    expect(server.getError()).toContain('waiting for you to approve');
+    expect(server.getStatus()).toBe('unauthorized');
+    expect(server.getAuthError()).toEqual({ reason: 'extension-approval' });
   });
 
-  it('reports a disabled provider instead of connecting', async () => {
+  it('uses the authorize message in `authorize`, then connects once approved', async () => {
+    // The probe is refused; `authorize` is the user's explicit request, and the
+    // provider answers it after the approval it triggered.
+    mocks.probe.mockResolvedValue(
+      probeOk({ status: { enabled: true, authorized: false, ready: true } }),
+    );
+
+    const server = new ExtensionMcpServer(config);
+    await server.connect();
+    expect(server.getStatus()).toBe('unauthorized');
+
+    await server.authorize();
+
+    expect(mocks.authorize).toHaveBeenCalledWith(EXT_A);
+    expect(server.getStatus()).toBe('connected');
+    expect(server.getAuthError()).toBeUndefined();
+  });
+
+  it('stays waiting after `authorize` while the user has not approved yet', async () => {
+    mocks.authorize.mockResolvedValue(
+      probeOk({ status: { enabled: true, authorized: false, ready: true } }),
+    );
+
+    const server = new ExtensionMcpServer(config);
+    await server.authorize();
+
+    expect(server.getStatus()).toBe('unauthorized');
+    // The grant is picked up by the retry-on-focus, not by this call.
+    expect(mocks.createClient).not.toHaveBeenCalled();
+  });
+
+  it('reports a provider that does not speak the authorize message yet', async () => {
+    // An older provider has no `lumo:authorize` listener: the send rejects.
+    mocks.authorize.mockResolvedValue({
+      ok: false,
+      unreachable: true,
+      error: 'Could not establish connection. Receiving end does not exist.',
+    });
+
+    const server = new ExtensionMcpServer(config);
+    await server.authorize();
+
+    expect(server.getStatus()).toBe('error');
+    expect(server.getError()).toContain('no approval endpoint');
+  });
+
+  it('asks for approval when the provider\'s agent switch is off', async () => {
+    // Off is not broken: `approvePendingRequest` enables it and allowlists the
+    // host in one click, so the card offers that click instead of an error.
     mocks.probe.mockResolvedValue(
       probeOk({ status: { enabled: false, authorized: true, ready: true } }),
     );
     const server = new ExtensionMcpServer(config);
     await server.connect();
 
-    expect(server.getStatus()).toBe('error');
-    expect(server.getError()).toContain('turned off');
+    expect(server.getStatus()).toBe('unauthorized');
+    expect(server.getAuthError()).toEqual({ reason: 'extension-approval' });
+    expect(mocks.createClient).not.toHaveBeenCalled();
   });
 
   it('reports an unreachable extension', async () => {

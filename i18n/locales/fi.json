@@ -454,6 +454,7 @@
       "authReasonBusy": "Tässä selaimessa on jo toinen kirjautuminen auki. Suorita tai sulje se ensin.",
       "authReasonServerFailed": "Kirjautumista ei voitu suorittaa loppuun. Yritä uudelleen; jos se ei edelleenkään onnistu, tarkista palvelimen OAuth-asetukset tai lisää Authorization-otsake.",
       "authReasonTemporary": "Valtuutuspalvelin rajoittaa tämän selaimen pyyntöjä. Odota hetki ja yritä uudelleen.",
+      "authReasonExtensionApproval": "Hyväksy Lumo tämän laajennuksen asetuksissa, jotta voit käyttää sen työkaluja.",
       "builtin": "Sisäänrakennettu",
       "external": "Ulkoinen",
       "enabled": "Käytössä",
@@ -521,9 +522,16 @@
         "idPlaceholder": "32 merkin laajennuksen tunnus",
         "invalidId": "Anna 32 merkin Chromium-laajennuksen tunnus.",
         "duplicate": "Tämä laajennus on jo lisätty",
+        "discovery": {
+          "label": "Valmis yhdistämään",
+          "add": "Lisää {{name}}"
+        },
         "empty": "Laajennustarjoajia ei ole vielä lisätty.",
         "badge": "Laajennus",
         "refresh": "Yhdistä uudelleen",
+        "authorize": "Myönnä lupa",
+        "authorizing": "Odotetaan hyväksyntää…",
+        "unauthorized": "Vaatii hyväksynnän",
         "remove": "Poista tarjoaja",
         "removeConfirm": "Lopetetaanko tämän laajennuksen työkalujen käyttö?"
       },

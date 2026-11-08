@@ -17,6 +17,27 @@ vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }));
 
+/**
+ * The dialog's scan is exercised in `extension-discovery.test.tsx`; here it only
+ * has to be deterministic — and off by default, so the field tests below are not
+ * racing a probe that will never answer in jsdom.
+ */
+let installedId: string | null = null;
+vi.mock('@/lib/mcp/extension-probe', () => ({
+  probeExtension: async (id: string) =>
+    id === installedId
+      ? {
+          ok: true,
+          response: {
+            ok: true,
+            service: { namespace: 'userscripts', name: 'Lumo Userscripts', version: '1.0.2' },
+            status: { enabled: true, authorized: false, ready: true },
+          },
+        }
+      : { ok: false, unreachable: true, error: 'Could not establish connection.' },
+}));
+
+const { CATALOG_PROVIDERS } = await import('@/lib/mcp/extension-catalog');
 const { ServerDialog } = await import('@/entrypoints/options/mcp/ServerDialog');
 const { ExtensionDialog } = await import('@/entrypoints/options/mcp/ExtensionDialog');
 const { parseHeaderLines, headersToText } = await import('@/entrypoints/options/mcp/validation');
@@ -162,6 +183,36 @@ describe('ExtensionDialog', () => {
 
     await waitFor(() => expect(onSave).toHaveBeenCalledWith(VALID_ID));
     expect(onClose).toHaveBeenCalled();
+  });
+
+  it('adds an installed catalog provider in one click and closes on the card', async () => {
+    const listing = CATALOG_PROVIDERS[0]?.listings[0];
+    if (!listing) throw new Error('catalog has no listings');
+    installedId = listing.id;
+    try {
+      const { onSave, onClose } = renderExtensionDialog();
+      const row = await screen.findByRole('button', {
+        name: 'options.mcp.extensions.discovery.add',
+      });
+      fireEvent.click(row);
+
+      await waitFor(() => expect(onSave).toHaveBeenCalledWith(listing.id));
+      // No id typing was needed. Both add paths end the same way — the dialog
+      // closes — because the provider's own state ("approval needed", tool count)
+      // only exists on the card behind it.
+      expect(onClose).toHaveBeenCalled();
+    } finally {
+      installedId = null;
+    }
+  });
+
+  it('drops the scan block once every catalog provider is configured', () => {
+    renderExtensionDialog(CATALOG_PROVIDERS.flatMap((p) => p.listings.map((l) => l.id)));
+
+    expect(
+      screen.queryByRole('region', { name: 'options.mcp.extensions.discovery.label' }),
+    ).toBeNull();
+    expect(screen.getByLabelText(EXTENSION_LABEL, EXACT_PREFIX)).toBeTruthy();
   });
 });
 

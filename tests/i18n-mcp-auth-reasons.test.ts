@@ -23,6 +23,9 @@ const REASONS: McpAuthFailureReason[] = [
   'busy',
   'authorization-server-error',
   'temporary',
+  // Not OAuth: the extension provider wants the user's approval, and the card
+  // reuses this surface so the wording stays localized.
+  'extension-approval',
 ];
 
 beforeAll(async () => {

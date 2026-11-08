@@ -7,26 +7,33 @@
 
 | 名称 | 值 | 说明 |
 | --- | --- | --- |
-| `PROBE_CHANNEL` | `lumo:probe` | L0 请求的固定 `channel` |
-| `PROBE_VERSION` | `1` | L0 版本，整数 |
+| `PROBE_CHANNEL` | `lumo:probe` | 只读探测，固定 `channel` |
+| `AUTHORIZE_CHANNEL` | `lumo:authorize` | 授权请求，唯一有副作用的 L0 消息 |
+| `PROBE_VERSION` | `1` | 两条消息共用同一版本号，整数 |
 | `MCP_PORT_NAME` | `lumo:mcp` | L1 Port 名，大小写敏感 |
 | 扩展 ID | `/^[a-p]{32}$/` | Chromium 扩展 ID 字符集与长度 |
 
 宿主：`lib/mcp/extension-protocol.ts`；提供方：`lib/agent/protocol.ts`。
 
-## 2. L0 — probe
+**为什么是两个消息，而不是一个带标志位的**：探测必须可以随便重复（启动、每次设置写入、
+每次焦点重试、甚至扫描用户还没添加的扩展），所以它不能有任何副作用；授权必须登记并
+可能打开窗口，所以它只能由用户的显式动作触发。把两者塞进一条消息，就必然出现
+「这次探测要不要弹窗」这种历史相关的分支——那正是旧协议的病根。
+
+## 2. L0
 
 ### 2.1 传输
 
 ```
-chrome.runtime.sendMessage(providerExtensionId, probeRequest)
+chrome.runtime.sendMessage(providerExtensionId, { channel, version, id?, client? })
 ```
 
 - 只能从**扩展上下文**（side panel / options / background）发起，不能从 content script 发起。
-- 提供方必须用 `chrome.runtime.onMessageExternal` 接收。
-- 提供方若未声明 `externally_connectable`，调用会以
-  `Could not establish connection. Receiving end does not exist.` 拒绝——
-  宿主把它翻译成「未安装 / 未暴露端点」，而非让用户处理异常。
+- 提供方必须用 `chrome.runtime.onMessageExternal` 接收；两条消息共用一个监听器，按
+  `isProbeRequest` / `isAuthorizeRequest` 分派。
+- 提供方若未声明 `externally_connectable`，或该版本还没有 `lumo:authorize` 监听器，
+  调用会以 `Could not establish connection. Receiving end does not exist.` 拒绝——
+  宿主把它翻译成「未安装 / 该版本不支持」，而非让用户处理异常。
 
 ### 2.2 请求
 
@@ -37,12 +44,19 @@ interface ProbeRequest {
   id?: string;                  // 诊断用请求 id（宿主传 randomUUID）
   client?: { id: string; name: string; version: string }; // 宿主自报身份
 }
+
+interface AuthorizeRequest {
+  channel: 'lumo:authorize';
+  version: number;
+  id?: string;
+  client?: { id: string; name: string; version: string }; // 审批卡片上显示是谁在请求
+}
 ```
 
 `client` 是**展示提示**，不是身份。提供方的授权判断只能使用
 `chrome.runtime.MessageSender.id`。
 
-### 2.3 响应
+### 2.3 响应（两条消息同一个形状）
 
 ```ts
 interface ProbeResponse {
@@ -52,7 +66,6 @@ interface ProbeResponse {
     enabled: boolean;           // 提供方的总开关
     authorized: boolean;        // 调用方是否在 allowlist
     ready: boolean;             // 目标能力（chrome.userScripts 等）是否可用
-    pendingApproval?: boolean;  // 已记录请求，等待用户审批
     reason?: { code: string; message: string }; // ready=false 的人话原因
   };
   error?: { code: string; message: string };     // ok=false 时
@@ -65,57 +78,81 @@ interface ProbeResponse {
 | --- | --- |
 | `ok` | 只有**协议**失败才为 `false`（版本不支持、内部异常）。业务拒绝一律 `ok:true` + `status` |
 | `service` | 版本不匹配时也应返回，让宿主能显示「这是谁」 |
-| `status.enabled` | 用户总开关；`false` 时不读任何业务数据 |
+| `status.enabled` | 智能体总开关。`false` **仍然必须可被探测到**（`ok:true`）：批准动作就是把它打开，藏起来会让第一步无从发生 |
 | `status.authorized` | `sender.id ∈ allowlist`；**不要**因为 `client.id` 相同就放行 |
 | `status.ready` | 与能力相关（如 `chrome.userScripts` 可用性）；`false` 必须给 `reason.message` |
-| `pendingApproval` | 仅在「未授权 + 已记录待审批 + 用户未 dismiss」时为 `true` |
-| `error.code` | 提供方当前只用 `UNSUPPORTED_PROTOCOL` / `INTERNAL` |
+| `error.code=REQUESTS_DISABLED` | 用户关掉了「扩展请求访问时打开设置」。这是**唯一**允许 `ok:false` 的业务拒绝：它表达「本扩展不参与宿主集成」，宿主据此连发现都不展示它 |
 
-### 2.4 提供方判定顺序（必须照此实现）
+没有 `pendingApproval`：宿主不需要知道审批队列的内部状态。它在卡片上显示
+「需要授权 + 授权按钮」，批准与否下次探测自然会反映在 `authorized` 里。
 
-1. `isProbeRequest(message)` 不通过 → 返回 `false`（不占用通道，不回复）。
+### 2.4 提供方判定顺序
+
+**`handleProbe`（只读，不能有副作用）**
+
+1. `isProbeRequest(message)` 不通过 → 监听器返回 `false`（不占用通道，不回复）。
 2. `request.version !== PROBE_VERSION` → `{ ok:false, service, error:{code:'UNSUPPORTED_PROTOCOL'} }`。
-   版本检查在策略检查**之前**：旧宿主不应因为未授权而看到「请授权」。
-3. 读取 `agentSettings`，由 `sender.id` 计算 `authorized`。
-4. 计算 `ready`（如 `checkUserScriptsAvailable()`）。
-5. 未授权 → `recordPendingRequest(senderId, request.client)`，必要时 `promptForRequest()`。
-6. 返回 `ok:true` + `service` + `status`（含 `pendingApproval` / `reason`）。
+3. 读取 `agentSettings`；`promptOnRequest === false` → `{ ok:false, error:{code:'REQUESTS_DISABLED'} }`
+   （这个开关是「是否参与宿主集成」的总闸，不是提示偏好）。
+4. 由 `sender.id` 计算 `authorized`。
+5. 计算 `ready`（如 `checkUserScriptsAvailable()`）。
+6. 返回 `ok:true` + `service` + `status`。**不登记、不提示、不开页。**
 
-`handleProbe` 必须吞掉自身异常（审批记录、提示打开设置都可能失败），
-只有外层 `onMessageExternal` 的兜底才回 `INTERNAL`。
+**`handleAuthorize`（唯一允许有副作用的 L0）**
+
+1. 同样先校验 channel 与 version。
+2. `promptOnRequest === false` → `{ ok:false, error:{code:'REQUESTS_DISABLED'} }`，不登记、不弹窗。
+3. 读 `agentSettings`；已授权 → 直接回 `authorized:true`，什么都不做。
+4. 未授权 → `recordPendingRequest(senderId, client)` 后 `promptForRequest(pending)`。
+   **不要 await 这条链路**：它写存储、开标签页，而宿主在等这条回复；
+   慢提示不该让调用看起来"没回应"。
+5. 返回与 probe 同形状的响应（通常是 `authorized:false`）——审批发生在被打开的界面里。
+
+**这条路径没有冷却**。`lumo:authorize` 只由宿主卡片上的显式按钮发出，用户点一次就必须
+看得见一次反应；按 24h/10s 限流会表现成"点了没反应"。重复请求会复用同一行记录，
+并清掉之前的 `dismissedAt`（重新可批准）。
 
 ### 2.5 宿主判定顺序
 
-`probeExtension()`（`lib/mcp/extension-probe.ts`）：
+`probeExtension()` / `authorizeExtension()`（`lib/mcp/extension-probe.ts`）共用一条发送路径：
 
 1. 组请求；`client.id = chrome.runtime.id`，`client.version = manifest.version`。
-2. `Promise.race` 式 1500ms 超时（`PROBE_TIMEOUT_MS`）。
-3. `isProbeResponse()` 守卫：非对象 / `ok` 非布尔 → 「malformed probe response」。
+2. `Promise.race` 式 2000ms 超时（`PROBE_TIMEOUT_MS`）。冷启动的 MV3 service worker
+   是唯一慢的来源，留出余量；超时按 `error` 呈现，不静默。
+3. `isProbeResponse()` 守卫：非对象 / `ok` 非布尔 → 「malformed response」。
 4. 捕获异常并分类：消息匹配
    `/Receiving end does not exist|Could not establish connection/i` → `unreachable: true`。
 
-`ExtensionMcpServer.doConnect()` 的判定顺序见 SKILL.md §5。
+`ExtensionMcpServer` 的判定顺序见 SKILL.md §5。
 
 ### 2.6 时序
 
 ```
-host                          provider
- │  sendMessage(lumo:probe)      │
- │─────────────────────────────>│  version → policy → ready
- │                              │  (未授权：记录 pending，可能打开设置页)
- │<─────────────────────────────│  { ok, service, status }
- │  status 全部通过              │
- │  connect(extId, lumo:mcp)    │
- │─────────────────────────────>│  onConnectExternal
- │                              │  resolveAgentAccess(sender.id)
- │                              │  ├─ 拒绝 → transport.close()
- │                              │  └─ 通过 → new McpServer(...).connect(transport)
- │  initialize (JSON-RPC)       │
- │─────────────────────────────>│
- │<─────────────────────────────│
- │  tools/list                  │
- │<─────────────────────────────│
- │  tools/call ...              │
+host                                     provider
+ │ sendMessage(lumo:probe)                 │  version → 集成开关 → policy → ready（只读）
+ │<────────────────────────────────────────│ { ok, service, status }
+ │ status.authorized = false               │
+ │ 卡片进入 unauthorized + 「授权」按钮      │
+ │                                         │
+ │ （用户点「授权」）                        │
+ │ sendMessage(lumo:authorize)             │
+ │────────────────────────────────────────>│ recordPendingRequest
+ │                                         │ promptForRequest → 打开设置页
+ │<────────────────────────────────────────│ { ok, service, status: authorized:false }
+ │                                         │ 用户在提供方界面点「允许并启用」
+ │ （用户回到宿主，焦点重试）                 │
+ │ sendMessage(lumo:probe)                 │
+ │────────────────────────────────────────>│ authorized:true
+ │<────────────────────────────────────────│
+ │ connect(extId, lumo:mcp)                │
+ │────────────────────────────────────────>│ onConnectExternal
+ │                                         │ resolveAgentAccess(sender.id)
+ │                                         │ ├─ 拒绝 → transport.close()
+ │                                         │ └─ 通过 → new McpServer(...).connect(transport)
+ │ initialize (JSON-RPC)                   │
+ │────────────────────────────────────────>│
+ │<────────────────────────────────────────│
+ │  tools/list                             │
 ```
 
 ## 3. L1 — MCP over `chrome.runtime.Port`

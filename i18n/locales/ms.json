@@ -454,6 +454,7 @@
       "authReasonBusy": "Sudah ada log masuk lain dibuka dalam pelayar ini. Selesaikan atau tutup dahulu.",
       "authReasonServerFailed": "Log masuk tidak dapat diselesaikan. Cuba lagi; jika terus gagal, semak konfigurasi OAuth pelayan atau tambah pengepala Authorization.",
       "authReasonTemporary": "Pelayan kebenaran mengehadkan permintaan daripada pelayar ini. Tunggu sebentar, kemudian cuba lagi.",
+      "authReasonExtensionApproval": "Benarkan Lumo dalam tetapan sambungan ini untuk menggunakan alatnya.",
       "builtin": "Terbina dalam",
       "external": "Luar",
       "enabled": "Didayakan",
@@ -521,9 +522,16 @@
         "idPlaceholder": "ID sambungan 32 aksara",
         "invalidId": "Masukkan ID sambungan Chromium 32 aksara.",
         "duplicate": "Sambungan ini sudah ditambah",
+        "discovery": {
+          "label": "Sedia disambungkan",
+          "add": "Tambah {{name}}"
+        },
         "empty": "Belum ada pembekal sambungan ditambah.",
         "badge": "Sambungan",
         "refresh": "Sambung semula",
+        "authorize": "Benarkan",
+        "authorizing": "Menunggu kelulusan…",
+        "unauthorized": "Kelulusan diperlukan",
         "remove": "Alih keluar pembekal",
         "removeConfirm": "Berhenti menggunakan alat sambungan ini?"
       },

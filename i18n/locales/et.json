@@ -454,6 +454,7 @@
       "authReasonBusy": "Selles brauseris on juba teine sisselogimine avatud. Lõpeta või sulge see esmalt.",
       "authReasonServerFailed": "Sisselogimist ei õnnestunud lõpule viia. Proovige uuesti; kui see ikka ei õnnestu, kontrollige serveri OAuthi seadistust või lisage Authorization-päis.",
       "authReasonTemporary": "Autoriseerimisserver piirab selle brauseri päringuid. Oodake hetk ja proovige uuesti.",
+      "authReasonExtensionApproval": "Selle laienduse tööriistade kasutamiseks kinnitage Lumo selle seadetes.",
       "builtin": "Sisseehitatud",
       "external": "Väline",
       "enabled": "Lubatud",
@@ -521,9 +522,16 @@
         "idPlaceholder": "32-kohaline laajendi ID",
         "invalidId": "Sisestage 32-kohaline Chromiumi laajendi ID.",
         "duplicate": "See laiendus on juba lisatud",
+        "discovery": {
+          "label": "Ühendamiseks valmis",
+          "add": "Lisa {{name}}"
+        },
         "empty": "Laajendite pakkujaid pole veel lisatud.",
         "badge": "Laajend",
         "refresh": "Ühenda uuesti",
+        "authorize": "Anna luba",
+        "authorizing": "Oodatakse kinnitust…",
+        "unauthorized": "Vajab kinnitust",
         "remove": "Eemalda pakkuja",
         "removeConfirm": "Kas lõpetada selle laajendi tööriistade kasutamine?"
       },

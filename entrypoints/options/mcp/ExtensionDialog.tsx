@@ -11,6 +11,8 @@ import {
 } from '@/components/ui/dialog';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
+import { ProviderDiscovery } from './ProviderDiscovery';
+import { useProviderDiscovery } from './useProviderDiscovery';
 import { validateExtension, type ExtensionField, type ValidationErrors } from './validation';
 
 interface ExtensionDialogProps {
@@ -25,15 +27,23 @@ interface ExtensionDialogProps {
 /**
  * Add-extension-service dialog.
  *
- * One field, but it gets the same frame as its sibling dialog: a lone inline
- * input under the section heading gave the two "add" flows different shapes for
- * no reason.
+ * Two ways in, in the order they are most likely to be used: whatever the scan
+ * found already installed (one click, no typing), then the id field for
+ * everything the curated catalog does not know about. Both end by closing the
+ * dialog, because the card list is the only place that shows what happened —
+ * a provider that still needs its own approval says so there, with the button
+ * that asks for it.
+ *
+ * The catalog block disappears entirely once every entry is configured, leaving
+ * just the field — no permanently empty recommendation strip.
  */
 export function ExtensionDialog({ draft, configured, onSave, onClose }: ExtensionDialogProps) {
   const { t } = useTranslation();
   const [id, setId] = useState('');
   const [errors, setErrors] = useState<ValidationErrors<ExtensionField>>({});
   const [saving, setSaving] = useState(false);
+
+  const discovery = useProviderDiscovery({ open: Boolean(draft), configured });
 
   useEffect(() => {
     setId(draft?.id ?? '');
@@ -62,6 +72,9 @@ export function ExtensionDialog({ draft, configured, onSave, onClose }: Extensio
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent
+        // Wider than the other add dialog: the discovery block is a full-width
+        // field, and a 28rem panel turns its rows into ellipses.
+        className="max-w-lg"
         // Title-only dialog: state that instead of shipping filler copy.
         aria-describedby={undefined}
         onOpenAutoFocus={(event) => {
@@ -72,6 +85,21 @@ export function ExtensionDialog({ draft, configured, onSave, onClose }: Extensio
         <DialogHeader>
           <DialogTitle>{t('options.mcp.extensions.add')}</DialogTitle>
         </DialogHeader>
+
+        {discovery.found.length > 0 && (
+          <ProviderDiscovery
+            found={discovery.found}
+            onAdd={async (extensionId) => {
+              await onSave(extensionId);
+              // Same ending as the form below: adding is a single outcome, not a
+              // batch. The new card is where the provider's real state appears
+              // (including "approval needed"), so closing reveals it instead of
+              // leaving the user staring at a list that no longer contains the
+              // row they just used.
+              onClose();
+            }}
+          />
+        )}
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <Field

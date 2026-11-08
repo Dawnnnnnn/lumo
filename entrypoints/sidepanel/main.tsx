@@ -4,7 +4,8 @@ import App from './App';
 import '@/assets/globals.css';
 import '@/i18n';
 import { bootstrapPage } from '@/lib/page-bootstrap';
-import { initBuiltinMcpServers, retryExtensionProviders } from '@/lib/mcp';
+import { initBuiltinMcpServers } from '@/lib/mcp';
+import { installExtensionRetry } from '@/lib/mcp/extension-retry';
 
 /**
  * Last-resort visibility for rejections nothing else caught.
@@ -33,21 +34,11 @@ void initBuiltinMcpServers().catch((error) => {
 
 /**
  * Approving an extension provider happens in that extension's own settings tab.
- * When the user returns to the panel, retry providers that are still in an
- * error state so the tool list recovers without a manual Reconnect. Throttled
- * so focus/visibility churn cannot spam probes.
+ * When the user returns to the panel, retry providers that are still waiting so
+ * the tool list recovers without a manual Reconnect. Shared with the options
+ * page so both notice a grant the same way — see `lib/mcp/extension-retry.ts`.
  */
-let lastExtensionRetry = 0;
-const retryExtensions = () => {
-  const now = Date.now();
-  if (now - lastExtensionRetry < 5000) return;
-  lastExtensionRetry = now;
-  retryExtensionProviders();
-};
-window.addEventListener('focus', retryExtensions);
-document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible') retryExtensions();
-});
+installExtensionRetry();
 
 // The legacy `conversations` key is dropped by the background script, which runs
 // before any extension page — see `entrypoints/background.ts`.

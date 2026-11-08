@@ -454,6 +454,7 @@
       "authReasonBusy": "Bu tarayıcıda zaten başka bir oturum açma penceresi var. Önce onu tamamlayın veya kapatın.",
       "authReasonServerFailed": "Oturum açma tamamlanamadı. Tekrar deneyin; sürekli başarısız olursa sunucunun OAuth yapılandırmasını kontrol edin veya bir Authorization başlığı ekleyin.",
       "authReasonTemporary": "Yetkilendirme sunucusu bu tarayıcının isteklerini sınırlıyor. Biraz bekleyip yeniden deneyin.",
+      "authReasonExtensionApproval": "Araçlarını kullanmak için bu uzantının ayarlarında Lumo’yu onaylayın.",
       "builtin": "Yerleşik",
       "external": "Harici",
       "enabled": "Etkin",
@@ -521,9 +522,16 @@
         "idPlaceholder": "32 karakterlik uzantı kimliği",
         "invalidId": "32 karakterlik bir Chromium uzantı kimliği girin.",
         "duplicate": "Bu uzantı zaten eklendi",
+        "discovery": {
+          "label": "Bağlanmaya hazır",
+          "add": "{{name}} ekle"
+        },
         "empty": "Henüz uzantı sağlayıcısı eklenmedi.",
         "badge": "Uzantı",
         "refresh": "Yeniden bağlan",
+        "authorize": "Yetkilendir",
+        "authorizing": "Onay bekleniyor…",
+        "unauthorized": "Onay gerekli",
         "remove": "Sağlayıcıyı kaldır",
         "removeConfirm": "Bu uzantının araçlarını kullanmayı bırakmak istiyor musunuz?"
       },

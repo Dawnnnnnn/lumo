@@ -137,9 +137,10 @@ initBuiltinMcpServers()                 // 每个 trusted context 各一次
 ```
 enabled === false            → status = disconnected（不 probe）
 已有 connecting Promise      → 复用（去重）
-doConnect():
+doConnect():                    // lumo:probe，只读，永不弹窗
   status = connecting
   probe 失败                 → fail(...) → status = error
+  !authorized                → status = unauthorized + 「授权」按钮（不是 error）
   status 校验（见 SKILL §5）  → fail(...) → status = error
   closeSession()             // 先关旧会话
   新 Port transport
@@ -148,7 +149,15 @@ doConnect():
   listTools() → 生成 definitions/tools
   needsReconnect = false
   status = connected
+
+authorize():                    // lumo:authorize，唯一会弹窗的调用
+  status = authorizing
+  sendMessage(extId, lumo:authorize)   // 提供方登记 + 打开审批卡片
+  authorized ? openSession() : status = unauthorized
 ```
+
+`connect()` 与 `authorize()` 之外的任何路径（启动、设置写入、焦点重试、懒重连）都只能发
+`lumo:probe`。这条约束就是「用户没点授权，就不会被弹走」的实现。
 
 失败时**不清空** `toolDefinitions/aiTools`：`error` 状态下 `getAITools()` 本就不会被
 `mcpRegistry` 收集，但缓存能让「同类错误修复后重连」更快，也让 UI 仍能显示上次的工具数。
@@ -318,6 +327,6 @@ idLabel / idPlaceholder / invalidId / empty / badge / refresh / remove / removeC
 | --- | --- | --- |
 | 消费 `annotations` | `getAITools()` 映射时保留 | AI SDK tool 无对应字段，需自定义元数据表 |
 | 支持 resources/prompts | 新增能力开关 + 独立 UI 入口 | MCP 能力协商后才有意义；不要塞进 L0 |
-| 每提供方独立超时/重试 | `extension-probe.ts` 参数化 | 默认 1500ms 对冷启动 SW 偏紧 |
+| 每提供方独立超时/重试 | `extension-probe.ts` 常量 | 2000ms：冷启动 SW 的余量 |
 | 允许 label 编辑 UI | `McpSettings.tsx` + `updateConfig` | `syncExtensionProviders` 不因 label 变化重连 |
 | 提供方排序 | `McpSettings` 本地排序 | registry 顺序决定工具冲突优先级，改排序会影响 first-wins 结果 |

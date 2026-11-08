@@ -455,6 +455,7 @@
       "authReasonBusy": "כבר פתוחה התחברות אחרת בדפדפן הזה. סיים או סגור אותה קודם.",
       "authReasonServerFailed": "ההתחברות לא הושלמה. נסה שוב; אם היא ממשיכה להיכשל, בדוק את תצורת ה-OAuth של השרת או הוסף כותרת Authorization.",
       "authReasonTemporary": "שרת ההרשאות מגביל בקשות מהדפדפן הזה. המתן רגע ונסה שוב.",
+      "authReasonExtensionApproval": "אשרו את Lumo בהגדרות של הרחבה זו כדי להשתמש בכלים שלה.",
       "builtin": "מובנה",
       "external": "חיצוני",
       "enabled": "מופעל",
@@ -522,9 +523,16 @@
         "idPlaceholder": "מזהה הרחבה בן 32 תווים",
         "invalidId": "הזן מזהה הרחבה של Chromium בן 32 תווים.",
         "duplicate": "התוסף הזה כבר נוסף",
+        "discovery": {
+          "label": "מוכן לחיבור",
+          "add": "הוספת {{name}}"
+        },
         "empty": "לא נוספו ספקי הרחבות עדיין.",
         "badge": "הרחבה",
         "refresh": "התחברות מחדש",
+        "authorize": "אישור",
+        "authorizing": "ממתין לאישור…",
+        "unauthorized": "נדרש אישור",
         "remove": "הסרת ספק",
         "removeConfirm": "להפסיק להשתמש בכלים של ההרחבה הזו?"
       },

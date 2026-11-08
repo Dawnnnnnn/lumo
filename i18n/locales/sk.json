@@ -456,6 +456,7 @@
       "authReasonBusy": "V tomto prehliadači je už otvorené iné prihlásenie. Najprv ho dokončite alebo zatvorte.",
       "authReasonServerFailed": "Prihlásenie sa nepodarilo dokončiť. Skúste to znova; ak zlyháva naďalej, skontrolujte konfiguráciu OAuth servera alebo pridajte hlavičku Authorization.",
       "authReasonTemporary": "Autorizačný server obmedzuje požiadavky z tohto prehliadača. Chvíľu počkajte a skúste to znova.",
+      "authReasonExtensionApproval": "Ak chcete používať nástroje tohto rozšírenia, povoľte Lumo v jeho nastaveniach.",
       "builtin": "Vstavaný",
       "external": "Externý",
       "enabled": "Povolené",
@@ -523,9 +524,16 @@
         "idPlaceholder": "32-znakové ID rozšírenia",
         "invalidId": "Zadajte 32-znakové ID rozšírenia Chromium.",
         "duplicate": "Toto rozšírenie je už pridané",
+        "discovery": {
+          "label": "Pripravené na pripojenie",
+          "add": "Pridať {{name}}"
+        },
         "empty": "Zatiaľ neboli pridaní žiadni poskytovatelia rozšírení.",
         "badge": "Rozšírenie",
         "refresh": "Znova pripojiť",
+        "authorize": "Povoliť",
+        "authorizing": "Čaká sa na schválenie…",
+        "unauthorized": "Vyžaduje schválenie",
         "remove": "Odobrať poskytovateľa",
         "removeConfirm": "Prestať používať nástroje tohto rozšírenia?"
       },

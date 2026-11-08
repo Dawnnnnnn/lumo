@@ -454,6 +454,7 @@
       "authReasonBusy": "Det finns redan en annan inloggning öppen i den här webbläsaren. Slutför eller stäng den först.",
       "authReasonServerFailed": "Inloggningen kunde inte slutföras. Försök igen; om det fortsätter att misslyckas, kontrollera serverns OAuth-konfiguration eller lägg till en Authorization-rubrik.",
       "authReasonTemporary": "Auktoriseringsservern begränsar den här webbläsarens begäranden. Vänta en stund och försök igen.",
+      "authReasonExtensionApproval": "Godkänn Lumo i tilläggets inställningar för att använda dess verktyg.",
       "builtin": "Inbyggd",
       "external": "Extern",
       "enabled": "Aktiverad",
@@ -521,9 +522,16 @@
         "idPlaceholder": "32 tecken långt tilläggs-ID",
         "invalidId": "Ange ett 32 tecken långt Chromium-tilläggs-ID.",
         "duplicate": "Det här tillägget har redan lagts till",
+        "discovery": {
+          "label": "Klar att ansluta",
+          "add": "Lägg till {{name}}"
+        },
         "empty": "Inga tilläggsleverantörer tillagda än.",
         "badge": "Tillägg",
         "refresh": "Anslut igen",
+        "authorize": "Auktorisera",
+        "authorizing": "Väntar på godkännande…",
+        "unauthorized": "Godkännande krävs",
         "remove": "Ta bort leverantör",
         "removeConfirm": "Sluta använda det här tilläggets verktyg?"
       },

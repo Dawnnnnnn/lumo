@@ -52,7 +52,22 @@ export function ServerIcon({ transport }: { transport: string }) {
  * The word is hidden on narrow side panels and the icon carries the meaning,
  * which keeps the row from wrapping when the options page is docked.
  */
-export function StatusBadge({ status, title }: { status: string; title?: string }) {
+export function StatusBadge({
+  status,
+  title,
+  labels,
+}: {
+  status: string;
+  title?: string;
+  /**
+   * Override the waiting-state wording.
+   *
+   * `unauthorized`/`authorizing` come from the OAuth flow and read as "sign in";
+   * an extension provider is approved in its own settings, which is not a
+   * sign-in. Everything else keeps the shared copy.
+   */
+  labels?: { unauthorized?: string; authorizing?: string };
+}) {
   const { t } = useTranslation();
 
   // `title` carries the reason behind a pending sign-in, so the explanation is
@@ -79,7 +94,9 @@ export function StatusBadge({ status, title }: { status: string; title?: string 
       return withTitle(
         <span className="flex items-center gap-1 text-xs text-yellow-600 dark:text-yellow-400 shrink-0">
           <Loader2 className="h-3 w-3 animate-spin" />
-          <span className="hidden sm:inline">{t('options.mcp.authorizing')}</span>
+          <span className="hidden sm:inline">
+            {labels?.authorizing ?? t('options.mcp.authorizing')}
+          </span>
         </span>,
       );
     case 'error':
@@ -95,7 +112,9 @@ export function StatusBadge({ status, title }: { status: string; title?: string 
       return withTitle(
         <span className="flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400 shrink-0">
           <KeyRound className="h-3 w-3" />
-          <span className="hidden sm:inline">{t('options.mcp.unauthorized')}</span>
+          <span className="hidden sm:inline">
+            {labels?.unauthorized ?? t('options.mcp.unauthorized')}
+          </span>
         </span>,
       );
     default:

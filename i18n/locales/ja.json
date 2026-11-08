@@ -454,6 +454,7 @@
       "authReasonBusy": "このブラウザでは別のサインインが開いています。先に完了するか閉じてください。",
       "authReasonServerFailed": "サインインを完了できませんでした。もう一度お試しください。繰り返し失敗する場合は、このサーバーの OAuth 設定を確認するか、Authorization ヘッダーを追加してください。",
       "authReasonTemporary": "認可サーバーがこのブラウザーのリクエストを制限しています。しばらく待ってから再試行してください。",
+      "authReasonExtensionApproval": "この拡張機能のツールを使うには、拡張機能の設定で Lumo を承認してください。",
       "builtin": "組み込み",
       "external": "外部",
       "enabled": "有効",
@@ -521,9 +522,16 @@
         "idPlaceholder": "32 文字の拡張機能 ID",
         "invalidId": "32 文字の Chromium 拡張機能 ID を入力してください。",
         "duplicate": "この拡張機能はすでに追加されています",
+        "discovery": {
+          "label": "接続待ち",
+          "add": "{{name}} を追加"
+        },
         "empty": "拡張機能プロバイダーはまだ追加されていません。",
         "badge": "拡張機能",
         "refresh": "再接続",
+        "authorize": "承認",
+        "authorizing": "承認を待っています…",
+        "unauthorized": "承認が必要",
         "remove": "プロバイダーを削除",
         "removeConfirm": "この拡張機能のツールの使用を停止しますか？"
       },

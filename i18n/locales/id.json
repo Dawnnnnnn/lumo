@@ -454,6 +454,7 @@
       "authReasonBusy": "Sudah ada proses masuk lain yang terbuka di peramban ini. Selesaikan atau tutup dulu.",
       "authReasonServerFailed": "Proses masuk tidak dapat diselesaikan. Coba lagi; jika terus gagal, periksa konfigurasi OAuth server atau tambahkan header Authorization.",
       "authReasonTemporary": "Server otorisasi membatasi permintaan dari peramban ini. Tunggu sebentar, lalu coba lagi.",
+      "authReasonExtensionApproval": "Setujui Lumo di pengaturan ekstensi ini untuk menggunakan alatnya.",
       "builtin": "Bawaan",
       "external": "Eksternal",
       "enabled": "Aktif",
@@ -521,9 +522,16 @@
         "idPlaceholder": "ID ekstensi 32 karakter",
         "invalidId": "Masukkan ID ekstensi Chromium 32 karakter.",
         "duplicate": "Ekstensi ini sudah ditambahkan",
+        "discovery": {
+          "label": "Siap terhubung",
+          "add": "Tambahkan {{name}}"
+        },
         "empty": "Belum ada penyedia ekstensi yang ditambahkan.",
         "badge": "Ekstensi",
         "refresh": "Hubungkan ulang",
+        "authorize": "Otorisasi",
+        "authorizing": "Menunggu persetujuan…",
+        "unauthorized": "Perlu persetujuan",
         "remove": "Hapus penyedia",
         "removeConfirm": "Berhenti menggunakan alat ekstensi ini?"
       },

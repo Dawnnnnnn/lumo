@@ -454,6 +454,7 @@
       "authReasonBusy": "이 브라우저에 다른 로그인 창이 열려 있습니다. 먼저 완료하거나 닫으세요.",
       "authReasonServerFailed": "로그인을 완료할 수 없습니다. 다시 시도하고, 계속 실패하면 서버의 OAuth 구성을 확인하거나 Authorization 헤더를 추가하세요.",
       "authReasonTemporary": "인증 서버가 이 브라우저의 요청을 제한하고 있습니다. 잠시 후 다시 시도하세요.",
+      "authReasonExtensionApproval": "이 확장 프로그램의 도구를 사용하려면 확장 프로그램 설정에서 Lumo를 승인하세요.",
       "builtin": "내장",
       "external": "외부",
       "enabled": "사용",
@@ -521,9 +522,16 @@
         "idPlaceholder": "32자 확장 프로그램 ID",
         "invalidId": "32자 Chromium 확장 프로그램 ID를 입력하세요.",
         "duplicate": "이 확장 프로그램은 이미 추가되었습니다",
+        "discovery": {
+          "label": "연결 대기",
+          "add": "{{name}} 추가"
+        },
         "empty": "아직 추가된 확장 프로그램 공급자가 없습니다.",
         "badge": "확장 프로그램",
         "refresh": "다시 연결",
+        "authorize": "승인",
+        "authorizing": "승인 대기 중…",
+        "unauthorized": "승인 필요",
         "remove": "공급자 제거",
         "removeConfirm": "이 확장 프로그램의 도구 사용을 중지하시겠습니까?"
       },

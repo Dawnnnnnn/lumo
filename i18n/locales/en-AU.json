@@ -454,6 +454,7 @@
       "authReasonBusy": "Another sign-in is already open in this browser. Finish or close it first.",
       "authReasonServerFailed": "Sign-in could not be completed. Try again; if it keeps failing, check this server's OAuth configuration or add an Authorization header instead.",
       "authReasonTemporary": "The authorization server is rate limiting this browser. Wait a moment, then try again.",
+      "authReasonExtensionApproval": "Approve Lumo in this extension’s settings to use its tools.",
       "builtin": "Built-in",
       "external": "External",
       "enabled": "Enabled",
@@ -521,9 +522,16 @@
         "idPlaceholder": "32-character extension ID",
         "invalidId": "Enter a 32-character Chromium extension ID.",
         "duplicate": "This extension is already added",
+        "discovery": {
+          "label": "Ready to connect",
+          "add": "Add {{name}}"
+        },
         "empty": "No extension providers added yet.",
         "badge": "Extension",
         "refresh": "Reconnect",
+        "authorize": "Authorize",
+        "authorizing": "Waiting for approval…",
+        "unauthorized": "Approval needed",
         "remove": "Remove provider",
         "removeConfirm": "Stop using this extension’s tools?"
       },

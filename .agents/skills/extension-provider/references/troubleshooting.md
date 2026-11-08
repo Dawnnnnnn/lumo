@@ -26,9 +26,16 @@
 | 提供方 SW 崩溃 | 提供方 SW 控制台 | 修异常；监听器必须在顶层同步注册 |
 | 未打包 ID 变了 | 重新加载后 ID 变化 | Lumo 里删掉旧条目，加新 ID |
 
-### 1.2 `Probe timed out after 1500 ms.`
+### 1.2 `Probe timed out after 2000 ms.`
 
-- 冷启动 SW 首次 probe 可能超过 1.5s（大依赖、同步初始化）。
+- 冷启动 SW 首次 probe 可能接近 2s 超时（大依赖、同步初始化）。probe 本身必须只读：
+  如果它在等写存储或开标签页，问题不在冷启动，而在 `handleProbe` 里塞了副作用。
+- 也先确认提供方的 **「扩展请求访问时打开设置」没有被关掉**：它是「是否参与宿主集成」的总闸，
+  关闭时 probe 直接回 `ok:false`（`REQUESTS_DISABLED`），宿主连发现都不会展示它。
+- **「装了但探测不到 / 探测过一次就不再回应」的头号原因**：旧实现把
+  `recordPendingRequest`（串行化的读-改-写，还会连带打开标签页）放在 probe 路径上。
+  提示链路一旦卡住，probe 就永远不回复。现在 probe 只读，副作用全部挪到 `lumo:authorize`——
+  若又出现同样症状，第一件事是检查 `handleProbe` 里有没有 `await` 任何写操作。
 - 常见写法错误：把 `onMessageExternal` 注册放在某个 `await` 之后 → 冷启动事件丢失。
 - 修复：监听器同步注册；把重活挪到事件回调里。超时后宿主在侧栏重新获得焦点时会自动重试
   （`retryExtensionProviders`，5s 节流）。
@@ -62,11 +69,12 @@
 
 ### 2.3 审批卡片不出现
 
-- `promptOnRequest` 关闭：待审批队列仍会显示在 `#/settings/agent` 顶部，只是不自动开页；
-- 同一请求 24h 内已提示过（`promptedAt`）；
-- 全局 10s 防抢焦点冷却（多个宿主同时探测）；
-- 用户 dismiss 后 24h 内不再提示（`dismissedAt`）；
-- 探测方 `sender.id` 为空或非法 → `recordPendingRequest` 直接忽略。
+- `promptOnRequest` 关闭：probe 与 authorize 都回 `REQUESTS_DISABLED`，宿主连发现都不会展示它；
+- 宿主发的是 `lumo:probe` 而不是 `lumo:authorize`：只有后者会弹窗（probe 只读）；
+- 探测方 `sender.id` 为空或非法 → `recordPendingRequest` 直接忽略；
+- 打开的不是扩展页面（content script 发不出 `sendMessage`）。
+
+授权路径**没有冷却**：若点击后没有弹窗，问题一定在上面几条，而不是限流。
 
 ### 2.4 批准后每次探测又弹一次
 
@@ -149,7 +157,7 @@ first-wins（按注册顺序：内置 → HTTP → WebMCP → 扩展）。修复
 | 写操作静默成功（review 未生效） | `reviewWrites` 只在 `create/install` 的落盘参数里；`edit/update` 不改变启用状态 |
 | 第 31 次写失败 | 限流 30 次/60s，按 `sender.id` |
 | 审计里看不到源码 | 设计如此：只存参数 SHA-256 |
-| 两个标签页各弹一次审批 | 多宿主上下文各自探测；pending 队列按 `sender.id` 合并，提示有 10s 冷却 |
+| 两个标签页各弹一次审批 | 多宿主上下文各自 `authorize`；pending 队列按 `sender.id` 合并；`openOptionsTab` 是单例，第二个只会聚焦同一页 |
 | options 页与侧栏状态不同 | 每个 trusted context 独立 registry，预期行为 |
 
 ---

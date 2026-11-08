@@ -74,4 +74,5 @@ export const AUTH_REASON_KEYS: Record<McpAuthFailureReason, string> = {
   busy: 'options.mcp.authReasonBusy',
   'authorization-server-error': 'options.mcp.authReasonServerFailed',
   temporary: 'options.mcp.authReasonTemporary',
+  'extension-approval': 'options.mcp.authReasonExtensionApproval',
 };

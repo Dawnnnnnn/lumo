@@ -454,6 +454,7 @@
       "authReasonBusy": "Kuna kuingia kwingine tayari kuko wazi kwenye kivinjari hiki. Kamilisha au kifunge kwanza.",
       "authReasonServerFailed": "Kuingia hakukuweza kukamilika. Jaribu tena; kama kunaendelea kushindikana, angalia usanidi wa OAuth wa seva au ongeza kichwa cha Authorization.",
       "authReasonTemporary": "Seva ya uidhinishaji inadhibiti maombi kutoka kwa kivinjari hiki. Subiri kidogo kisha ujaribu tena.",
+      "authReasonExtensionApproval": "Idhinisha Lumo katika mipangilio ya kiendelezi hiki ili kutumia zana zake.",
       "builtin": "Za kudumu",
       "external": "Za nje",
       "enabled": "Imewashwa",
@@ -521,9 +522,16 @@
         "idPlaceholder": "Kitambulisho cha kiendelezi cha herufi 32",
         "invalidId": "Weka kitambulisho cha kiendelezi cha Chromium cha herufi 32.",
         "duplicate": "Kiendelezi hiki tayari kimeongezwa",
+        "discovery": {
+          "label": "Tayari kuunganishwa",
+          "add": "Ongeza {{name}}"
+        },
         "empty": "Bado hakuna mtoa huduma wa kiendelezi aliyeongezwa.",
         "badge": "Kiendelezi",
         "refresh": "Unganisha upya",
+        "authorize": "Idhinisha",
+        "authorizing": "Inasubiri uidhinishaji…",
+        "unauthorized": "Uidhinishaji unahitajika",
         "remove": "Ondoa mtoa huduma",
         "removeConfirm": "Acha kutumia zana za kiendelezi hiki?"
       },

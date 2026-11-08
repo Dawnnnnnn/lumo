@@ -454,6 +454,7 @@
       "authReasonBusy": "በዚህ አሳሽ ውስጥ ሌላ መግቢያ ቀድሞ ተከፍቷል። መጀመሪያ ይጨርሱት ወይም ይዝጉት።",
       "authReasonServerFailed": "መግቢያው ሊጠናቀቅ አልቻለም። እንደገና ይሞክሩ፤ ካልተሳካ የ OAuth ውቅሩን ያረጋግጡ ወይም በምትኩ የ Authorization ራስጌ ያክሉ።",
       "authReasonTemporary": "የስልጣን አገልጋዩ ከዚህ አሳሽ የሚላኩ ጥያቄዎችን እየገደበ ነው። ትንሽ ይጠብቁ እና እንደገና ይሞክሩ።",
+      "authReasonExtensionApproval": "መሣሪያዎቹን ለመጠቀም በዚህ ኤክስቴንሽን ቅንብሮች ውስጥ Lumoን ያጽድቁ።",
       "builtin": "አብሮ የተሰራ",
       "external": "ውጫዊ",
       "enabled": "ነቅቷል",
@@ -521,9 +522,16 @@
         "idPlaceholder": "32 ቁምፊ ያለው የኤክስቴንሽን ID",
         "invalidId": "32 ቁምፊ ያለው የChromium ኤክስቴንሽን ID ያስገቡ።",
         "duplicate": "ይህ ቅጥያ አስቀድሞ ተጨምሯል",
+        "discovery": {
+          "label": "ለመገናኘት ዝግጁ",
+          "add": "ኤክስቴንሽን {{name}} አክል"
+        },
         "empty": "እስካሁን ምንም የኤክስቴንሽን አቅራቢ አልተጨመረም።",
         "badge": "ኤክስቴንሽን",
         "refresh": "እንደገና ተገናኝ",
+        "authorize": "ፍቃድ ስጥ",
+        "authorizing": "ማጽደቅን በመጠበቅ ላይ…",
+        "unauthorized": "ማጽደቅ ያስፈልጋል",
         "remove": "አቅራቢውን አስወግድ",
         "removeConfirm": "የዚህን ኤክስቴንሽን መሣሪያዎች መጠቀም ያቁሙ?"
       },

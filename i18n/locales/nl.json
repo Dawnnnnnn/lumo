@@ -454,6 +454,7 @@
       "authReasonBusy": "Er is al een andere aanmelding geopend in deze browser. Rond die eerst af of sluit hem.",
       "authReasonServerFailed": "Aanmelden kon niet worden voltooid. Probeer het opnieuw; als het blijft mislukken, controleer de OAuth-configuratie van de server of voeg een Authorization-header toe.",
       "authReasonTemporary": "De autorisatieserver beperkt de verzoeken van deze browser. Wacht even en probeer het opnieuw.",
+      "authReasonExtensionApproval": "Keur Lumo goed in de instellingen van deze extensie om de tools te gebruiken.",
       "builtin": "Ingebouwd",
       "external": "Extern",
       "enabled": "Ingeschakeld",
@@ -521,9 +522,16 @@
         "idPlaceholder": "Extensie-ID van 32 tekens",
         "invalidId": "Voer een Chromium-extensie-ID van 32 tekens in.",
         "duplicate": "Deze extensie is al toegevoegd",
+        "discovery": {
+          "label": "Klaar om te verbinden",
+          "add": "{{name}} toevoegen"
+        },
         "empty": "Nog geen extensieproviders toegevoegd.",
         "badge": "Extensie",
         "refresh": "Opnieuw verbinden",
+        "authorize": "Autoriseren",
+        "authorizing": "Wachten op goedkeuring…",
+        "unauthorized": "Goedkeuring nodig",
         "remove": "Provider verwijderen",
         "removeConfirm": "Stoppen met het gebruik van de tools van deze extensie?"
       },

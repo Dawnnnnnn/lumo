@@ -456,6 +456,7 @@
       "authReasonBusy": "V tem brskalniku je že odprta druga prijava. Najprej jo dokončajte ali zaprite.",
       "authReasonServerFailed": "Prijave ni bilo mogoče dokončati. Poskusite znova; če še naprej ne uspeva, preverite konfiguracijo OAuth strežnika ali dodajte glavo Authorization.",
       "authReasonTemporary": "Strežnik za avtorizacijo omejuje zahteve tega brskalnika. Počakajte trenutek in poskusite znova.",
+      "authReasonExtensionApproval": "Za uporabo orodij te razširitve odobrite Lumo v njenih nastavitvah.",
       "builtin": "Vgrajeno",
       "external": "Zunanje",
       "enabled": "Omogočeno",
@@ -523,9 +524,16 @@
         "idPlaceholder": "32-znakovni ID razširitve",
         "invalidId": "Vnesite 32-znakovni ID razširitve Chromium.",
         "duplicate": "Ta razširitev je že dodana",
+        "discovery": {
+          "label": "Pripravljeno za povezavo",
+          "add": "Dodaj {{name}}"
+        },
         "empty": "Ni še dodanih ponudnikov razširitev.",
         "badge": "Razširitev",
         "refresh": "Ponovno poveži",
+        "authorize": "Odobri",
+        "authorizing": "Čakanje na odobritev…",
+        "unauthorized": "Potrebna odobritev",
         "remove": "Odstrani ponudnika",
         "removeConfirm": "Prenehati uporabljati orodja te razširitve?"
       },

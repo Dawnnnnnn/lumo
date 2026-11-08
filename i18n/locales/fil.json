@@ -454,6 +454,7 @@
       "authReasonBusy": "May iba pang sign-in na bukas sa browser na ito. Tapusin o isara muna ito.",
       "authReasonServerFailed": "Hindi natapos ang pag-sign in. Subukang muli; kung patuloy na nabibigo, suriin ang OAuth configuration ng server o magdagdag ng Authorization header.",
       "authReasonTemporary": "Nililimitahan ng authorization server ang mga kahilingan mula sa browser na ito. Maghintay sandali at subukang muli.",
+      "authReasonExtensionApproval": "Aprubahan ang Lumo sa mga setting ng extension na ito para magamit ang mga tool nito.",
       "builtin": "Built-in",
       "external": "Panlabas",
       "enabled": "Naka-enable",
@@ -521,9 +522,16 @@
         "idPlaceholder": "32-character na ID ng extension",
         "invalidId": "Maglagay ng 32-character na Chromium extension ID.",
         "duplicate": "Naidagdag na ang extension na ito",
+        "discovery": {
+          "label": "Handa nang kumonekta",
+          "add": "Idagdag ang {{name}}"
+        },
         "empty": "Wala pang naidagdag na provider ng extension.",
         "badge": "Extension",
         "refresh": "Kumonekta muli",
+        "authorize": "Payagan",
+        "authorizing": "Naghihintay ng pag-apruba…",
+        "unauthorized": "Kailangan ng pag-apruba",
         "remove": "Alisin ang provider",
         "removeConfirm": "Itigil ang paggamit ng mga tool ng extension na ito?"
       },

@@ -454,6 +454,7 @@
       "authReasonBusy": "Ebben a böngészőben már nyitva van egy másik bejelentkezés. Előbb fejezd be vagy zárd be.",
       "authReasonServerFailed": "A bejelentkezést nem sikerült befejezni. Próbáld újra; ha továbbra is sikertelen, ellenőrizd a szerver OAuth-beállításait, vagy adj hozzá Authorization fejlécet.",
       "authReasonTemporary": "Az engedélyezési szerver korlátozza a böngésző kéréseit. Várj egy kicsit, majd próbáld újra.",
+      "authReasonExtensionApproval": "A bővítmény eszközeinek használatához hagyja jóvá a Lumót a bővítmény beállításaiban.",
       "builtin": "Beépített",
       "external": "Külső",
       "enabled": "Engedélyezve",
@@ -521,9 +522,16 @@
         "idPlaceholder": "32 karakteres bővítmény ID",
         "invalidId": "Adjon meg egy 32 karakteres Chromium-bővítmény ID-t.",
         "duplicate": "Ez a bővítmény már hozzá van adva",
+        "discovery": {
+          "label": "Csatlakoztatásra kész",
+          "add": "{{name}} hozzáadása"
+        },
         "empty": "Még nincsenek hozzáadott bővítményszolgáltatók.",
         "badge": "Bővítmény",
         "refresh": "Újracsatlakozás",
+        "authorize": "Engedélyezés",
+        "authorizing": "Jóváhagyásra vár…",
+        "unauthorized": "Jóváhagyás szükséges",
         "remove": "Szolgáltató eltávolítása",
         "removeConfirm": "Abbahagyja a bővítmény eszközeinek használatát?"
       },

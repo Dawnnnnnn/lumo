@@ -454,6 +454,7 @@
       "authReasonBusy": "Đã có một phiên đăng nhập khác đang mở trong trình duyệt này. Hãy hoàn tất hoặc đóng nó trước.",
       "authReasonServerFailed": "Không thể hoàn tất đăng nhập. Hãy thử lại; nếu vẫn thất bại, hãy kiểm tra cấu hình OAuth của máy chủ hoặc thêm tiêu đề Authorization.",
       "authReasonTemporary": "Máy chủ ủy quyền đang giới hạn yêu cầu từ trình duyệt này. Vui lòng đợi một lát rồi thử lại.",
+      "authReasonExtensionApproval": "Phê duyệt Lumo trong phần cài đặt của tiện ích này để dùng các công cụ của nó.",
       "builtin": "Tích hợp",
       "external": "Bên ngoài",
       "enabled": "Đã bật",
@@ -521,9 +522,16 @@
         "idPlaceholder": "ID tiện ích 32 ký tự",
         "invalidId": "Nhập ID tiện ích Chromium 32 ký tự.",
         "duplicate": "Tiện ích này đã được thêm",
+        "discovery": {
+          "label": "Sẵn sàng kết nối",
+          "add": "Thêm {{name}}"
+        },
         "empty": "Chưa thêm nhà cung cấp tiện ích nào.",
         "badge": "Tiện ích",
         "refresh": "Kết nối lại",
+        "authorize": "Cấp quyền",
+        "authorizing": "Đang chờ phê duyệt…",
+        "unauthorized": "Cần phê duyệt",
         "remove": "Xóa nhà cung cấp",
         "removeConfirm": "Ngừng dùng công cụ của tiện ích này?"
       },

@@ -455,6 +455,7 @@
       "authReasonBusy": "Un altro accesso è già aperto in questo browser. Completalo o chiudilo prima.",
       "authReasonServerFailed": "Impossibile completare l’accesso. Riprova; se continua a fallire, controlla la configurazione OAuth del server o aggiungi un’intestazione Authorization.",
       "authReasonTemporary": "Il server di autorizzazione sta limitando le richieste di questo browser. Attendi un momento e riprova.",
+      "authReasonExtensionApproval": "Approva Lumo nelle impostazioni di questa estensione per usarne gli strumenti.",
       "builtin": "Integrato",
       "external": "Esterno",
       "enabled": "Attivato",
@@ -522,9 +523,16 @@
         "idPlaceholder": "ID estensione di 32 caratteri",
         "invalidId": "Inserisci un ID estensione Chromium di 32 caratteri.",
         "duplicate": "Questa estensione è già stata aggiunta",
+        "discovery": {
+          "label": "Pronto per la connessione",
+          "add": "Aggiungi {{name}}"
+        },
         "empty": "Nessun provider di estensione aggiunto.",
         "badge": "Estensione",
         "refresh": "Riconnetti",
+        "authorize": "Autorizza",
+        "authorizing": "In attesa di approvazione…",
+        "unauthorized": "Approvazione necessaria",
         "remove": "Rimuovi provider",
         "removeConfirm": "Smettere di usare gli strumenti di questa estensione?"
       },

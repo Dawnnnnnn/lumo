@@ -454,6 +454,7 @@
       "authReasonBusy": "此瀏覽器中已有另一個登入流程正在進行，請先完成或關閉它。",
       "authReasonServerFailed": "登入未能完成。請重試；若持續失敗，請檢查此伺服器的 OAuth 設定，或改為填寫 Authorization 標頭。",
       "authReasonTemporary": "授權伺服器正在限制此瀏覽器的請求頻率，請稍後再試。",
+      "authReasonExtensionApproval": "在此擴充功能的設定中授權 Lumo，才能使用它的工具。",
       "builtin": "內建",
       "external": "外部",
       "enabled": "已啟用",
@@ -521,9 +522,16 @@
         "idPlaceholder": "32 字元擴充功能 ID",
         "invalidId": "請輸入 32 字元的 Chromium 擴充功能 ID。",
         "duplicate": "此擴充功能已新增",
+        "discovery": {
+          "label": "待連線",
+          "add": "新增 {{name}}"
+        },
         "empty": "尚未新增擴充功能服務。",
         "badge": "擴充功能",
         "refresh": "重新連線",
+        "authorize": "授權",
+        "authorizing": "等待授權…",
+        "unauthorized": "需要授權",
         "remove": "移除服務",
         "removeConfirm": "停止使用此擴充功能提供的工具？"
       },

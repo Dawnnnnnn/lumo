@@ -264,6 +264,9 @@ export function McpSettings() {
                     onToggle={() => toggleExpanded(`ext:${config.id}`)}
                     onToggleEnabled={(enabled) => void toggleExtension(config.id, enabled)}
                     onRefresh={() => void refreshExtensionProvider(config.id)}
+                    // Registry ids are namespaced; the raw extension id is only
+                    // for `refreshExtensionProvider`, which keys by provider.
+                    onAuthorize={() => handleAuthorize(`ext:${config.id}`)}
                     onRemove={() => void removeExtension(config.id)}
                   />
                 ))}

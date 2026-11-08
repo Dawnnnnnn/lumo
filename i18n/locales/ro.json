@@ -455,6 +455,7 @@
       "authReasonBusy": "Există deja o altă autentificare deschisă în acest browser. Finalizeaz-o sau închide-o mai întâi.",
       "authReasonServerFailed": "Autentificarea nu a putut fi finalizată. Încearcă din nou; dacă eșuează în continuare, verifică configurația OAuth a serverului sau adaugă un antet Authorization.",
       "authReasonTemporary": "Serverul de autorizare limitează cererile din acest browser. Așteaptă un moment și încearcă din nou.",
+      "authReasonExtensionApproval": "Aprobă Lumo în setările acestei extensii pentru a-i folosi instrumentele.",
       "builtin": "Integrat",
       "external": "Extern",
       "enabled": "Activat",
@@ -522,9 +523,16 @@
         "idPlaceholder": "ID de extensie de 32 de caractere",
         "invalidId": "Introdu un ID de extensie Chromium de 32 de caractere.",
         "duplicate": "Această extensie a fost deja adăugată",
+        "discovery": {
+          "label": "Pregătit pentru conectare",
+          "add": "Adaugă {{name}}"
+        },
         "empty": "Încă niciun furnizor de extensie adăugat.",
         "badge": "Extensie",
         "refresh": "Reconectează",
+        "authorize": "Autorizează",
+        "authorizing": "Se așteaptă aprobarea…",
+        "unauthorized": "Necesită aprobare",
         "remove": "Elimină furnizorul",
         "removeConfirm": "Oprești utilizarea instrumentelor acestei extensii?"
       },

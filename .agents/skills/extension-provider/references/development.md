@@ -77,7 +77,10 @@
 只测 `ExtensionMcpServer` 的状态机，不碰真实 chrome：
 
 ```ts
-vi.mock('@/lib/mcp/extension-probe', () => ({ probeExtension: mocks.probe }));
+vi.mock('@/lib/mcp/extension-probe', () => ({
+  probeExtension: mocks.probe,
+  authorizeExtension: mocks.authorize,
+}));
 vi.mock('@ai-sdk/mcp', () => ({
   createMCPClient: async ({ transport }) => {
     // 关键：真实实现会「占有」transport.onclose，mock 必须复现，
@@ -141,7 +144,7 @@ vi.mock('@/lib/mcp/transports/chrome-port', () => ({
 1. 两个仓库各 `npm run build`，`chrome://extensions` 打开开发者模式，
    Load unpacked 分别加载 `.output/chrome-mv3`。
 2. 在 Lumo 的 MCP → Extensions 分区复制「本扩展」ID；
-   在提供方的 Agent 设置里 Add 这个 ID（或让 probe 自动生成待审批卡片后点「允许并启用」）。
+   在提供方的 Agent 设置里 Add 这个 ID（或在宿主卡片上点「授权」→ 提供方弹出审批卡片 →「允许并启用」）。
 3. 在 Lumo 添加提供方 ID，确认状态与工具数。
 4. 打开侧栏发起一轮对话，验证真实工具调用（读 + 写各一次）。
 5. 断线自愈：
@@ -152,7 +155,7 @@ vi.mock('@/lib/mcp/transports/chrome-port', () => ({
    - 关闭 `allowWrites` → 写调用失败、读调用仍成功；
    - 关闭 Lumo 侧卡片开关 → 工具从模型工具面消失。
 7. 审批回路：在提供方移除 allowlist 条目，回 Lumo 点「重新连接」→ 应出现
-   pendingApproval 文案；批准后侧栏 focus 自动恢复。
+   琥珀色 `unauthorized` +「授权」按钮；批准后侧栏 focus 自动恢复。
 8. 多上下文：同时打开设置页与侧栏，确认两边状态各自正确（这是预期，不是 bug）。
 
 ---

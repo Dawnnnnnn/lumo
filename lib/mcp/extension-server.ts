@@ -3,12 +3,14 @@ import { createMCPClient, type MCPClient } from '@ai-sdk/mcp';
 import type {
   AnyTool,
   IMcpServer,
+  McpAuthError,
   McpExtensionProviderConfig,
   McpServerInfo,
   McpServerStatus,
   McpToolDefinition,
 } from './types';
-import { probeExtension } from './extension-probe';
+import { authorizeExtension, probeExtension } from './extension-probe';
+import type { ExtensionServiceInfo, ExtensionStatus } from './extension-protocol';
 import { ChromePortTransport } from './transports/chrome-port';
 
 const MAX_TOOLS = 1024;
@@ -55,6 +57,8 @@ function sanitizeToolName(raw: string): string {
 export class ExtensionMcpServer implements IMcpServer {
   private status: McpServerStatus = 'disconnected';
   private error?: string;
+  /** Set while the provider is waiting for the user to approve Lumo. */
+  private authError?: McpAuthError;
   private descriptor?: { namespace: string; name: string; version: string };
   private client: MCPClient | null = null;
   private transport: ChromePortTransport | null = null;
@@ -105,6 +109,7 @@ export class ExtensionMcpServer implements IMcpServer {
     this.aiTools = {};
     this.needsReconnect = false;
     this.error = undefined;
+    this.authError = undefined;
     this.setStatus('disconnected');
   }
 
@@ -124,12 +129,27 @@ export class ExtensionMcpServer implements IMcpServer {
     return this.status === 'error' ? this.error : undefined;
   }
 
+  /** Why the provider has not granted access yet, for the card's amber state. */
+  getAuthError(): McpAuthError | undefined {
+    return this.authError;
+  }
+
+  /**
+   * Connect without ever asking the provider for access.
+   *
+   * `lumo:probe` is read-only by contract, which is what lets this run on every
+   * startup, every settings write and every focus retry without risking a
+   * window opening over whatever the user is doing. Access is requested by
+   * `authorize()`, and only from the card's button.
+   */
   private async doConnect(): Promise<void> {
     this.setStatus('connecting');
     this.error = undefined;
+    this.authError = undefined;
 
     const outcome = await probeExtension(this.config.id);
-    if (!outcome.ok || !outcome.response) {
+    const response = outcome.response;
+    if (!outcome.ok || !response) {
       this.fail(
         outcome.unreachable
           ? 'Extension is not installed, or it does not expose an agent endpoint.'
@@ -138,23 +158,76 @@ export class ExtensionMcpServer implements IMcpServer {
       return;
     }
 
-    const { service, status } = outcome.response;
+    const { service, status } = response;
     if (!service || !status) {
       this.fail('Probe response is missing service or status.');
       return;
     }
-    this.descriptor = service;
 
-    if (!status.enabled) {
-      this.fail(`Agent access is turned off in ${service.name}.`);
+    await this.settle(service, status);
+  }
+
+  /**
+   * Ask the provider for access, out loud.
+   *
+   * `lumo:authorize` is the only message a provider may answer by opening its own
+   * settings, so it is sent from the card's button and nowhere else. Approval
+   * itself happens in that UI, so a negative answer is expected: the card stays
+   * in `unauthorized`, and the focus retry picks the grant up when the user
+   * comes back.
+   */
+  async authorize(): Promise<void> {
+    if (!this.config.enabled) return;
+
+    this.setStatus('authorizing');
+    this.error = undefined;
+    this.authError = undefined;
+
+    const outcome = await authorizeExtension(this.config.id);
+    const response = outcome.response;
+    if (!outcome.ok || !response) {
+      this.fail(
+        outcome.unreachable
+          ? // Reachable for `probe` but not for `authorize`: the installed build
+            // predates this message. Nothing the user can fix in settings.
+            'This extension has no approval endpoint yet. Update it, then try again.'
+          : (outcome.error ?? 'Probe failed.'),
+      );
       return;
     }
-    if (!status.authorized) {
-      this.fail(
-        status.pendingApproval
-          ? `${service.name} is waiting for you to approve this extension. Open its settings, allow ${chrome.runtime.id}, then reconnect.`
-          : `${service.name} does not allow this extension. Add ${chrome.runtime.id} to its allowed extension IDs.`,
-      );
+
+    const { service, status } = response;
+    if (!service || !status) {
+      this.fail('Probe response is missing service or status.');
+      return;
+    }
+
+    await this.settle(service, status);
+  }
+
+  /** Shared verdict for both paths: what the provider's status means for us. */
+  private async settle(service: ExtensionServiceInfo, status: ExtensionStatus): Promise<void> {
+    this.descriptor = service;
+
+    if (!status.enabled || !status.authorized) {
+      // Not an error: nothing is broken, the provider is waiting for a person.
+      // The card renders `authError` in amber and offers the action that fixes
+      // it, exactly like an OAuth-protected server does.
+      //
+      // The cached tool surface goes with the grant: a provider that revoked
+      // access must stop offering its tools to the model immediately, not just
+      // fail when one is called.
+      this.toolDefinitions = [];
+      this.aiTools = {};
+      // One state, one action: whether the provider's agent switch is off or
+      // Lumo is simply not on its allowlist, both are resolved by the same
+      // approval card — `approvePendingRequest` turns the switch on *and*
+      // allowlists the host in a single click.
+      this.authError = { reason: 'extension-approval' };
+      this.error = status.enabled
+        ? `${service.name} has not approved Lumo yet.`
+        : `Agent access is turned off in ${service.name}.`;
+      this.setStatus('unauthorized');
       return;
     }
     if (!status.ready) {
@@ -162,6 +235,10 @@ export class ExtensionMcpServer implements IMcpServer {
       return;
     }
 
+    await this.openSession(service);
+  }
+
+  private async openSession(service: ExtensionServiceInfo): Promise<void> {
     await this.closeSession();
 
     try {

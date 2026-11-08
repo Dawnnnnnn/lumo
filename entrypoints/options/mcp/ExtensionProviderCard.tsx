@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import {
   ChevronDown,
   ChevronRight,
+  KeyRound,
+  Loader2,
   PowerOff,
   Puzzle,
   RefreshCw,
@@ -11,6 +13,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
+import { AUTH_REASON_KEYS } from '@/lib/mcp/server-labels';
 import type { McpExtensionProviderConfig, McpServerState } from '@/lib/mcp/types';
 import { CardDisclosure, ServerExpandedContent, StatusBadge } from './ServerCardParts';
 
@@ -28,6 +31,7 @@ export function ExtensionProviderCard({
   onToggle,
   onToggleEnabled,
   onRefresh,
+  onAuthorize,
   onRemove,
 }: {
   config: McpExtensionProviderConfig;
@@ -36,6 +40,8 @@ export function ExtensionProviderCard({
   onToggle: () => void;
   onToggleEnabled: (enabled: boolean) => void;
   onRefresh: () => void;
+  /** Ask the provider for access — the only action that may prompt the user. */
+  onAuthorize: () => void;
   onRemove: () => void;
 }) {
   const { t } = useTranslation();
@@ -53,6 +59,12 @@ export function ExtensionProviderCard({
     status: 'disconnected',
     tools: [],
   };
+
+  // Only an enabled provider can be waiting for a person: a disabled one is off
+  // by intent, and offering authorization there would contradict the switch.
+  const authorizing = config.enabled && current.status === 'authorizing';
+  const needsAuthorization = config.enabled && current.status === 'unauthorized';
+  const authReason = state?.authError ? t(AUTH_REASON_KEYS[state.authError.reason]) : undefined;
 
   return (
     <div className="border border-border rounded-lg overflow-hidden">
@@ -75,7 +87,14 @@ export function ExtensionProviderCard({
         </span>
 
         {config.enabled ? (
-          <StatusBadge status={current.status} />
+          <StatusBadge
+            status={current.status}
+            title={authReason}
+            labels={{
+              unauthorized: t('options.mcp.extensions.unauthorized'),
+              authorizing: t('options.mcp.extensions.authorizing'),
+            }}
+          />
         ) : (
           <span className="flex items-center gap-1 text-xs text-muted-foreground shrink-0">
             <PowerOff className="h-3 w-3" />
@@ -94,18 +113,44 @@ export function ExtensionProviderCard({
           />
         </div>
 
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-7 w-7 shrink-0"
-          onClick={(event) => {
-            event.stopPropagation();
-            onRefresh();
-          }}
-          aria-label={t('options.mcp.extensions.refresh')}
-        >
-          <RefreshCw className="h-3.5 w-3.5" />
-        </Button>
+        {/* One slot, two meanings, same as the HTTP card: a provider that is
+            waiting for a person turns the reconnect affordance into the action
+            that resolves it. */}
+        {needsAuthorization || authorizing ? (
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-7 gap-1 px-2 text-xs shrink-0"
+            onClick={(event) => {
+              event.stopPropagation();
+              onAuthorize();
+            }}
+            disabled={authorizing}
+            aria-label={t('options.mcp.extensions.authorize')}
+            aria-busy={authorizing}
+            title={authReason}
+          >
+            {authorizing ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <KeyRound className="h-3.5 w-3.5" />
+            )}
+            <span className="hidden sm:inline">{t('options.mcp.extensions.authorize')}</span>
+          </Button>
+        ) : (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7 shrink-0"
+            onClick={(event) => {
+              event.stopPropagation();
+              onRefresh();
+            }}
+            aria-label={t('options.mcp.extensions.refresh')}
+          >
+            <RefreshCw className="h-3.5 w-3.5" />
+          </Button>
+        )}
 
         <Button
           variant="ghost"

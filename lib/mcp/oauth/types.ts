@@ -128,7 +128,14 @@ export type McpAuthFailureReason =
    */
   | 'authorization-server-error'
   /** Rate limiting or a transient refusal: waiting is the fix. */
-  | 'temporary';
+  | 'temporary'
+  /**
+   * Not an OAuth failure: an extension provider refuses until the user approves
+   * Lumo in that extension's own settings. Shares this surface because the card
+   * needs the same thing — an amber "waiting for a person" state with one action
+   * — and the wording is the only part that differs.
+   */
+  | 'extension-approval';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
