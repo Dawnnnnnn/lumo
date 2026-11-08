@@ -57,6 +57,19 @@ export default defineConfig({
       open_in_tab: true,
     },
   },
+  hooks: {
+    // WXT materialises `content_scripts` as soon as an entrypoint carries
+    // content-script options (the guard is `length >= 0`, i.e. always), and the
+    // only one we have — `entrypoints/content.ts` — is registered at runtime.
+    // That leaves `"content_scripts": []` in the manifest, which the Edge/Chrome
+    // store validators reject with "Array item count 0 is less than minimum
+    // count of 1". Dropping the empty array is the whole fix: declaring the
+    // content script in the manifest instead would cost every page ~24 KB gzip.
+    'build:manifestGenerated': (_wxt, manifest) => {
+      const scripts = manifest.content_scripts;
+      if (Array.isArray(scripts) && scripts.length === 0) delete manifest.content_scripts;
+    },
+  },
   vite: () => ({
     plugins: [tailwindcss(), themePreloadPlugin()],
     build: {
