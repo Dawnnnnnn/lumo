@@ -3,7 +3,7 @@
   "description": "AI-powered browser sidebar assistant",
   "private": true,
   "license": "MIT",
-  "version": "1.0.22",
+  "version": "1.0.23",
   "type": "module",
   "scripts": {
     "dev": "wxt",
