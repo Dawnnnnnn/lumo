@@ -83,6 +83,20 @@ describe('execution budget', () => {
     expect(result.stderr).toContain('deadline');
   });
 
+  it('honours a sub-second deadline instead of widening it', async () => {
+    // A caller that asks for 200ms must get 200ms: the shell used to raise any
+    // positive value to one second, so a short guard silently outlived itself.
+    const started = Date.now();
+    const result = await executeShell(
+      {},
+      { command: 'while true; do :; done', timeoutMs: 200 },
+    );
+    const elapsed = Date.now() - started;
+    expect(result.exitCode).toBe(124);
+    expect(result.stderr).toContain('deadline');
+    expect(elapsed).toBeLessThan(900);
+  });
+
   it('keeps the preview when the spill file cannot be written', async () => {
     await fileStorage.writeFile('big.txt', 'x'.repeat(60_000));
     const original = fileStorage.writeFile.bind(fileStorage);

@@ -111,12 +111,14 @@ export async function executeShell(
     });
 
     // No implicit timeout: the caller may bound a script explicitly, otherwise
-    // it runs until it finishes or the turn is aborted. The sentinel exists only
-    // because browser timers cannot represent Infinity safely.
+    // it runs until it finishes or the turn is aborted. An explicit value is
+    // honoured as given, down to a millisecond — clamping it upward would make
+    // a short deadline (`timeoutMs: 200`) silently weaker than asked for. The
+    // ceiling exists only because browser timers cannot represent Infinity.
     const requested = input.timeoutMs;
     const timeoutMs =
       requested !== undefined && requested > 0
-        ? Math.max(1_000, Math.min(requested, MAX_TIMER_DELAY_MS))
+        ? Math.min(requested, MAX_TIMER_DELAY_MS)
         : NO_TIMEOUT_MS;
     const timeZone = hostTimeZone();
     const bash = new Bash({
