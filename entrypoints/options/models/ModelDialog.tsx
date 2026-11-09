@@ -19,7 +19,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { resolveModelsUrl } from '@/lib/provider-type';
+import { isOpenAIProvider, resolveModelsUrl } from '@/lib/provider-type';
 import type { ModelConfig, ProviderType, ProviderVendor } from '@/types';
 import { ContextWindowField } from '@/entrypoints/options/components/ContextWindowField';
 import {
@@ -194,13 +194,12 @@ export function ModelDialog({
                     className="font-mono text-xs"
                   />
                 )}
-                {/* Offered for every protocol: the list is fetched with a Bearer
-                    key from `${baseUrl}/models`, which OpenAI-style gateways and
-                    the Anthropic-protocol gateways users point Lumo at all serve. */}
-                <Button type="button" variant="outline" size="default" onClick={() => void fetchModels()} disabled={fetchingModels} className="h-10 shrink-0 gap-1.5 px-3">
-                  {fetchingModels ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-                  {t('options.models.fetchModels')}
-                </Button>
+                {(isOpenAIProvider(providerType) || providerVendor === 'opencode') && (
+                  <Button type="button" variant="outline" size="default" onClick={() => void fetchModels()} disabled={fetchingModels} className="h-10 shrink-0 gap-1.5 px-3">
+                    {fetchingModels ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+                    {t('options.models.fetchModels')}
+                  </Button>
+                )}
               </div>
             )}
           </Field>

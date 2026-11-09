@@ -239,7 +239,7 @@ describe('vendor helpers', () => {
     expect(providerBaseUrlPlaceholder('opencode', 'anthropic')).toBe(
       'https://opencode.ai/inference/anthropic',
     );
-    expect(providerBaseUrlPlaceholder(undefined, 'anthropic')).toBe('https://api.anthropic.com/v1');
+    expect(providerBaseUrlPlaceholder(undefined, 'anthropic')).toBe('https://api.anthropic.com');
     expect(providerBaseUrlPlaceholder('custom', 'openai-chat')).toBe('https://api.openai.com/v1');
   });
 
