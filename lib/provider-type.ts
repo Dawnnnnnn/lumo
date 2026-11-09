@@ -37,7 +37,9 @@ export const PROVIDER_VENDORS: ProviderVendor[] = ['custom', 'opencode'];
 
 /** Default base URL hint per provider type, used as an input placeholder. */
 export const PROVIDER_BASE_URL_PLACEHOLDER: Record<ProviderType, string> = {
-  anthropic: 'https://api.anthropic.com',
+  // With `/v1`: the SDK appends `/messages` (and the model list `/models`)
+  // directly to this base, so the bare origin would 404.
+  anthropic: 'https://api.anthropic.com/v1',
   'openai-chat': 'https://api.openai.com/v1',
   'openai-responses': 'https://api.openai.com/v1',
 };
@@ -157,7 +159,7 @@ export function resolveBaseUrl(input: ProviderEndpointInput): string | undefined
 
 /**
  * Where the provider's model list lives, or `undefined` when this provider has
- * no derivable one (the fetch button is hidden then).
+ * no derivable one (the dialog then asks for the URL and key first).
  *
  * Only OpenCode has an endpoint that is not `${baseUrl}/models`; for everything
  * else the historical derivation is kept so existing gateways keep working.
