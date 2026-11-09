@@ -204,6 +204,9 @@
         },
         "opencode": {
           "label": "OpenCode"
+        },
+        "magpie": {
+          "label": "Magpie"
         }
       },
       "providerTypes": {
@@ -220,6 +223,7 @@
       "baseUrl": "బేస్ URL",
       "baseUrlHint": "ప్రొవైడర్ డిఫాల్ట్‌ను ఉపయోగించడానికి ఖాళీగా ఉంచండి.",
       "baseUrlHintOpencode": "ఎంచుకున్న ప్రోటోకాల్ OpenCode ఎండ్‌పాయింట్‌ను ఉపయోగించడానికి ఖాళీగా ఉంచండి.",
+      "baseUrlHintMagpie": "స్థానిక Magpie గేట్‌వేను ఉపయోగించడానికి ఖాళీగా వదిలివేయండి.",
       "apiKey": "API కీ",
       "apiKeyPlaceholder": "sk-...",
       "addModel": "మోడల్ జోడించు",

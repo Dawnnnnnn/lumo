@@ -204,6 +204,9 @@
         },
         "opencode": {
           "label": "OpenCode"
+        },
+        "magpie": {
+          "label": "Magpie"
         }
       },
       "providerTypes": {
@@ -220,6 +223,7 @@
       "baseUrl": "ベース URL",
       "baseUrlHint": "空欄の場合はプロバイダーの既定値を使用します。",
       "baseUrlHintOpencode": "空欄の場合は選択したプロトコルの OpenCode エンドポイントを使用します。",
+      "baseUrlHintMagpie": "空欄の場合はローカルの Magpie ゲートウェイを使用します。",
       "apiKey": "API キー",
       "apiKeyPlaceholder": "sk-...",
       "addModel": "モデルを追加",

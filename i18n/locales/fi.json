@@ -204,6 +204,9 @@
         },
         "opencode": {
           "label": "OpenCode"
+        },
+        "magpie": {
+          "label": "Magpie"
         }
       },
       "providerTypes": {
@@ -220,6 +223,7 @@
       "baseUrl": "Perus-URL",
       "baseUrlHint": "Jätä tyhjäksi, jos haluat käyttää tarjoajan oletusarvoa.",
       "baseUrlHintOpencode": "Jätä tyhjäksi, jos haluat käyttää valitun protokollan OpenCode-päätepistettä.",
+      "baseUrlHintMagpie": "Jätä tyhjäksi käyttääksesi paikallista Magpie-yhdyskäytävää.",
       "apiKey": "API-avain",
       "apiKeyPlaceholder": "sk-...",
       "addModel": "Lisää malli",

@@ -204,6 +204,9 @@
         },
         "opencode": {
           "label": "OpenCode"
+        },
+        "magpie": {
+          "label": "Magpie"
         }
       },
       "providerTypes": {
@@ -220,6 +223,7 @@
       "baseUrl": "Alap URL",
       "baseUrlHint": "Hagyja üresen a szolgáltató alapértelmezésének használatához.",
       "baseUrlHintOpencode": "Hagyja üresen a kiválasztott protokoll OpenCode-végpontjának használatához.",
+      "baseUrlHintMagpie": "Hagyja üresen a helyi Magpie átjáró használatához.",
       "apiKey": "API-kulcs",
       "apiKeyPlaceholder": "sk-...",
       "addModel": "Modell hozzáadása",

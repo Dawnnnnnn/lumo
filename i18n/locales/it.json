@@ -204,6 +204,9 @@
         },
         "opencode": {
           "label": "OpenCode"
+        },
+        "magpie": {
+          "label": "Magpie"
         }
       },
       "providerTypes": {
@@ -220,6 +223,7 @@
       "baseUrl": "URL di base",
       "baseUrlHint": "Lascia vuoto per usare il valore predefinito del provider.",
       "baseUrlHintOpencode": "Lascia vuoto per usare l'endpoint OpenCode del protocollo selezionato.",
+      "baseUrlHintMagpie": "Lascia vuoto per usare il gateway Magpie locale.",
       "apiKey": "Chiave API",
       "apiKeyPlaceholder": "sk-...",
       "addModel": "Aggiungi modello",

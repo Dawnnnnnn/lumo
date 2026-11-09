@@ -204,6 +204,9 @@
         },
         "opencode": {
           "label": "OpenCode"
+        },
+        "magpie": {
+          "label": "Magpie"
         }
       },
       "providerTypes": {
@@ -220,6 +223,7 @@
       "baseUrl": "URL asas",
       "baseUrlHint": "Biarkan kosong untuk menggunakan lalai pembekal.",
       "baseUrlHintOpencode": "Biarkan kosong untuk menggunakan titik akhir OpenCode protokol yang dipilih.",
+      "baseUrlHintMagpie": "Biarkan kosong untuk menggunakan get laluan Magpie setempat.",
       "apiKey": "Kunci API",
       "apiKeyPlaceholder": "sk-...",
       "addModel": "Tambah model",

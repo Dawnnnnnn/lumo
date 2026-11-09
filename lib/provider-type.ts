@@ -10,6 +10,7 @@ import {
   normalizeReasoningEffort,
 } from '@/lib/reasoning-effort';
 import { deriveOpenCodeSession, openCodeBaseUrl, openCodeModelsUrl } from '@/lib/opencode';
+import { magpieBaseUrl } from '@/lib/magpie';
 import { normalizeContextWindow } from '@/lib/context-window';
 
 /** i18n key suffix under `options.models.providerTypes` for each type. */
@@ -30,10 +31,11 @@ export const PROVIDER_TYPES: ProviderType[] = [
 export const PROVIDER_VENDOR_I18N_KEY: Record<ProviderVendor, string> = {
   custom: 'custom',
   opencode: 'opencode',
+  magpie: 'magpie',
 };
 
 /** Order shown in the vendor picker, the generic option first. */
-export const PROVIDER_VENDORS: ProviderVendor[] = ['custom', 'opencode'];
+export const PROVIDER_VENDORS: ProviderVendor[] = ['custom', 'opencode', 'magpie'];
 
 /** Default base URL hint per provider type, used as an input placeholder. */
 export const PROVIDER_BASE_URL_PLACEHOLDER: Record<ProviderType, string> = {
@@ -56,7 +58,7 @@ export function normalizeProviderVendor(
   vendor: string | undefined,
 ): ProviderVendor | undefined {
   if (vendor === undefined) return undefined;
-  return vendor === 'opencode' ? 'opencode' : 'custom';
+  return vendor === 'opencode' || vendor === 'magpie' ? vendor : 'custom';
 }
 
 /**
@@ -142,6 +144,22 @@ function inputIsOpenCode(input: ProviderEndpointInput): boolean {
 }
 
 /**
+ * Default base URL for a known vendor, or `undefined` for a custom endpoint.
+ *
+ * OpenCode's differs per protocol; Magpie serves every protocol from one base.
+ */
+function vendorBaseUrl(vendor: ProviderVendor | undefined, type: ProviderType): string | undefined {
+  switch (normalizeProviderVendor(vendor)) {
+    case 'opencode':
+      return openCodeBaseUrl(normalizeProviderType(type));
+    case 'magpie':
+      return magpieBaseUrl();
+    default:
+      return undefined;
+  }
+}
+
+/**
  * The base URL a request should actually use, or `undefined` to let the SDK
  * apply its own default.
  *
@@ -151,13 +169,12 @@ function inputIsOpenCode(input: ProviderEndpointInput): boolean {
  */
 export function resolveBaseUrl(input: ProviderEndpointInput): string | undefined {
   if (input.baseUrl?.trim()) return input.baseUrl.trim();
-  if (inputIsOpenCode(input)) return openCodeBaseUrl(normalizeProviderType(input.type));
-  return undefined;
+  return vendorBaseUrl(input.vendor, input.type);
 }
 
 /**
  * Where the provider's model list lives, or `undefined` when this provider has
- * no derivable one (the fetch button is hidden then).
+ * no derivable one (the dialog then asks for the URL and key first).
  *
  * Only OpenCode has an endpoint that is not `${baseUrl}/models`; for everything
  * else the historical derivation is kept so existing gateways keep working.
@@ -168,8 +185,23 @@ export function resolveModelsUrl(input: ProviderEndpointInput): string | undefin
     // official origin), so there is no "no URL configured" case here.
     return openCodeModelsUrl(resolveBaseUrl(input)!);
   }
-  const base = input.baseUrl?.trim().replace(/\/+$/, '');
+  // Resolved rather than typed so a known vendor's default (Magpie) is listed
+  // too; for a custom endpoint this is exactly the URL the user entered.
+  const base = resolveBaseUrl(input)?.replace(/\/+$/, '');
   return base ? (base.endsWith('/models') ? base : `${base}/models`) : undefined;
+}
+
+/**
+ * Whether the model dialog offers to fetch the provider's model list.
+ *
+ * The fetch is Bearer-authenticated. OpenAI-protocol endpoints and both known
+ * vendors accept that; the official Anthropic API does not (it wants
+ * `x-api-key`), so a custom Anthropic provider is left to a typed model id
+ * rather than shown a button that cannot succeed.
+ */
+export function canFetchModels(input: ProviderEndpointInput): boolean {
+  const vendor = normalizeProviderVendor(input.vendor);
+  return (vendor !== undefined && vendor !== 'custom') || isOpenAIProvider(input.type);
 }
 
 /** Placeholder for the provider's base URL field, aware of the vendor. */
@@ -177,9 +209,7 @@ export function providerBaseUrlPlaceholder(
   vendor: ProviderVendor | undefined,
   type: ProviderType,
 ): string {
-  return normalizeProviderVendor(vendor) === 'opencode'
-    ? openCodeBaseUrl(type)
-    : PROVIDER_BASE_URL_PLACEHOLDER[type];
+  return vendorBaseUrl(vendor, type) ?? PROVIDER_BASE_URL_PLACEHOLDER[type];
 }
 
 /**

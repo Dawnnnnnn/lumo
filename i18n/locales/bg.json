@@ -204,6 +204,9 @@
         },
         "opencode": {
           "label": "OpenCode"
+        },
+        "magpie": {
+          "label": "Magpie"
         }
       },
       "providerTypes": {
@@ -220,6 +223,7 @@
       "baseUrl": "Базов URL",
       "baseUrlHint": "Оставете празно, за да използвате стойността по подразбиране на доставчика.",
       "baseUrlHintOpencode": "Оставете празно, за да използвате крайната точка OpenCode на избрания протокол.",
+      "baseUrlHintMagpie": "Оставете празно, за да използвате локалния шлюз Magpie.",
       "apiKey": "API ключ",
       "apiKeyPlaceholder": "sk-...",
       "addModel": "Добави модел",

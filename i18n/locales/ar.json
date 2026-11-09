@@ -204,6 +204,9 @@
         },
         "opencode": {
           "label": "OpenCode"
+        },
+        "magpie": {
+          "label": "Magpie"
         }
       },
       "providerTypes": {
@@ -220,6 +223,7 @@
       "baseUrl": "عنوان URL الأساسي",
       "baseUrlHint": "اتركه فارغًا لاستخدام القيمة الافتراضية للمزوّد.",
       "baseUrlHintOpencode": "اتركه فارغًا لاستخدام نقطة نهاية OpenCode للبروتوكول المحدد.",
+      "baseUrlHintMagpie": "اتركه فارغًا لاستخدام بوابة Magpie المحلية.",
       "apiKey": "مفتاح API",
       "apiKeyPlaceholder": "sk-...",
       "addModel": "إضافة نموذج",

@@ -204,6 +204,9 @@
         },
         "opencode": {
           "label": "OpenCode"
+        },
+        "magpie": {
+          "label": "Magpie"
         }
       },
       "providerTypes": {
@@ -220,6 +223,7 @@
       "baseUrl": "URL de bază",
       "baseUrlHint": "Lasă gol pentru a folosi valoarea implicită a furnizorului.",
       "baseUrlHintOpencode": "Lasă gol pentru a folosi endpointul OpenCode al protocolului selectat.",
+      "baseUrlHintMagpie": "Lăsați gol pentru a folosi gateway-ul Magpie local.",
       "apiKey": "Cheie API",
       "apiKeyPlaceholder": "sk-...",
       "addModel": "Adaugă model",

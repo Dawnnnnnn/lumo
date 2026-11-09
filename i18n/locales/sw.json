@@ -204,6 +204,9 @@
         },
         "opencode": {
           "label": "OpenCode"
+        },
+        "magpie": {
+          "label": "Magpie"
         }
       },
       "providerTypes": {
@@ -220,6 +223,7 @@
       "baseUrl": "URL ya msingi",
       "baseUrlHint": "Acha wazi ili kutumia chaguo-msingi la mtoa huduma.",
       "baseUrlHintOpencode": "Acha wazi ili kutumia mwisho wa OpenCode wa itifaki iliyochaguliwa.",
+      "baseUrlHintMagpie": "Acha tupu ili kutumia lango la Magpie la ndani.",
       "apiKey": "Ufunguo wa API",
       "apiKeyPlaceholder": "sk-...",
       "addModel": "Ongeza modeli",

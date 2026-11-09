@@ -177,7 +177,9 @@ export function ProviderDialog({
             hint={
               vendor === 'opencode'
                 ? t('options.models.baseUrlHintOpencode')
-                : t('options.models.baseUrlHint')
+                : vendor === 'magpie'
+                  ? t('options.models.baseUrlHintMagpie')
+                  : t('options.models.baseUrlHint')
             }
             error={errors.baseUrl && t(errors.baseUrl)}
           >

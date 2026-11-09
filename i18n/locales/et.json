@@ -204,6 +204,9 @@
         },
         "opencode": {
           "label": "OpenCode"
+        },
+        "magpie": {
+          "label": "Magpie"
         }
       },
       "providerTypes": {
@@ -220,6 +223,7 @@
       "baseUrl": "Baas-URL",
       "baseUrlHint": "Jätke tühjaks, et kasutada pakkuja vaikeväärtust.",
       "baseUrlHintOpencode": "Jätke tühjaks, et kasutada valitud protokolli OpenCode'i lõpp-punkti.",
+      "baseUrlHintMagpie": "Jätke tühjaks, et kasutada kohalikku Magpie lüüsi.",
       "apiKey": "API võti",
       "apiKeyPlaceholder": "sk-...",
       "addModel": "Lisa mudel",

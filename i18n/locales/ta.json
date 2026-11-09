@@ -204,6 +204,9 @@
         },
         "opencode": {
           "label": "OpenCode"
+        },
+        "magpie": {
+          "label": "Magpie"
         }
       },
       "providerTypes": {
@@ -220,6 +223,7 @@
       "baseUrl": "அடிப்படை URL",
       "baseUrlHint": "வழங்குநரின் இயல்புநிலையைப் பயன்படுத்த காலியாக விடவும்.",
       "baseUrlHintOpencode": "தேர்ந்தெடுத்த நெறிமுறையின் OpenCode முனையைப் பயன்படுத்த காலியாக விடவும்.",
+      "baseUrlHintMagpie": "உள்ளூர் Magpie நுழைவாயிலைப் பயன்படுத்த காலியாக விடவும்.",
       "apiKey": "API விசை",
       "apiKeyPlaceholder": "sk-...",
       "addModel": "மாதிரியைச் சேர்",

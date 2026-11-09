@@ -19,7 +19,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { isOpenAIProvider, resolveModelsUrl } from '@/lib/provider-type';
+import { canFetchModels, resolveModelsUrl } from '@/lib/provider-type';
+import { parseModelList, type FetchedModel } from '@/lib/provider-models';
 import type { ModelConfig, ProviderType, ProviderVendor } from '@/types';
 import { ContextWindowField } from '@/entrypoints/options/components/ContextWindowField';
 import {
@@ -71,7 +72,7 @@ export function ModelDialog({
   const [value, setValue] = useState<ModelConfig | null>(draft);
   const [errors, setErrors] = useState<ValidationErrors<ModelField>>({});
   const [saving, setSaving] = useState(false);
-  const [modelOptions, setModelOptions] = useState<string[] | null>(null);
+  const [modelOptions, setModelOptions] = useState<Map<string, FetchedModel> | null>(null);
   const [fetchingModels, setFetchingModels] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
 
@@ -104,17 +105,9 @@ export function ModelDialog({
         headers: { Authorization: `Bearer ${providerApiKey.trim()}` },
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const payload: unknown = await response.json();
-      const data = payload && typeof payload === 'object' && 'data' in payload
-        ? (payload as { data?: unknown }).data : undefined;
-      const models = Array.isArray(data)
-        ? data.map((item) => typeof item === 'string' ? item : item && typeof item === 'object' && 'id' in item
-          ? (item as { id?: unknown }).id : item && typeof item === 'object' && 'model_name' in item
-            ? (item as { model_name?: unknown }).model_name : undefined)
-          .filter((id): id is string => typeof id === 'string' && id.length > 0)
-        : [];
+      const models = parseModelList(await response.json());
       if (!models.length) throw new Error('empty model list');
-      setModelOptions([...new Set(models)].sort());
+      setModelOptions(new Map(models.map((model) => [model.id, model])));
     } catch {
       setFetchError(t('options.models.fetchModelsError'));
       setModelOptions(null);
@@ -128,6 +121,29 @@ export function ModelDialog({
   const patch = (changes: Partial<ModelConfig>, clears?: ModelField) => {
     setValue({ ...value, ...changes });
     if (clears && errors[clears]) setErrors((prev) => ({ ...prev, [clears]: undefined }));
+  };
+
+  /**
+   * Picks a fetched model, prefilling what the gateway describes about it.
+   *
+   * A field is only overwritten while it still holds an automatic value — empty,
+   * mirrored from the id, or what the previously picked model prefilled — so a
+   * name or window the user chose survives switching models.
+   */
+  const selectFetchedModel = (modelId: string) => {
+    const previous = modelOptions?.get(value.modelId);
+    const next = modelOptions?.get(modelId);
+    const nameIsAuto = !value.displayName
+      || value.displayName === value.modelId
+      || value.displayName === previous?.displayName;
+    const windowIsAuto = value.contextWindow === undefined
+      || value.contextWindow === previous?.contextWindow;
+    patch({
+      modelId,
+      ...(nameIsAuto ? { displayName: next?.displayName ?? modelId } : {}),
+      ...(windowIsAuto ? { contextWindow: next?.contextWindow } : {}),
+    }, 'modelId');
+    if (nameIsAuto && errors.displayName) setErrors((prev) => ({ ...prev, displayName: undefined }));
   };
 
   const handleSave = async () => {
@@ -174,9 +190,9 @@ export function ModelDialog({
             {(props) => (
               <div className="flex gap-2">
                 {modelOptions ? (
-                  <Select value={value.modelId} onValueChange={(modelId) => patch({ modelId, displayName: (!value.displayName || value.displayName === value.modelId) ? modelId : value.displayName }, 'modelId')}>
+                  <Select value={value.modelId} onValueChange={selectFetchedModel}>
                     <SelectTrigger {...props} className="font-mono text-xs"><SelectValue placeholder={t('options.models.modelIdPlaceholder')} /></SelectTrigger>
-                    <SelectContent>{modelOptions.map((model) => <SelectItem key={model} value={model} className="font-mono text-xs">{model}</SelectItem>)}</SelectContent>
+                    <SelectContent>{[...modelOptions.keys()].map((model) => <SelectItem key={model} value={model} className="font-mono text-xs">{model}</SelectItem>)}</SelectContent>
                   </Select>
                 ) : (
                   <Input
@@ -194,7 +210,7 @@ export function ModelDialog({
                     className="font-mono text-xs"
                   />
                 )}
-                {(isOpenAIProvider(providerType) || providerVendor === 'opencode') && (
+                {canFetchModels({ vendor: providerVendor, type: providerType }) && (
                   <Button type="button" variant="outline" size="default" onClick={() => void fetchModels()} disabled={fetchingModels} className="h-10 shrink-0 gap-1.5 px-3">
                     {fetchingModels ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
                     {t('options.models.fetchModels')}

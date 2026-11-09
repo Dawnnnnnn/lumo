@@ -204,6 +204,9 @@
         },
         "opencode": {
           "label": "OpenCode"
+        },
+        "magpie": {
+          "label": "Magpie"
         }
       },
       "providerTypes": {
@@ -220,6 +223,7 @@
       "baseUrl": "Basis-URL",
       "baseUrlHint": "La stå tom for å bruke leverandørens standardverdi.",
       "baseUrlHintOpencode": "La stå tom for å bruke OpenCode-endepunktet for valgt protokoll.",
+      "baseUrlHintMagpie": "La stå tomt for å bruke den lokale Magpie-gatewayen.",
       "apiKey": "API-nøkkel",
       "apiKeyPlaceholder": "sk-...",
       "addModel": "Legg til modell",

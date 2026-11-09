@@ -204,6 +204,9 @@
         },
         "opencode": {
           "label": "OpenCode"
+        },
+        "magpie": {
+          "label": "Magpie"
         }
       },
       "providerTypes": {
@@ -220,6 +223,7 @@
       "baseUrl": "Base URL",
       "baseUrlHint": "Iwanang blangko para gamitin ang default ng provider.",
       "baseUrlHintOpencode": "Iwanang blangko para gamitin ang OpenCode endpoint ng napiling protocol.",
+      "baseUrlHintMagpie": "Iwanang blangko para gamitin ang lokal na Magpie gateway.",
       "apiKey": "API key",
       "apiKeyPlaceholder": "sk-...",
       "addModel": "Magdagdag ng modelo",

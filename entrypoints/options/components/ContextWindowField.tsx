@@ -51,10 +51,17 @@ export function ContextWindowField({ value, onChange, controlProps }: ContextWin
   // control has to switch into custom mode after the first render. Keyed on the
   // value rather than on the draft so it cannot fight the user mid-typing: a
   // half-typed number is never committed, hence never changes `value`.
+  //
+  // Synced both ways: the model dialog also replaces the value from outside
+  // (prefilling from a fetched model list), and a custom box left open on the
+  // previous model's count would contradict the preset now in effect.
   useEffect(() => {
     if (value !== undefined && !isPreset) {
       setIsCustom(true);
       setDraft(String(value));
+    } else {
+      setIsCustom(false);
+      setDraft('');
     }
   }, [value, isPreset]);
 

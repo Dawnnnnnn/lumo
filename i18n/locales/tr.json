@@ -204,6 +204,9 @@
         },
         "opencode": {
           "label": "OpenCode"
+        },
+        "magpie": {
+          "label": "Magpie"
         }
       },
       "providerTypes": {
@@ -220,6 +223,7 @@
       "baseUrl": "Temel URL",
       "baseUrlHint": "Sağlayıcının varsayılanını kullanmak için boş bırakın.",
       "baseUrlHintOpencode": "Seçilen protokolün OpenCode uç noktasını kullanmak için boş bırakın.",
+      "baseUrlHintMagpie": "Yerel Magpie ağ geçidini kullanmak için boş bırakın.",
       "apiKey": "API anahtarı",
       "apiKeyPlaceholder": "sk-...",
       "addModel": "Model ekle",

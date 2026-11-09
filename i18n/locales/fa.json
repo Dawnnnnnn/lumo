@@ -204,6 +204,9 @@
         },
         "opencode": {
           "label": "OpenCode"
+        },
+        "magpie": {
+          "label": "Magpie"
         }
       },
       "providerTypes": {
@@ -220,6 +223,7 @@
       "baseUrl": "نشانی پایه",
       "baseUrlHint": "برای استفاده از مقدار پیش‌فرض ارائه‌دهنده خالی بگذارید.",
       "baseUrlHintOpencode": "برای استفاده از نقطه پایانی OpenCode پروتکل انتخاب‌شده خالی بگذارید.",
+      "baseUrlHintMagpie": "برای استفاده از درگاه محلی Magpie خالی بگذارید.",
       "apiKey": "کلید API",
       "apiKeyPlaceholder": "sk-...",
       "addModel": "افزودن مدل",

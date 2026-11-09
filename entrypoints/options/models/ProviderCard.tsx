@@ -98,8 +98,8 @@ export function ProviderCard({
   // Shown only for a real vendor: tagging every provider "Custom" would put a
   // badge with no distinguishing power on the default case.
   const vendorLabel =
-    provider.vendor === 'opencode'
-      ? t(`options.models.vendors.${PROVIDER_VENDOR_I18N_KEY.opencode}.label`)
+    provider.vendor && provider.vendor !== 'custom'
+      ? t(`options.models.vendors.${PROVIDER_VENDOR_I18N_KEY[provider.vendor]}.label`)
       : null;
 
   return (

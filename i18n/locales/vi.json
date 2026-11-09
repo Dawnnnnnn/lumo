@@ -204,6 +204,9 @@
         },
         "opencode": {
           "label": "OpenCode"
+        },
+        "magpie": {
+          "label": "Magpie"
         }
       },
       "providerTypes": {
@@ -220,6 +223,7 @@
       "baseUrl": "URL cơ sở",
       "baseUrlHint": "Để trống để dùng giá trị mặc định của nhà cung cấp.",
       "baseUrlHintOpencode": "Để trống để dùng điểm cuối OpenCode của giao thức đã chọn.",
+      "baseUrlHintMagpie": "Để trống để dùng cổng Magpie cục bộ.",
       "apiKey": "Khóa API",
       "apiKeyPlaceholder": "sk-...",
       "addModel": "Thêm mô hình",

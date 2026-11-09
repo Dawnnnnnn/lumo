@@ -204,6 +204,9 @@
         },
         "opencode": {
           "label": "OpenCode"
+        },
+        "magpie": {
+          "label": "Magpie"
         }
       },
       "providerTypes": {
@@ -220,6 +223,7 @@
       "baseUrl": "Pamata URL",
       "baseUrlHint": "Atstājiet tukšu, lai izmantotu piegādātāja noklusējuma vērtību.",
       "baseUrlHintOpencode": "Atstājiet tukšu, lai izmantotu izvēlētā protokola OpenCode galapunktu.",
+      "baseUrlHintMagpie": "Atstājiet tukšu, lai izmantotu lokālo Magpie vārteju.",
       "apiKey": "API atslēga",
       "apiKeyPlaceholder": "sk-...",
       "addModel": "Pievienot modeli",

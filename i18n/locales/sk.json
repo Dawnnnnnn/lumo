@@ -204,6 +204,9 @@
         },
         "opencode": {
           "label": "OpenCode"
+        },
+        "magpie": {
+          "label": "Magpie"
         }
       },
       "providerTypes": {
@@ -220,6 +223,7 @@
       "baseUrl": "Základná URL",
       "baseUrlHint": "Nechajte prázdne, aby sa použila predvolená hodnota poskytovateľa.",
       "baseUrlHintOpencode": "Nechajte prázdne, aby sa použil koncový bod OpenCode zvoleného protokolu.",
+      "baseUrlHintMagpie": "Ponechajte prázdne na použitie lokálnej brány Magpie.",
       "apiKey": "Kľúč API",
       "apiKeyPlaceholder": "sk-...",
       "addModel": "Pridať model",

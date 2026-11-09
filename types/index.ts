@@ -61,8 +61,11 @@ export interface ModelConfig {
  * is *not* a sibling of the protocol URL. Modelling that as a vendor keeps the
  * protocol abstraction intact instead of adding a fourth pseudo-protocol that
  * would have to lie about which endpoint it calls.
+ *
+ * Magpie (a self-hosted gateway) is the simple case: every protocol and the
+ * model list share one base, so the vendor only supplies a default endpoint.
  */
-export type ProviderVendor = 'custom' | 'opencode';
+export type ProviderVendor = 'custom' | 'opencode' | 'magpie';
 
 export interface ProviderConfig {
   id: string;

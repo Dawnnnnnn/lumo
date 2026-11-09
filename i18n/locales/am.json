@@ -204,6 +204,9 @@
         },
         "opencode": {
           "label": "OpenCode"
+        },
+        "magpie": {
+          "label": "Magpie"
         }
       },
       "providerTypes": {
@@ -220,6 +223,7 @@
       "baseUrl": "መሠረት URL",
       "baseUrlHint": "የአቅራቢውን ነባሪ ለመጠቀም ባዶ ይተዉት።",
       "baseUrlHintOpencode": "የተመረጠውን ፕሮቶኮል የOpenCode መጨረሻ ለመጠቀም ባዶ ይተዉት።",
+      "baseUrlHintMagpie": "የአካባቢውን Magpie መግቢያ ለመጠቀም ባዶ ይተዉት።",
       "apiKey": "የAPI ቁልፍ",
       "apiKeyPlaceholder": "sk-...",
       "addModel": "ሞዴል አክል",

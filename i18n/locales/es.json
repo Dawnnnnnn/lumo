@@ -204,6 +204,9 @@
         },
         "opencode": {
           "label": "OpenCode"
+        },
+        "magpie": {
+          "label": "Magpie"
         }
       },
       "providerTypes": {
@@ -220,6 +223,7 @@
       "baseUrl": "URL base",
       "baseUrlHint": "Déjala vacía para usar el valor predeterminado del proveedor.",
       "baseUrlHintOpencode": "Déjala vacía para usar el endpoint de OpenCode del protocolo seleccionado.",
+      "baseUrlHintMagpie": "Déjalo vacío para usar la pasarela local de Magpie.",
       "apiKey": "Clave API",
       "apiKeyPlaceholder": "sk-...",
       "addModel": "Añadir modelo",

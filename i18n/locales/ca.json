@@ -204,6 +204,9 @@
         },
         "opencode": {
           "label": "OpenCode"
+        },
+        "magpie": {
+          "label": "Magpie"
         }
       },
       "providerTypes": {
@@ -220,6 +223,7 @@
       "baseUrl": "URL base",
       "baseUrlHint": "Deixa-ho buit per utilitzar el valor per defecte del proveïdor.",
       "baseUrlHintOpencode": "Deixa-ho buit per utilitzar el punt final d'OpenCode del protocol seleccionat.",
+      "baseUrlHintMagpie": "Deixeu-ho buit per utilitzar la passarel·la local de Magpie.",
       "apiKey": "Clau API",
       "apiKeyPlaceholder": "sk-...",
       "addModel": "Afegeix un model",

@@ -204,6 +204,9 @@
         },
         "opencode": {
           "label": "OpenCode"
+        },
+        "magpie": {
+          "label": "Magpie"
         }
       },
       "providerTypes": {
@@ -220,6 +223,7 @@
       "baseUrl": "기본 URL",
       "baseUrlHint": "비워 두면 공급자의 기본값을 사용합니다.",
       "baseUrlHintOpencode": "비워 두면 선택한 프로토콜의 OpenCode 엔드포인트를 사용합니다.",
+      "baseUrlHintMagpie": "비워 두면 로컬 Magpie 게이트웨이를 사용합니다.",
       "apiKey": "API 키",
       "apiKeyPlaceholder": "sk-...",
       "addModel": "모델 추가",

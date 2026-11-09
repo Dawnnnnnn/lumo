@@ -204,6 +204,9 @@
         },
         "opencode": {
           "label": "OpenCode"
+        },
+        "magpie": {
+          "label": "Magpie"
         }
       },
       "providerTypes": {
@@ -220,6 +223,7 @@
       "baseUrl": "接口地址",
       "baseUrlHint": "留空则使用该提供商的默认地址。",
       "baseUrlHintOpencode": "留空则按协议自动使用 OpenCode 官方地址。",
+      "baseUrlHintMagpie": "留空则使用本机的 Magpie 网关。",
       "apiKey": "API 密钥",
       "apiKeyPlaceholder": "sk-...",
       "addModel": "添加模型",

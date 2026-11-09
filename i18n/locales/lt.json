@@ -204,6 +204,9 @@
         },
         "opencode": {
           "label": "OpenCode"
+        },
+        "magpie": {
+          "label": "Magpie"
         }
       },
       "providerTypes": {
@@ -220,6 +223,7 @@
       "baseUrl": "Bazinis URL",
       "baseUrlHint": "Palikite tuščią, kad būtų naudojama tiekėjo numatytoji reikšmė.",
       "baseUrlHintOpencode": "Palikite tuščią, kad būtų naudojamas pasirinkto protokolo OpenCode galinis taškas.",
+      "baseUrlHintMagpie": "Palikite tuščią, kad būtų naudojamas vietinis Magpie šliuzas.",
       "apiKey": "API raktas",
       "apiKeyPlaceholder": "sk-...",
       "addModel": "Pridėti modelį",

@@ -204,6 +204,9 @@
         },
         "opencode": {
           "label": "OpenCode"
+        },
+        "magpie": {
+          "label": "Magpie"
         }
       },
       "providerTypes": {
@@ -220,6 +223,7 @@
       "baseUrl": "介面位址",
       "baseUrlHint": "留空則使用該供應商的預設位址。",
       "baseUrlHintOpencode": "留空則依協定自動使用 OpenCode 官方位址。",
+      "baseUrlHintMagpie": "留空則使用本機的 Magpie 閘道。",
       "apiKey": "API 金鑰",
       "apiKeyPlaceholder": "sk-...",
       "addModel": "新增模型",

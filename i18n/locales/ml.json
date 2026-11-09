@@ -204,6 +204,9 @@
         },
         "opencode": {
           "label": "OpenCode"
+        },
+        "magpie": {
+          "label": "Magpie"
         }
       },
       "providerTypes": {
@@ -220,6 +223,7 @@
       "baseUrl": "അടിസ്ഥാന URL",
       "baseUrlHint": "ദാതാവിന്റെ സ്വതവേയുള്ള മൂല്യം ഉപയോഗിക്കാൻ ശൂന്യമായി വിടുക.",
       "baseUrlHintOpencode": "തിരഞ്ഞെടുത്ത പ്രോട്ടോക്കോളിന്റെ OpenCode എൻഡ്പോയിന്റ് ഉപയോഗിക്കാൻ ശൂന്യമായി വിടുക.",
+      "baseUrlHintMagpie": "പ്രാദേശിക Magpie ഗേറ്റ്‌വേ ഉപയോഗിക്കാൻ ശൂന്യമായി വിടുക.",
       "apiKey": "API കീ",
       "apiKeyPlaceholder": "sk-...",
       "addModel": "മോഡൽ ചേർക്കുക",

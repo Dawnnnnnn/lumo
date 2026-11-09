@@ -204,6 +204,9 @@
         },
         "opencode": {
           "label": "OpenCode"
+        },
+        "magpie": {
+          "label": "Magpie"
         }
       },
       "providerTypes": {
@@ -220,6 +223,7 @@
       "baseUrl": "Βασικό URL",
       "baseUrlHint": "Αφήστε το κενό για να χρησιμοποιηθεί η προεπιλογή του παρόχου.",
       "baseUrlHintOpencode": "Αφήστε το κενό για να χρησιμοποιηθεί το endpoint OpenCode του επιλεγμένου πρωτοκόλλου.",
+      "baseUrlHintMagpie": "Αφήστε το κενό για να χρησιμοποιηθεί η τοπική πύλη Magpie.",
       "apiKey": "Κλειδί API",
       "apiKeyPlaceholder": "sk-...",
       "addModel": "Προσθήκη μοντέλου",

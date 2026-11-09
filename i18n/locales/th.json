@@ -204,6 +204,9 @@
         },
         "opencode": {
           "label": "OpenCode"
+        },
+        "magpie": {
+          "label": "Magpie"
         }
       },
       "providerTypes": {
@@ -220,6 +223,7 @@
       "baseUrl": "URL ฐาน",
       "baseUrlHint": "เว้นว่างเพื่อใช้ค่าเริ่มต้นของผู้ให้บริการ",
       "baseUrlHintOpencode": "เว้นว่างเพื่อใช้ปลายทาง OpenCode ของโปรโตคอลที่เลือก",
+      "baseUrlHintMagpie": "เว้นว่างไว้เพื่อใช้เกตเวย์ Magpie ในเครื่อง",
       "apiKey": "คีย์ API",
       "apiKeyPlaceholder": "sk-...",
       "addModel": "เพิ่มโมเดล",

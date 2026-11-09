@@ -204,6 +204,9 @@
         },
         "opencode": {
           "label": "OpenCode"
+        },
+        "magpie": {
+          "label": "Magpie"
         }
       },
       "providerTypes": {
@@ -220,6 +223,7 @@
       "baseUrl": "כתובת URL בסיסית",
       "baseUrlHint": "השאר ריק כדי להשתמש בברירת המחדל של הספק.",
       "baseUrlHintOpencode": "השאר ריק כדי להשתמש בנקודת הקצה של OpenCode בפרוטוקול הנבחר.",
+      "baseUrlHintMagpie": "השאירו ריק כדי להשתמש בשער Magpie המקומי.",
       "apiKey": "מפתח API",
       "apiKeyPlaceholder": "sk-...",
       "addModel": "הוספת מודל",
